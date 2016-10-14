@@ -1,0 +1,94 @@
+<html>
+<body>
+  <table>
+    <tr>
+        <td>
+          Select Server:
+        </td>
+        <td>
+          <select id="selectServer"  />
+        </td>
+    </tr>
+  </table>
+</body>
+
+<script src="lib/server.js"></script>
+<script src="lib/xmlhttprequest.js"></script>
+<script src="lib/webSocket.js"></script>
+<script src="lib/latencyHttpTest.js"></script>
+<script src="lib/latencyWebSocketTest.js"></script>
+<script src="lib/downloadHttpConcurrent.js"></script>
+<script>
+
+///latencyHttpTestSuite
+/*
+function latencyHttpOnComplete(result){
+  console.dir(result);
+}
+function latencyHttpOnProgress(result){
+  console.log(result);
+}
+function latencyHttpOnAbort(result){
+  console.dir(result);
+}
+function latencyHttpOnTimeout(result){
+  console.dir(result);
+}
+function latencyHttpOnError(result){
+  console.dir(result);
+}
+
+var latencyHttpTestSuite = new window.latencyHttpTest('/latency', 10 ,30000, latencyHttpOnComplete, latencyHttpOnProgress,
+latencyHttpOnAbort, latencyHttpOnTimeout,latencyHttpOnError);
+latencyHttpTestSuite.start();
+*/
+
+///latencyWebSocketTestSuite
+
+function latencyWebSocketOnComplete(result){
+  console.dir(result);
+}
+function latencyWebSocketOnProgress(result){
+  console.log(result);
+}
+function latencyWebSocketOnError(result){
+  console.dir(result);
+}
+var latencyWebSocketTest = new window.latencyWebSocketTest('ws://localhost:3001', 'GET', '0','10',3000,latencyWebSocketOnComplete,
+latencyWebSocketOnProgress,latencyWebSocketOnError);
+latencyWebSocketTest.start();
+
+
+//downloadHttpConcurrent
+/*
+function downloadHttpOnComplete(result){
+  console.dir(result);
+}
+function downloadHttpOnProgress(result){
+  //console.log(result);
+}
+function downloadHttpOnAbort(result){
+  //console.dir(result);
+}
+function downloadHttpOnTimeout(result){
+  console.dir(result);
+}
+function downloadHttpOnError(result){
+  console.dir(result);
+}
+
+var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=100000000','GET', 4 ,15000, 10000,downloadHttpOnComplete, downloadHttpOnProgress,
+downloadHttpOnAbort,downloadHttpOnTimeout,downloadHttpOnError);
+downloadHttpConcurrentTestSuite.start();
+
+*/
+
+
+
+
+
+
+
+
+
+</script>
