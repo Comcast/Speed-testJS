@@ -89,13 +89,13 @@
       * Handle the timeout event on the wrapped request
       */
      xmlHttpRequest.prototype._handleTimeout = function(response) {
-       this.endTime = Date.now();
        this.totalTime = this.endTime - this.startTime;
-       this.bandwidth = ((response.loaded * 8) / 1000000) / (this.totalTime / 1000);
+       var transferSizeMbs = (response.loaded * 8) / 1000000;
+       var transferDurationSeconds = result.totalTime/1000;
        //package results
        var result = {};
        result.latency = this.totalTime;
-       result.bandwidth = this.bandwidth;
+       result.bandwidth = transferSizeMbs/transferDurationSeconds;
        result.id = this.id;
        this.callbackTimeout(result);
   };
@@ -104,13 +104,13 @@
       */
      xmlHttpRequest.prototype._handleAbort = function(response) {
        clearTimeout(this.requestTimeout);
-       this.endTime = Date.now();
        this.totalTime = this.endTime - this.startTime;
-       this.bandwidth = ((response.loaded * 8) / 1000000) / (this.totalTime / 1000);
+       var transferSizeMbs = (response.loaded * 8) / 1000000;
+       var transferDurationSeconds = result.totalTime/1000;
        //package results
        var result = {};
        result.latency = this.totalTime;
-       result.bandwidth = this.bandwidth;
+       result.bandwidth = transferSizeMbs/transferDurationSeconds;
        result.id = this.id;
        this.callbackAbort(result);
 
@@ -132,7 +132,9 @@
               result.totalTime = Date.now() - this.startTime;
               result.id = this.id;
               if(this.method==='POST'){
-                result.bandwidth = ((this.transferSize * 8) / 1000000)/(result.totalTime/1000);
+                var transferSizeMbs = (this.transferSize * 8) / 1000000;
+                var transferDurationSeconds = result.totalTime/1000;
+                result.bandwidth = transferSizeMbs/transferDurationSeconds;
                 this.callbackComplete(result);
                 return;
               }
@@ -181,6 +183,7 @@
            //this.prevLoad = response.loaded;
          }
      }
+     //increment onProgressEvent
      this.progressCount++;
 
    };

@@ -22,15 +22,18 @@
     this.concurrentRuns = concurrentRuns;
     this.timeout = timeout;
     this.testLength = testLength;
-    this._test = null;
-    this._testIndex = 0;
-    this._results = [];
-    this._activeTests = [];
-    this._resultsHolder = {};
     this.clientCallbackComplete = callbackComplete;
     this.clientCallbackProgress = callbackProgress;
     this.clientCallbackError = callbackError;
+    //unique id or test
+    this._testIndex = 0;
+    //array holding all results
+    this._results = [];
+    //array holding active tests
+    this._activeTests = [];
+    //start time of test suite
     this._beginTime = Date.now();
+    //boolean on whether test  suite is running or not
     this._running = true;
 };
 
@@ -74,7 +77,7 @@
      this['arrayResults'+result.id];
      this._activeTests.pop(result.id,1);
      if((Date.now() - this._beginTime)< this.testLength){
-       if(this._activeTests.length ===0 && this._running){
+       if(!this._activeTests.length && this._running){
         var movingAverage = 0;
         for (var z=1;z<=this.concurrentRuns;z++){
           movingAverage += this._results[(this._results.length-z)].bandwidth;
@@ -84,9 +87,9 @@
       }
      }
      else{
-        this._running = false;
+       this._running = false;
        this.clientCallbackComplete(this._results);
-       for(var i=0;i>this._activeTests.length-1;i++){
+       for(var i=0;i<this._activeTests.length;i++){
          if (typeof(this._activeTests[i])!== 'undefined') {
          this._activeTests[i].xhr._request.abort();
         }
