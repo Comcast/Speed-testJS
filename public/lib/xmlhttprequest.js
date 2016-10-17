@@ -79,7 +79,6 @@
   * Handle eror event
   */
   xmlHttpRequest.prototype._handleError = function() {
-    console.log('xmlHttpRequest.prototype._handleError');
      var err = {
        statusText: this._request.statusText,
        status: this._request.status
@@ -90,8 +89,6 @@
       * Handle the timeout event on the wrapped request
       */
      xmlHttpRequest.prototype._handleTimeout = function(response) {
-       console.log('xmlHttpRequestTimeout');
-       console.dir(response);
        this.endTime = Date.now();
        this.totalTime = this.endTime - this.startTime;
        this.bandwidth = ((response.loaded * 8) / 1000000) / (this.totalTime / 1000);
@@ -106,8 +103,6 @@
       * Handle the abort event on the wrapped request
       */
      xmlHttpRequest.prototype._handleAbort = function(response) {
-       console.log('xmlHttpRequestAbort');
-       console.log(response);
        clearTimeout(this.requestTimeout);
        this.endTime = Date.now();
        this.totalTime = this.endTime - this.startTime;
@@ -139,6 +134,7 @@
               if(this.method==='POST'){
                 result.bandwidth = ((this.transferSize * 8) / 1000000)/(result.totalTime/1000);
                 this.callbackComplete(result);
+                return;
               }
 
           }
@@ -148,6 +144,7 @@
         status: this._request.status
       };
       this.callbackError(err);
+      return;
     }
   };
 

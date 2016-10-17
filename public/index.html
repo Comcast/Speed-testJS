@@ -81,7 +81,7 @@ function downloadHttpOnError(result){
   console.dir(result);
 }
 
-var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=10000000','GET', 4 ,30000, 15000,downloadHttpOnComplete, downloadHttpOnProgress,
+var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=100000000','GET', 4 ,15000, 10000,downloadHttpOnComplete, downloadHttpOnProgress,
 downloadHttpOnAbort,downloadHttpOnTimeout,downloadHttpOnError);
 downloadHttpConcurrentTestSuite.start();
 */

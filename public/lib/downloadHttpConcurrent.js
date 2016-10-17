@@ -73,16 +73,11 @@
         return;
       }
      this._results.push(result);
-     console.log(result);
      this['arrayResults'+result.id].push(result);
 
      this._activeTests.pop(result.id,1);
      //console.log('Time: ' + (Date.now() - this._beginTime) + '  ' + this.testLength);
      if((Date.now() - this._beginTime)< this.testLength){
-///you can fix call this when complete this.clientCallbackProgress(result);
-       for (var z=0;z<this.concurrentRuns;z++){
-         console.log(this['arrayResults'+result.id-z]);
-       }
        if(this._activeTests.length ===0 && this._running){
          this.start();
       }
