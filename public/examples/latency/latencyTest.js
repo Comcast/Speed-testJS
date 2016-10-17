@@ -69,17 +69,19 @@
         var arr = [];
         var events = document.querySelector('.events');
         events.innerHTML = '';
-        arr.push('<tr><th></th><th>Event</th><th>Results</th></tr>');
-        for (var i = 0; i < auditTrail.length; i++) {
-
-            void (auditTrail[i].event && arr.push(
-                ['<tr>',
-                    '<td>' + (i + 1) + '</td>',
-                    '<td>' + auditTrail[i].event + '</td>',
-                    '<td>' + JSON.stringify(auditTrail[i].result) + '</td>',
-                    '</tr>'].join('')));
+        if (auditTrail.length) {
+            arr.push('<table><tr><th></th><th>Event</th><th>Results</th></tr>');
+            for (var i = 0; i < auditTrail.length; i++) {
+                void (auditTrail[i].event && arr.push(
+                    ['<tr>',
+                        '<td>' + (i + 1) + '</td>',
+                        '<td>' + auditTrail[i].event + '</td>',
+                        '<td>' + JSON.stringify(auditTrail[i].result) + '</td>',
+                        '</tr>'].join('')));
+            }
+            arr.push('</table>');
+            events.innerHTML = arr.join('');
         }
-        events.innerHTML = arr.join('');
     }
 
     function initLatencyTest() {
@@ -87,15 +89,15 @@
         testButton = document.querySelector('.action-start');
         var auditButton = document.querySelector('.action-audit-trail');
         //register click event for http latency tests
-        auditTrail.push('Ready to run latencyTest');
-        displayAuditTrail();
         var testTypes = document.querySelectorAll('input[name = "testType"]');
+        document.querySelector('.events').innerHTML = 'Click "Run Test" to begin';
+
         for (var i = 0; i < testTypes.length; i++) {
             addEvent(testTypes[i], 'click', function () {
                 //reset audit trail
                 auditTrail = [];
                 //reset audit trail list
-                document.querySelector('.events').innerHTML = '';
+                document.querySelector('.events').innerHTML = 'Click "Run Test" to begin';
                 //reset lowest latency value field
                 document.querySelector('.latency').value = '';
             });
@@ -107,7 +109,7 @@
             //reset audit trail
             auditTrail = [];
             //reset audit trail list
-            document.querySelector('.events').innerHTML = '';
+            document.querySelector('.events').innerHTML = 'Click "Run Test" to begin';
             //get test type value
             var testType = document.querySelector('input[name = "testType"]:checked').value;
 
