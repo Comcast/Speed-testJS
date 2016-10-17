@@ -18,11 +18,23 @@
 			</td>
 		</tr>
 	</table>
+	<button class="action-run-latency">Run Latency Test (http only)</button>
+	<button class="action-run-latency">Run Latency Test (websockets only)</button>
 	<script src="lib/server.js"></script>
 	<script src="lib/xmlhttprequest.js"></script>
 	<script src="lib/webSocket.js"></script>
 	<script src="lib/latencyHttpTest.js"></script>
 	<script src="lib/latencyWebSocketTest.js"></script>
+	<script>
+        (function(w){
+            w.onload = initLatencyTest;
+
+            function initLatencyTest (){
+                console.log('works');
+            }
+
+            })(window);
+    </script>
 </body>
 
 </html>
