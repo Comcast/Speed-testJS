@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<base href="/" />
+	<title> Example: Latency Test</title>
+	<style type="text/css">
+		th{
+			border: 1px solid #000;
+			background-color: #000;
+			color: #fff;
+			text-align: left;
+			padding: 10px;
+		}
+		td{
+			border: 1px solid #000;
+			background-color: #fff;
+			color: #000;
+		}
+		.form-row {
+			display: block;
+			padding: 20px;
+		}
+
+		label{
+			font-weight: bold;
+		}
+
+		label.block {
+			display: block;
+			padding: 10px 0;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>Latency Test</h1>
+	<div class="form-row">
+		<p> Select Test Protocol:</p>
+		<input type="radio" name="testType" value="http" checked id="http" />
+		<label for="http">http</label>
+		<input type="radio" name="testType" value="websockets" id="websockets" />
+		<label for="websockets">websockets</label>
+	</div>
+	<div class="form-row">
+		<p class="block">Event Trail:</p>
+		<div class="events">
+		</div>
+	</div>
+	<div class="form-row">
+		<label for="latency" class="block">Latency Result (lowest value)</label>
+		<input class="latency" name="latency" id="latency" disabled/>
+	</div>
+	<div class="form-row">
+		<button class="action-start">Run Test</button>
+	</div>
+	<script src="lib/server.js"></script>
+	<script src="lib/xmlhttprequest.js"></script>
+	<script src="lib/webSocket.js"></script>
+	<script src="lib/latencyHttpTest.js"></script>
+	<script src="lib/latencyWebSocketTest.js"></script>
+	<script defer src="examples/latency/latencyTest.js"></script>
+</body>
+
+</html>
