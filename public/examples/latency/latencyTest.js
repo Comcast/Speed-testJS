@@ -1,6 +1,5 @@
 (function () {
-    window.TestSeries = window.TestSeries || {};
-    //setting the initialization method for latency test
+    //setting the initialization method for latency test suite
     window.onload = initLatencyTest;
 
     //test button node will be made available through this variable
@@ -13,9 +12,11 @@
         void (!(el.addEventListener || el.attachEvent) && function (el, ev) { el['on' + ev] = fn } (el, ev));
     }
 
+    //callback for xmlHttp complete event
     function latencyHttpOnComplete(result) {
         testButton.disabled = false;
         auditTrail.push({ event: 'latencyHttpOnComplete', result: result });
+        //an array of results are returned
         //we return the lowest calculated value
         var arr = result.sort(function (a, b) {
             return +a.time - +b.time;
@@ -25,29 +26,34 @@
         displayAuditTrail();
     }
 
+    //callback for xmlHttp progress event
     function latencyHttpOnProgress(result) {
         testButton.disabled = false;
         auditTrail.push({ event: 'latencyHttpOnProgress', result: result });
     }
 
+    //callback for xmlHttp abort event
     function latencyHttpOnAbort(result) {
         testButton.disabled = false;
         auditTrail.push({ event: 'latencyHttpOnAbort', result: result });
         displayAuditTrail();
     }
 
+    //callback for xmlHttp timeout event
     function latencyHttpOnTimeout(result) {
         testButton.disabled = false;
         auditTrail.push({ event: 'latencyHttpOnTimeout', result: result });
         displayAuditTrail();
     }
 
+    //callback for xmlHttp error event
     function latencyHttpOnError(result) {
         testButton.disabled = false;
         auditTrail.push({ event: 'latencyHttpOnError', result: result });
         displayAuditTrail();
     }
 
+    //callback for websocket complete event
     function latencyWebSocketOnComplete(result) {
         testButton.disabled = false;
         auditTrail.push({ event: 'latencyWebSocketOnComplete', result: result });
@@ -60,17 +66,20 @@
         displayAuditTrail();
     }
 
+    //callback for websocket progess event
     function latencyWebSocketOnProgress(result) {
         testButton.disabled = false;
         auditTrail.push({ event: 'latencyWebSocketOnProgress', result: result });
     }
 
+    //callback for websocket error event
     function latencyWebSocketOnError(result) {
         testButton.disabled = false;
         auditTrail.push({ event: 'latencyWebSocketOnError', result: result });
         displayAuditTrail();
     }
 
+    //displays event trail from start to completion and they api results at those different points
     function displayAuditTrail() {
         var arr = [];
         var events = document.querySelector('.events');
@@ -89,11 +98,12 @@
             events.innerHTML = arr.join('');
         }
     }
-
+    //load event callback
     function initLatencyTest() {
         //update testButton variable with testButton dom node reference
         testButton = document.querySelector('.action-start');
         var auditButton = document.querySelector('.action-audit-trail');
+
         //register click event for http latency tests
         var testTypes = document.querySelectorAll('input[name = "testType"]');
         document.querySelector('.events').innerHTML = 'Click "Run Test" to begin';
@@ -108,6 +118,8 @@
                 document.querySelector('.latency').value = '';
             });
         }
+
+        //add event
         addEvent(testButton, 'click', function (e) {
             //prevent default click action in browser;
             e.preventDefault();
@@ -120,12 +132,16 @@
             var testType = document.querySelector('input[name = "testType"]:checked').value;
 
             if (testType === 'http') {
+                //create an instance of latencyHttpTest
                 var latencyHttpTestSuite = new window.latencyHttpTest('/latency', 10, 30000, latencyHttpOnComplete, latencyHttpOnProgress,
                     latencyHttpOnAbort, latencyHttpOnTimeout, latencyHttpOnError);
+                //start latencyHttpTest
                 latencyHttpTestSuite.start();
             } else if (testType === 'websockets') {
+                //create an instance of latencyWebSocketTest
                 var latencyWebSocketTest = new window.latencyWebSocketTest('ws://localhost:3001', 'GET', '0', '10', 3000, latencyWebSocketOnComplete,
                     latencyWebSocketOnProgress, latencyWebSocketOnError);
+                //start latencyWebSocketTest
                 latencyWebSocketTest.start();
             }
         });
