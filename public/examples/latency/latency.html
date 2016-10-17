@@ -6,29 +6,27 @@
 	<base href="/" />
 	<title> Example: Latency Test</title>
 	<style type="text/css">
-		.latency,
-		.test-results {
-			border: 1px solid #ccc;
-			font-size: 16px;
+		th{
+			border: 1px solid #000;
+			background-color: #000;
+			color: #fff;
+			text-align: left;
 			padding: 10px;
-			display: inline-block;
-			min-width: 50px;
-			min-height: 10px;
 		}
-		
-		.test-results {
-			width: 25%;
-			height: 100px;
-			display: block;
+		td{
+			border: 1px solid #000;
+			background-color: #fff;
+			color: #000;
 		}
-		
 		.form-row {
 			display: block;
 			padding: 20px;
 		}
+
 		label{
 			font-weight: bold;
 		}
+
 		label.block {
 			display: block;
 			padding: 10px 0;
@@ -45,17 +43,13 @@
 		<label for="websockets">websockets</label>
 	</div>
 	<div class="form-row">
-		<label for="status" class="block">Test Status:</label>
-		<ul class="status" name="status" id="status">
-		</ul>
+		<label for="events" class="block">Event Trail:</label>
+		<table id="events" class="events">
+		</table>
 	</div>
 	<div class="form-row">
-		<label for="latency" class="block">API results</label>
+		<label for="latency" class="block">Latency Result (lowest value)</label>
 		<input class="latency" name="latency" id="latency" disabled/>
-	</div>
-	<div class="form-row">
-		<label for="json" class="block">API results (api - json)</label>
-		<textarea class="test-results" name="json" id="json"></textarea>
 	</div>
 	<div class="form-row">
 		<button class="action-start">Run Latency Test</button>

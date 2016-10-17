@@ -22,7 +22,8 @@
   * Execute the request
   */
   latencyHttpTest.prototype.start = function () {
-    this._test = new window.xmlHttpRequest('GET', this.url, this.timeout, this.onTestComplete.bind(this),
+    var cachebuster = Date.now();
+    this._test = new window.xmlHttpRequest('GET', [this.url, '?', cachebuster].join(''), this.timeout, this.onTestComplete.bind(this),
       this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
     this._testIndex++;
     this._test.start(0, this._testIndex);

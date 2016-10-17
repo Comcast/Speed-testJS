@@ -1,7 +1,11 @@
 (function () {
     window.TestSeries = window.TestSeries || {};
+    //setting the initialization method for latency test
     window.onload = initLatencyTest;
 
+    //test button node will be made available through this variable
+    var testButton;
+    var auditTrail = [];
     //event binding method for buttons
     function addEvent(el, ev, fn) {
         void (el.addEventListener && el.addEventListener(ev, fn, false));
@@ -10,55 +14,100 @@
     }
 
     function latencyHttpOnComplete(result) {
-        displayResults('.status', 'latencyHttpOnComplete');
+        testButton.disabled = false;
+        auditTrail.push({ event: 'latencyHttpOnComplete', result: result });
+        //we return the lowest calculated value
+        var arr = result.sort(function (a, b) {
+            return +a.time - +b.time;
+        });
+        //display to end user
+        document.querySelector('.latency').value = arr[0].time + 'ms';
+        displayAuditTrail();
     }
+
     function latencyHttpOnProgress(result) {
-        displayResults('.status', 'latencyHttpOnProgress');
-        displayResults('.latency', result.time);
-        displayResults('.test-results', JSON.stringify(result));
+        testButton.disabled = false;
+        auditTrail.push({ event: 'latencyHttpOnProgress', result: result });
     }
+
     function latencyHttpOnAbort(result) {
-        displayResults('.status', 'latencyHttpOnAbort');
+        testButton.disabled = false;
+        auditTrail.push({ event: 'latencyHttpOnAbort', result: result });
+        displayAuditTrail();
     }
+
     function latencyHttpOnTimeout(result) {
-        displayResults('.status', 'latencyHttpOnTimeout');
+        testButton.disabled = false;
+        auditTrail.push({ event: 'latencyHttpOnTimeout', result: result });
+        displayAuditTrail();
     }
+
     function latencyHttpOnError(result) {
-        displayResults('.status', 'latencyHttpOnError');
+        testButton.disabled = false;
+        auditTrail.push({ event: 'latencyHttpOnError', result: result });
+        displayAuditTrail();
     }
 
     function latencyWebSocketOnComplete(result) {
-        displayResults('.status', 'latencyWebSocketOnComplete');
-    }
-    function latencyWebSocketOnProgress(result) {
-        displayResults('.status', 'latencyWebSocketOnProgress');
-        displayResults('.latency', result.time);
-        displayResults('.test-results', JSON.stringify(result));
-    }
-    function latencyWebSocketOnError(result) {
-        displayResults('.status', 'latencyWebSocketOnError');
+        testButton.disabled = false;
+        auditTrail.push({ event: 'latencyWebSocketOnComplete', result: result });
+        displayAuditTrail();
     }
 
-    function displayResults(selector, content) {
-        var results = document.querySelector(selector);
-        if (results && results.value) {
-            results.value = content || '';
-            return;
-        } 
-       results.innerHTML= content || '';
+    function latencyWebSocketOnProgress(result) {
+        testButton.disabled = false;
+        auditTrail.push({ event: 'latencyWebSocketOnProgress', result: result });
+    }
+
+    function latencyWebSocketOnError(result) {
+        testButton.disabled = false;
+        auditTrail.push({ event: 'latencyWebSocketOnError', result: result });
+        displayAuditTrail();
+    }
+
+    function displayAuditTrail() {
+        var arr = [];
+        var events = document.querySelector('.events');
+        events.innerHTML = '';
+        arr.push('<tr><th></th><th>Event</th><th>Results</th></tr>');
+        for (var i = 0; i < auditTrail.length; i++) {
+
+            void (auditTrail[i].event && arr.push(
+                ['<tr>',
+                    '<td>' + (i + 1) + '</td>',
+                    '<td>' + auditTrail[i].event + '</td>',
+                    '<td>' + JSON.stringify(auditTrail[i].result) + '</td>',
+                    '</tr>'].join('')));
+        }
+        events.innerHTML = arr.join('');
     }
 
     function initLatencyTest() {
-        var testButton = document.querySelector('.action-start');
+        //update testButton variable with testButton dom node reference
+        testButton = document.querySelector('.action-start');
+        var auditButton = document.querySelector('.action-audit-trail');
         //register click event for http latency tests
+        auditTrail.push('Ready to run latencyTest');
+        displayAuditTrail();
+        var testTypes = document.querySelectorAll('input[name = "testType"]');
+        for (var i = 0; i < testTypes.length; i++) {
+            addEvent(testTypes[i], 'click', function () {
+                //reset audit trail
+                auditTrail = [];
+                //reset audit trail list
+                document.querySelector('.events').innerHTML = '';
+            });
+        }
         addEvent(testButton, 'click', function (e) {
             //prevent default click action in browser;
             e.preventDefault();
+            testButton.disabled = true;
+            //reset audit trail
+            auditTrail = [];
+            //reset audit trail list
+            document.querySelector('.events').innerHTML = '';
+            //get test type value
             var testType = document.querySelector('input[name = "testType"]:checked').value;
-            //clear the display results;
-            displayResults('.status', '');
-            displayResults('.latency', '');
-            displayResults('.test-results', '');
 
             if (testType === 'http') {
                 var latencyHttpTestSuite = new window.latencyHttpTest('/latency', 10, 30000, latencyHttpOnComplete, latencyHttpOnProgress,
