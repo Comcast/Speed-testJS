@@ -92,10 +92,12 @@
       else {
         var total = 0;
         this._running = false;
-        for (var j = 0; j < this.finalResults.length; j++) {
-          total += this.finalResults[j];
+        if (this.finalResults) {
+          for (var j = 0; j < this.finalResults.length; j++) {
+            total += this.finalResults[j];
+          }
+          var finalValue = total / this.finalResults.length;
         }
-        var finalValue = total / this.finalResults.length;
         this.clientCallbackComplete(finalValue);
         for(var i=0;i>this._activeTests.length-1;i++){
           if (typeof(this._activeTests[i])!== 'undefined') {
