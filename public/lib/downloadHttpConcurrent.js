@@ -25,25 +25,6 @@
     this.finalResults = [];
 };
 
-  /**
-   * Monitor testSeries.. finish testSeries by testTime... increase size or check for timeouts
-   */
-  /*
-  downloadHttpConcurrent.prototype._monitor = function () {
-    //stop testSeries
-  //  if (((Date.now() - this._beginTime)) > this.testLength) {
-
-    if(this._testIndex > 20 && this.running){
-      this.running = false;
-      for(var i=0;this._activeTests.length-1;i++){
-        this._activeTests[i].xhr.close();
-      }
-      clearInterval(this.interval);
-      //this.cancel();
-      //this.trigger('complete', this._results);
-    }
-  };
-  */
     /**
     * onError method
     * @return abort object
