@@ -108,7 +108,7 @@ function uploadHttpOnError(result){
 }
 
 var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent('/upload','POST',2,15000,15000,uploadHttpOnComplete, uploadHttpOnProgress,
-uploadHttpOnAbort,uploadHttpOnTimeout,uploadHttpOnError,500000);
+uploadHttpOnError,500000);
 uploadHttpConcurrentTestSuite.start();
 
 
