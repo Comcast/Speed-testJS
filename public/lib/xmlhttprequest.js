@@ -158,7 +158,11 @@
       var result = {};
       result.time = this.totalTime;
       this.totalBytes += response.loaded;
+<<<<<<< d215adbc84fd2fcc4977e5bad59922101186dfae
       result.bandwidth = ((response.loaded * 8 / 1000000) / (this.totalTime / 1000));
+=======
+      result.bandwidth = (response.loaded * 8 / 1000000) / (this.totalTime / 1000);
+>>>>>>> added function to calculate download moving average for on complete events
       result.id = this.id;
       if(this.method==='GET'){
         this.callbackComplete(result);
@@ -169,7 +173,6 @@
     * Handle onProgress
     */
    xmlHttpRequest.prototype._handleOnProgressDownload = function (response) {
-
      if (this.progressCount > 0) {
          if ((response.timeStamp - this.prevTime > 100)) {
            this.totalBytes += response.loaded;

@@ -22,6 +22,7 @@
 <script>
 
 ///latencyHttpTestSuite
+<<<<<<< d215adbc84fd2fcc4977e5bad59922101186dfae
 /*
 function latencyHttpOnComplete(result){
   console.dir(result);
@@ -43,6 +44,30 @@ var latencyHttpTestSuite = new window.latencyHttpTest('/latency', 10 ,30000, lat
 latencyHttpOnAbort, latencyHttpOnTimeout,latencyHttpOnError);
 latencyHttpTestSuite.start();
 */
+=======
+
+// function latencyHttpOnComplete(result){
+//   console.dir(result);
+// }
+// function latencyHttpOnProgress(result){
+//   console.log(result);
+// }
+// function latencyHttpOnAbort(result){
+//   console.dir(result);
+// }
+// function latencyHttpOnTimeout(result){
+//   console.dir(result);
+// }
+// function latencyHttpOnError(result){
+//   console.dir(result);
+// }
+//
+// var latencyHttpTestSuite = new window.latencyHttpTest('/latency', 10 ,30000, latencyHttpOnComplete, latencyHttpOnProgress,
+// latencyHttpOnAbort, latencyHttpOnTimeout,latencyHttpOnError);
+// latencyHttpTestSuite.start();
+
+
+>>>>>>> added function to calculate download moving average for on complete events
 ///latencyWebSocketTestSuite
 /*
 function latencyWebSocketOnComplete(result){
@@ -57,19 +82,24 @@ function latencyWebSocketOnError(result){
 var latencyWebSocketTest = new window.latencyWebSocketTest('ws://localhost:3001', 'GET', '0','10',3000,latencyWebSocketOnComplete,
 latencyWebSocketOnProgress,latencyWebSocketOnError);
 latencyWebSocketTest.start();
+<<<<<<< d215adbc84fd2fcc4977e5bad59922101186dfae
 
 
 */
 
 
 
+=======
+*/
+
+>>>>>>> added function to calculate download moving average for on complete events
 //downloadHttpConcurrent
-/*
+
 function downloadHttpOnComplete(result){
   console.dir(result);
 }
 function downloadHttpOnProgress(result){
-  //console.log(result);
+  console.log(result);
 }
 function downloadHttpOnAbort(result){
   //console.dir(result);
@@ -81,10 +111,14 @@ function downloadHttpOnError(result){
   console.dir(result);
 }
 
-var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=100000000','GET', 4 ,15000, 10000,downloadHttpOnComplete, downloadHttpOnProgress,
+var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=10000000','GET', 4 ,15000, 10000,downloadHttpOnComplete, downloadHttpOnProgress,
 downloadHttpOnAbort,downloadHttpOnTimeout,downloadHttpOnError);
 downloadHttpConcurrentTestSuite.start();
+<<<<<<< d215adbc84fd2fcc4977e5bad59922101186dfae
 */
+=======
+
+>>>>>>> added function to calculate download moving average for on complete events
 
 
 //uploadHttpConcurrent
