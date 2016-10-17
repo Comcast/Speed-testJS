@@ -96,6 +96,8 @@
                 auditTrail = [];
                 //reset audit trail list
                 document.querySelector('.events').innerHTML = '';
+                //reset lowest latency value field
+                document.querySelector('.latency').value = '';
             });
         }
         addEvent(testButton, 'click', function (e) {
