@@ -21,7 +21,7 @@
             return +a.time - +b.time;
         });
         //display to end user
-        document.querySelector('.latency').value = arr[0].time + 'ms';
+        document.querySelector('.latency').value = arr[0].time + ' ms';
         displayAuditTrail();
     }
 
@@ -51,6 +51,12 @@
     function latencyWebSocketOnComplete(result) {
         testButton.disabled = false;
         auditTrail.push({ event: 'latencyWebSocketOnComplete', result: result });
+        //we return the lowest calculated value
+        var arr = result.sort(function (a, b) {
+            return +a.time - +b.time;
+        });
+        //display to end user
+        document.querySelector('.latency').value = arr[0].time + 'ms';
         displayAuditTrail();
     }
 
