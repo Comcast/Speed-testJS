@@ -10,36 +10,42 @@
     }
 
     function latencyHttpOnComplete(result) {
-        console.dir(result);
+        displayResults('.status', 'latencyHttpOnComplete');
     }
     function latencyHttpOnProgress(result) {
+        displayResults('.status', 'latencyHttpOnProgress');
         displayResults('.latency', result.time);
         displayResults('.test-results', JSON.stringify(result));
     }
     function latencyHttpOnAbort(result) {
-        console.dir(result);
+        displayResults('.status', 'latencyHttpOnAbort');
     }
     function latencyHttpOnTimeout(result) {
-        console.dir(result);
+        displayResults('.status', 'latencyHttpOnTimeout');
     }
     function latencyHttpOnError(result) {
-        console.dir(result);
+        displayResults('.status', 'latencyHttpOnError');
     }
 
     function latencyWebSocketOnComplete(result) {
-        console.dir(result);
+        displayResults('.status', 'latencyWebSocketOnComplete');
     }
     function latencyWebSocketOnProgress(result) {
+        displayResults('.status', 'latencyWebSocketOnProgress');
         displayResults('.latency', result.time);
         displayResults('.test-results', JSON.stringify(result));
     }
     function latencyWebSocketOnError(result) {
-        console.dir(result);
+        displayResults('.status', 'latencyWebSocketOnError');
     }
 
     function displayResults(selector, content) {
         var results = document.querySelector(selector);
-        results.value = content || '';
+        if (results && results.value) {
+            results.value = content || '';
+            return;
+        } 
+       results.innerHTML= content || '';
     }
 
     function initLatencyTest() {
@@ -50,6 +56,7 @@
             e.preventDefault();
             var testType = document.querySelector('input[name = "testType"]:checked').value;
             //clear the display results;
+            displayResults('.status', '');
             displayResults('.latency', '');
             displayResults('.test-results', '');
 
