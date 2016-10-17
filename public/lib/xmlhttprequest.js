@@ -27,6 +27,7 @@
     this.callbackAbort = callbackAbort;
     this.callbackTimeout = callbackTimeout;
     this.callbackError = callbackError;
+    this.requestTimeout;
   };
   /**
    * Initiate the request
@@ -39,7 +40,8 @@
        this._request.onloadstart = this._handleLoadstart.bind(this);
        this._request.onload = this._handleLoad.bind(this);
        this._request.onabort = this._handleAbort.bind(this);
-       this._request.ontimout = this._handleTimeout.bind(this);
+       this._request.timout = this._handleTimeout.bind(this);
+       this.requestTimeout= setTimeout(this._request.abort.bind(this._request), this.timeout);
        this._request.onerror = this._handleError.bind(this);
        this._request.onreadystatechange = this._handleOnReadyStateChange.bind(this);
        if(this.method==='GET') {
@@ -57,11 +59,10 @@
       this._initiateRequest();
       this.id = id;
       this.transferSize = size;
-      // Set values for request and initiate
-      this._request.timeout = this.timeout;
       this._request.open(this.method, this.url, true);
+      this._request.timeout = this.timeout;
       if(this.method==='POST') {
-        this._request.send(getRandomString(size));
+        this._request.send(getRandomString(this.transferSize));
       }
       else{
         this._request.send(null);
@@ -78,17 +79,19 @@
   * Handle eror event
   */
   xmlHttpRequest.prototype._handleError = function() {
-     // TODO: Demeter would be mad...
-     var request = this._testRequest._request;
+    console.log('xmlHttpRequest.prototype._handleError');
      var err = {
        statusText: this._request.statusText,
        status: this._request.status
      };
+     this.callbackError(err);
    };
     /**
       * Handle the timeout event on the wrapped request
       */
      xmlHttpRequest.prototype._handleTimeout = function(response) {
+       console.log('xmlHttpRequestTimeout');
+       console.dir(response);
        this.endTime = Date.now();
        this.totalTime = this.endTime - this.startTime;
        this.bandwidth = ((response.loaded * 8) / 1000000) / (this.totalTime / 1000);
@@ -103,6 +106,9 @@
       * Handle the abort event on the wrapped request
       */
      xmlHttpRequest.prototype._handleAbort = function(response) {
+       console.log('xmlHttpRequestAbort');
+       console.log(response);
+       clearTimeout(this.requestTimeout);
        this.endTime = Date.now();
        this.totalTime = this.endTime - this.startTime;
        this.bandwidth = ((response.loaded * 8) / 1000000) / (this.totalTime / 1000);
@@ -125,26 +131,39 @@
    * Handle the load event on the wrapped request
    */
   xmlHttpRequest.prototype._handleOnReadyStateChange = function () {
+
     if(this._request.readyState === 4 && this._request.status === 200) {
-      //console.log('_handleOnReadyStateChange: : ' + this.totalBytes);
               var result = {};
-              result.latency = Date.now() - this.prevTime;
+              result.totalTime = Date.now() - this.startTime;
               result.id = this.id;
-              result.bandwidth = ((this._request.response.length * 8) / 1000000)/(result.latency/1000);
+              if(this.method==='POST'){
+                result.bandwidth = ((this.transferSize * 8) / 1000000)/(result.totalTime/1000);
+                this.callbackComplete(result);
+              }
+
           }
+    if(this._request.status > 399){
+      var err = {
+        statusText: this._request.statusText,
+        status: this._request.status
+      };
+      this.callbackError(err);
+    }
   };
 
   /**
    * Handle the load event on the wrapped request
    */
   xmlHttpRequest.prototype._handleLoad = function (response) {
-      this.totalTime = Date.now() - this.prevTime;
+      this.totalTime = Date.now() - this.startTime;
       var result = {};
       result.time = this.totalTime;
       this.totalBytes += response.loaded;
-      result.bandwidth = ((this.totalBytes - this.prevLoad) * 8 / 1000000) / ((Date.now() - this.prevTime) / 1000);
+      result.bandwidth = ((response.loaded * 8 / 1000000) / (this.totalTime / 1000));
       result.id = this.id;
-      this.callbackComplete(result);
+      if(this.method==='GET'){
+        this.callbackComplete(result);
+      }
   };
 
   /**
@@ -159,9 +178,10 @@
            result.duration = ((response.timeStamp - this.prevTime) / 1000);
            result.bandwidth = ((response.loaded - this.prevLoad) * 8 / 1000000) / result.duration;
            result.id = this.id;
-           this.callbackProgress(result);
-           this.prevTime = response.timeStamp;
-           this.prevLoad = response.loaded;
+
+           //this.callbackProgress(result);
+           //this.prevTime = response.timeStamp;
+           //this.prevLoad = response.loaded;
          }
      }
      this.progressCount++;
@@ -174,20 +194,30 @@
     xmlHttpRequest.prototype._handleOnProgressUpload = function (response) {
 
       if (this.progressCount > 0) {
-          if ((response.timeStamp - this.prevTime > 100)) {
-            //TODO onprogress event is not firing
             var result = {};
             result.duration = ((response.timeStamp - this.prevTime) / 1000);
             result.bandwidth = ((response.loaded - this.prevLoad) * 8 / 1000000) / result.duration;
             result.id = this.id;
-            this.callbackProgress(result);
-            this.prevTime = response.timeStamp;
-            this.prevLoad = response.loaded;
-          }
+            //this.callbackProgress(result);
+            //this.prevTime = response.timeStamp;
+            //this.prevLoad = response.loaded;
+
       }
       this.progressCount++;
 
     };
+
+    function getRandomString (size) {
+      var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
+        result = '';
+      for (var index = 0; index < size; index++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+
+
 window.xmlHttpRequest = xmlHttpRequest;
 
   })();

@@ -18,10 +18,11 @@
 <script src="lib/latencyHttpTest.js"></script>
 <script src="lib/latencyWebSocketTest.js"></script>
 <script src="lib/downloadHttpConcurrent.js"></script>
+<script src="lib/uploadHttpConcurrent.js"></script>
 <script>
 
 ///latencyHttpTestSuite
-
+/*
 function latencyHttpOnComplete(result){
   console.dir(result);
 }
@@ -41,8 +42,7 @@ function latencyHttpOnError(result){
 var latencyHttpTestSuite = new window.latencyHttpTest('/latency', 10 ,30000, latencyHttpOnComplete, latencyHttpOnProgress,
 latencyHttpOnAbort, latencyHttpOnTimeout,latencyHttpOnError);
 latencyHttpTestSuite.start();
-
-
+*/
 ///latencyWebSocketTestSuite
 /*
 function latencyWebSocketOnComplete(result){
@@ -58,7 +58,11 @@ var latencyWebSocketTest = new window.latencyWebSocketTest('ws://localhost:3001'
 latencyWebSocketOnProgress,latencyWebSocketOnError);
 latencyWebSocketTest.start();
 
+
 */
+
+
+
 //downloadHttpConcurrent
 /*
 function downloadHttpOnComplete(result){
@@ -77,12 +81,35 @@ function downloadHttpOnError(result){
   console.dir(result);
 }
 
-var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=100000000','GET', 4 ,15000, 10000,downloadHttpOnComplete, downloadHttpOnProgress,
+var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=10000000','GET', 4 ,30000, 15000,downloadHttpOnComplete, downloadHttpOnProgress,
 downloadHttpOnAbort,downloadHttpOnTimeout,downloadHttpOnError);
 downloadHttpConcurrentTestSuite.start();
-
 */
 
+
+//uploadHttpConcurrent
+
+
+
+function uploadHttpOnComplete(result){
+  //console.log('index: ' + result);
+}
+function uploadHttpOnProgress(result){
+  console.log('indexTestProgres: ' + result);
+}
+function uploadHttpOnAbort(result){
+  //console.dir(result);
+}
+function uploadHttpOnTimeout(result){
+  console.dir(result);
+}
+function uploadHttpOnError(result){
+  console.dir(result);
+}
+
+var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent('/upload','POST',2,15000,15000,uploadHttpOnComplete, uploadHttpOnProgress,
+uploadHttpOnAbort,uploadHttpOnTimeout,uploadHttpOnError,500000);
+uploadHttpConcurrentTestSuite.start();
 
 
 
