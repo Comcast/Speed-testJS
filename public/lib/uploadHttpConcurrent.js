@@ -29,6 +29,8 @@
     this._testIndex = 0;
     //array holding all results
     this._results = [];
+    //array holding all movong results
+    this._finalResults = [];
     //array holding active tests
     this._activeTests = [];
     //start time of test suite
@@ -83,12 +85,13 @@
           movingAverage += this._results[(this._results.length-z)].bandwidth;
         }
          this.clientCallbackProgress(movingAverage);
+         this._finalResults.push(movingAverage);
          this.start();
       }
      }
      else{
        this._running = false;
-       this.clientCallbackComplete(this._results);
+       this.clientCallbackComplete(this._finalResults);
        for(var i=0;i<this._activeTests.length;i++){
          if (typeof(this._activeTests[i])!== 'undefined') {
          this._activeTests[i].xhr._request.abort();
