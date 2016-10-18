@@ -195,9 +195,15 @@
 
       if (this.progressCount > 0) {
             var result = {};
-            result.duration = ((response.timeStamp - this.prevTime) / 1000);
-            result.bandwidth = ((response.loaded - this.prevLoad) * 8 / 1000000) / result.duration;
+            this.totalTime = Date.now() - this.prevTime;
+            //only report value is
+            if(this.totalTime>0){
+            result.totalTime = this.totalTime;
+            var transferSizeMbs = (response.loaded * 8) / 1000000;
+            var transferDurationSeconds = result.totalTime/1000;
+            result.bandwidth = transferSizeMbs/transferDurationSeconds;
             result.id = this.id;
+          }
             //this.callbackProgress(result);
             //this.prevTime = response.timeStamp;
             //this.prevLoad = response.loaded;
@@ -211,7 +217,8 @@
       var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
         result = '';
       for (var index = 0; index < size; index++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+        var randomChars = Math.floor(Math.random() * chars.length)
+        result += chars.charAt(randomChars);
       }
       return result;
     }
