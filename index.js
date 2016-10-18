@@ -1,15 +1,16 @@
 var express = require('express')
 var path = require('path');
 var stream = require('stream');
-var app = express()
+var app = express();
 var WebSocketServer = require('ws').Server;
-
 var domain = require('./modules/domain');
 var validateIP = require('validate-ip-node');
+var statisticalCalculator = require('./modules/statisticalCalculator');
 
 //variables
 var webPort = 3000;
 var webSocketPort = 3001;
+
 /**
  * Latency test endpoint
  */
@@ -40,7 +41,6 @@ app.get('/download', function (req, res) {
      bufferStream.write(responseBuffer);
      bufferStream.end();
 });
-
 
 /**
  * TestPlan endpoint
@@ -87,6 +87,21 @@ app.get('/testplan', function (req, res) {
     res.json(JSON.stringify(testPlan));
 });
 
+/**
+ * calculator end point to measure the calculations
+ */
+app.post('/calculator', function (req, res) {
+  try {
+    if ((req.body).length <= 0) {
+      throw('error');
+    }
+    var results = new statisticalCalculator.getResults(data, false);
+    res.send(results);
+  }
+  catch (error) {
+    res.status(400).json({'errorMessage': error});
+  }
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -98,7 +113,7 @@ var wss = new WebSocketServer({port: 3001 });
 wss.on('connection', function connection(ws) {
   console.log('client connected');
 
-  ws.on('message', function incoming(messageObj, flags) {
+  ws.on('message', function incoming(messageObj) {
     var message = JSON.parse(messageObj);
 /*
     if (message.flag === 'download'){
