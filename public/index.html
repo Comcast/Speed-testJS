@@ -43,7 +43,8 @@ var latencyHttpTestSuite = new window.latencyHttpTest('/latency', 10 ,30000, lat
 latencyHttpOnAbort, latencyHttpOnTimeout,latencyHttpOnError);
 latencyHttpTestSuite.start();
 */
-///latencyWebSocketTestSuite
+
+//latencyWebSocketTestSuite
 /*
 function latencyWebSocketOnComplete(result){
   console.dir(result);
@@ -61,15 +62,13 @@ latencyWebSocketTest.start();
 
 */
 
-
-
 //downloadHttpConcurrent
-/*
+
 function downloadHttpOnComplete(result){
   console.dir(result);
 }
 function downloadHttpOnProgress(result){
-  //console.log(result);
+  console.log(result);
 }
 function downloadHttpOnAbort(result){
   //console.dir(result);
@@ -81,15 +80,12 @@ function downloadHttpOnError(result){
   console.dir(result);
 }
 
-var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=100000000','GET', 4 ,15000, 10000,downloadHttpOnComplete, downloadHttpOnProgress,
+var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=10000000','GET', 4 ,15000, 10000,downloadHttpOnComplete, downloadHttpOnProgress,
 downloadHttpOnAbort,downloadHttpOnTimeout,downloadHttpOnError);
 downloadHttpConcurrentTestSuite.start();
-*/
 
-
+/*
 //uploadHttpConcurrent
-
-
 
 function uploadHttpOnComplete(result){
   console.dir(result);
@@ -110,7 +106,7 @@ function uploadHttpOnError(result){
 var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent('/upload','POST',2,15000,15000,uploadHttpOnComplete, uploadHttpOnProgress,
 uploadHttpOnError,500000);
 uploadHttpConcurrentTestSuite.start();
-
+*/
 
 
 

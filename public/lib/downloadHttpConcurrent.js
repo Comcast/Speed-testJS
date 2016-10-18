@@ -22,27 +22,9 @@
     this.clientCallbackError = callbackError;
     this._beginTime = Date.now();
     this._running = true;
-};
-
-  /**
-   * Monitor testSeries.. finish testSeries by testTime... increase size or check for timeouts
-   */
-  /*
-  downloadHttpConcurrent.prototype._monitor = function () {
-    //stop testSeries
-  //  if (((Date.now() - this._beginTime)) > this.testLength) {
-
-    if(this._testIndex > 20 && this.running){
-      this.running = false;
-      for(var i=0;this._activeTests.length-1;i++){
-        this._activeTests[i].xhr.close();
-      }
-      clearInterval(this.interval);
-      //this.cancel();
-      //this.trigger('complete', this._results);
-    }
+    this.finalResults = [];
   };
-  */
+
     /**
     * onError method
     * @return abort object
@@ -69,28 +51,47 @@
     * @return array of latencies
     */
     downloadHttpConcurrent.prototype.onTestComplete = function(result){
+
       if(!this._running){
         return;
       }
-     this._results.push(result);
-     this['arrayResults'+result.id].push(result);
-
-     this._activeTests.pop(result.id,1);
-     //console.log('Time: ' + (Date.now() - this._beginTime) + '  ' + this.testLength);
-     if((Date.now() - this._beginTime)< this.testLength){
-       if(this._activeTests.length ===0 && this._running){
-         this.start();
-      }
-     }
-     else{
-      this._running = false;
-       this.clientCallbackComplete(this._results);
-       for(var i=0;i>this._activeTests.length-1;i++){
-         if (typeof(this._activeTests[i])!== 'undefined') {
-         this._activeTests[i].xhr._request.abort();
+      //pushing results to an array
+      this._results.push(result);
+      this['arrayResults'+result.id];
+      //remove requests from active test array
+      this._activeTests.pop(result.id,1);
+      //checking if we can continue with the test
+      if((Date.now() - this._beginTime) < this.testLength){
+        if(this._activeTests.length === 0 && this._running){
+          var singleMovingAverage = 0;
+          for (var j = 1; j <= this.concurrentRuns; j++){
+            singleMovingAverage += this._results[(this._results.length-j)].bandwidth;
+          }
+          this.finalResults.push(singleMovingAverage);
+          this.clientCallbackProgress(singleMovingAverage);
+          this.start();
         }
-       }
-     }
+      }
+      else {
+        var total = 0;
+        this._running = false;
+        if (this.finalResults && this.finalResults.length) {
+          //TODO use statistical calculator to calculate the end result
+          for (var j = 0; j < this.finalResults.length; j++) {
+            total += this.finalResults[j];
+          }
+          var finalValue = total / this.finalResults.length;
+          this.clientCallbackComplete(finalValue);
+        } else {
+          this.clientCallbackError('no measurements obtained');
+        }
+        for(var i = 0; i < this._activeTests.length; i++){
+          if (typeof(this._activeTests[i])!== 'undefined') {
+            this._activeTests[i].xhr._request.abort();
+          }
+
+        }
+      }
     };
 
     /**
@@ -129,12 +130,6 @@
             this.test.start(this.size, this._testIndex);
           }
         }
-          /*
-            var self = this;
-            this.interval = setInterval(function () {
-              self._monitor();
-            }, 100);
-            */
       }
 
   window.downloadHttpConcurrent = downloadHttpConcurrent;

@@ -106,7 +106,7 @@
        clearTimeout(this.requestTimeout);
        this.totalTime = this.endTime - this.startTime;
        var transferSizeMbs = (response.loaded * 8) / 1000000;
-       var transferDurationSeconds = result.totalTime/1000;
+       var transferDurationSeconds = this.totalTime/1000;
        //package results
        var result = {};
        result.latency = this.totalTime;
@@ -158,9 +158,11 @@
       var result = {};
       result.time = this.totalTime;
       this.totalBytes += response.loaded;
-      result.bandwidth = ((response.loaded * 8 / 1000000) / (this.totalTime / 1000));
+      var transferSizeMbs = response.loaded * 8 / 1000000;
+      var transferDurationSeconds = this.totalTime/1000;
+      result.bandwidth = transferSizeMbs / transferDurationSeconds;
       result.id = this.id;
-      if(this.method==='GET'){
+      if(this.method === 'GET'){
         this.callbackComplete(result);
       }
   };
@@ -169,7 +171,6 @@
     * Handle onProgress
     */
    xmlHttpRequest.prototype._handleOnProgressDownload = function (response) {
-
      if (this.progressCount > 0) {
          if ((response.timeStamp - this.prevTime > 100)) {
            this.totalBytes += response.loaded;
