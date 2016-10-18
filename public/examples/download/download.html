@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<base href="/" />
+	<title> Example: Download Test</title>
+	<style type="text/css">
+		th{
+			border: 1px solid #000;
+			background-color: #000;
+			color: #fff;
+			text-align: left;
+			padding: 10px;
+		}
+		td{
+			border: 1px solid #000;
+			background-color: #fff;
+			color: #000;
+		}
+		.form-row {
+			display: block;
+			padding: 20px;
+		}
+
+		label{
+			font-weight: bold;
+		}
+
+		label.block {
+			display: block;
+			padding: 10px 0;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>Download Test</h1>
+	<div class="form-row">
+		<p> Select IP version:</p>
+		<input type="checkbox" name="testType" value="IPv4" checked id="IPv4" />
+		<label for="IPv4">IPv4</label>
+		<input type="checkbox" name="testType" value="IPV6" id="IPv6" />
+		<label for="websockets">IPv6</label>
+	</div>
+	<div class="form-row">
+		<p class="block">Event Trail:</p>
+		<div class="events">
+		</div>
+	</div>
+	<div class="form-row">
+		<label for="download-IPv4" class="block">Download IPv4 Result</label>
+		<input class="download-IPv4" name="download-IPv4" id="download-IPv4" disabled/>
+		<label for="download-IPv6" class="block">Download IPv6 Result</label>
+		<input class="download-IPv6" name="download-IPv6" id="download-IPv6" disabled/>
+	</div>
+	<div class="form-row">
+		<button class="action-start">Run Test</button>
+	</div>
+	<script src="lib/server.js"></script>
+	<script src="lib/xmlhttprequest.js"></script>
+	<script src="lib/downloadHttpConcurrent.js"></script>
+	<script defer src="examples/download/downloadTest.js"></script>
+</body>
+
+</html>
