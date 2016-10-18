@@ -73,18 +73,17 @@
         return;
       }
      this._results.push(result);
-     this['arrayResults'+reuslt.id] 
-     this.clientCallbackProgress(result);
+     this['arrayResults'+result.id].push(result);
+
      this._activeTests.pop(result.id,1);
      //console.log('Time: ' + (Date.now() - this._beginTime) + '  ' + this.testLength);
      if((Date.now() - this._beginTime)< this.testLength){
-     //if(this._testIndex <= 21){
        if(this._activeTests.length ===0 && this._running){
          this.start();
       }
      }
      else{
-        this._running = false;
+      this._running = false;
        this.clientCallbackComplete(this._results);
        for(var i=0;i>this._activeTests.length-1;i++){
          if (typeof(this._activeTests[i])!== 'undefined') {
