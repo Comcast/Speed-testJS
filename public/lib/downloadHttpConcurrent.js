@@ -23,7 +23,7 @@
     this._beginTime = Date.now();
     this._running = true;
     this.finalResults = [];
-};
+  };
 
     /**
     * onError method
@@ -55,29 +55,12 @@
       if(!this._running){
         return;
       }
-<<<<<<< d215adbc84fd2fcc4977e5bad59922101186dfae
-     this._results.push(result);
-     this['arrayResults'+result.id].push(result);
-
-     this._activeTests.pop(result.id,1);
-     //console.log('Time: ' + (Date.now() - this._beginTime) + '  ' + this.testLength);
-     if((Date.now() - this._beginTime)< this.testLength){
-       if(this._activeTests.length ===0 && this._running){
-         this.start();
-      }
-     }
-     else{
-      this._running = false;
-       this.clientCallbackComplete(this._results);
-       for(var i=0;i>this._activeTests.length-1;i++){
-         if (typeof(this._activeTests[i])!== 'undefined') {
-         this._activeTests[i].xhr._request.abort();
-=======
-
+      //pushing results to an array
       this._results.push(result);
       this['arrayResults'+result.id];
-
+      //remove requests from active test array
       this._activeTests.pop(result.id,1);
+      //checking if we can continue with the test
       if((Date.now() - this._beginTime) < this.testLength){
         if(this._activeTests.length === 0 && this._running){
           var singleMovingAverage = 0;
@@ -92,18 +75,21 @@
       else {
         var total = 0;
         this._running = false;
-        if (this.finalResults) {
+        if (this.finalResults && this.finalResults.length) {
+          //TODO use statistical calculator to calculate the end result
           for (var j = 0; j < this.finalResults.length; j++) {
             total += this.finalResults[j];
           }
           var finalValue = total / this.finalResults.length;
+          this.clientCallbackComplete(finalValue);
+        } else {
+          this.clientCallbackError('no measurements obtained');
         }
-        this.clientCallbackComplete(finalValue);
-        for(var i=0;i>this._activeTests.length-1;i++){
+        for(var i = 0; i < this._activeTests.length; i++){
           if (typeof(this._activeTests[i])!== 'undefined') {
             this._activeTests[i].xhr._request.abort();
           }
->>>>>>> added function to calculate download moving average for on complete events
+
         }
       }
     };

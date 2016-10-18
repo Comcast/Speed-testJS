@@ -106,7 +106,7 @@
        clearTimeout(this.requestTimeout);
        this.totalTime = this.endTime - this.startTime;
        var transferSizeMbs = (response.loaded * 8) / 1000000;
-       var transferDurationSeconds = result.totalTime/1000;
+       var transferDurationSeconds = this.totalTime/1000;
        //package results
        var result = {};
        result.latency = this.totalTime;
@@ -158,13 +158,11 @@
       var result = {};
       result.time = this.totalTime;
       this.totalBytes += response.loaded;
-<<<<<<< d215adbc84fd2fcc4977e5bad59922101186dfae
-      result.bandwidth = ((response.loaded * 8 / 1000000) / (this.totalTime / 1000));
-=======
-      result.bandwidth = (response.loaded * 8 / 1000000) / (this.totalTime / 1000);
->>>>>>> added function to calculate download moving average for on complete events
+      var transferSizeMbs = response.loaded * 8 / 1000000;
+      var transferDurationSeconds = this.totalTime/1000;
+      result.bandwidth = transferSizeMbs / transferDurationSeconds;
       result.id = this.id;
-      if(this.method==='GET'){
+      if(this.method === 'GET'){
         this.callbackComplete(result);
       }
   };
