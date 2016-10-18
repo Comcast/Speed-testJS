@@ -112,7 +112,7 @@
           for (var g = 1; g <= this.concurrentRuns; g++) {
             this._testIndex++;
             this['arrayResults'+this._testIndex] = [];
-            var request = new window.xmlHttpRequest('GET',this.url,this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
+            var request = new window.xmlHttpRequest('GET',this.url + '?' + Date.now(),this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
             this.onTestAbort.bind(this),this.onTestTimeout.bind(this),this.onTestError.bind(this));
             this._activeTests.push({
               xhr: request,

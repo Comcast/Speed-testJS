@@ -4,7 +4,8 @@
 
     //test button node will be made available through this variable
     var testButton;
-    var auditTrail = [];
+    var versions = [];
+    var auditTrail;
     //event binding method for buttons
     function addEvent(el, ev, fn) {
         void (el.addEventListener && el.addEventListener(ev, fn, false));
@@ -22,7 +23,8 @@
             return +a.time - +b.time;
         });
         //display to end user
-        document.querySelector('.download').value = arr[0].time + ' ms';
+        console.log(arr);
+        //document.querySelector('.download').value = arr[0].time + ' ms';
         displayAuditTrail();
     }
 
@@ -50,32 +52,6 @@
     function downloadHttpOnError(result) {
         testButton.disabled = false;
         auditTrail.push({ event: 'downloadHttpOnError', result: result });
-        displayAuditTrail();
-    }
-
-    //callback for websocket complete event
-    function downloadWebSocketOnComplete(result) {
-        testButton.disabled = false;
-        auditTrail.push({ event: 'downloadWebSocketOnComplete', result: result });
-        //we return the lowest calculated value
-        var arr = result.sort(function (a, b) {
-            return +a.time - +b.time;
-        });
-        //display to end user
-        document.querySelector('.download').value = arr[0].time + 'ms';
-        displayAuditTrail();
-    }
-
-    //callback for websocket progess event
-    function downloadWebSocketOnProgress(result) {
-        testButton.disabled = false;
-        auditTrail.push({ event: 'downloadWebSocketOnProgress', result: result });
-    }
-
-    //callback for websocket error event
-    function downloadWebSocketOnError(result) {
-        testButton.disabled = false;
-        auditTrail.push({ event: 'downloadWebSocketOnError', result: result });
         displayAuditTrail();
     }
 
@@ -111,18 +87,19 @@
         for (var i = 0; i < testTypes.length; i++) {
             addEvent(testTypes[i], 'click', function () {
                 //reset audit trail
-                auditTrail = [];
                 //reset audit trail list
                 document.querySelector('.events').innerHTML = 'Click "Run Test" to begin';
                 //reset lowest download value field
-                document.querySelector('.download').value = '';
+                document.querySelector('.download-IPv4').value = '';
+                document.querySelector('.download-IPv6').value = '';
             });
         }
 
-        //add event
+        //add click event on "run test" button
         addEvent(testButton, 'click', function (e) {
             //prevent default click action in browser;
             e.preventDefault();
+            
             testButton.disabled = true;
             //reset audit trail
             auditTrail = [];
@@ -130,20 +107,22 @@
             document.querySelector('.events').innerHTML = 'Click "Run Test" to begin';
             //get test type value
             var testType = document.querySelector('input[name = "testType"]:checked').value;
+            //create an instance of downloadHttpTest
+            
+            //set IPv6 version here
+            var baseUrl = testType === 'IPv6'? '': '';
+            
+            var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent(baseUrl + '/download?bufferSize=100000000', 'GET', 4, 15000, 10000, downloadHttpOnComplete, downloadHttpOnProgress,
+                downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
 
-            if (testType === 'http') {
-                //create an instance of downloadHttpTest
-                var downloadHttpTestSuite = new window.downloadHttpTest('/download', 10, 30000, downloadHttpOnComplete, downloadHttpOnProgress,
-                    downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
-                //start downloadHttpTest
-                downloadHttpTestSuite.start();
-            } else if (testType === 'websockets') {
-                //create an instance of downloadWebSocketTest
-                var downloadWebSocketTest = new window.downloadWebSocketTest('ws://localhost:3001', 'GET', '0', '10', 3000, downloadWebSocketOnComplete,
-                    downloadWebSocketOnProgress, downloadWebSocketOnError);
-                //start downloadWebSocketTest
-                downloadWebSocketTest.start();
-            }
+            downloadHttpConcurrentTestSuite.start();
+        });
+        
+        //add click event on "display audit trail" button
+        addEvent(auditButton, 'click', function (e) {
+            //prevent default click action in browser;
+            e.preventDefault();
+            displayAuditTrail();
         });
     }
 
