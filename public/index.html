@@ -104,11 +104,13 @@ var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/downlo
 downloadHttpOnAbort,downloadHttpOnTimeout,downloadHttpOnError);
 downloadHttpConcurrentTestSuite.start();
 
-/*
-//uploadHttpConcurrent
 
+//uploadHttpConcurrent
+/*
 function uploadHttpOnComplete(result){
   console.dir(result);
+  var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
+  calculateMeanStats.performCalculations();
 }
 function uploadHttpOnProgress(result){
   console.log('indexTestProgres: ' + result);
@@ -127,6 +129,7 @@ var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent('/upload','P
 uploadHttpOnError,500000);
 uploadHttpConcurrentTestSuite.start();
 */
+
 
 
 
