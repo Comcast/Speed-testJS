@@ -49,7 +49,7 @@ app.get('/testplan', function (req, res) {
   var testPlan = {};
   //get client ip address
     var ipaddress = req.connection.remoteAddress;
-    if (validateIP(ipaddress) === true) {
+    if (validateIP(ipaddress)) {
       //running locally return machine ipv4 address
       if (req.headers.host.indexOf("localhost") > -1) {
         testPlan.clientIPAddress = global.AddressIpv4;
@@ -58,8 +58,7 @@ app.get('/testplan', function (req, res) {
         //format ip address it is normal remove ff ie...  ::ffff:10.36.107.238
         if (ipaddress.indexOf("ff") > -1) {
           var ipAddressArray = ipaddress.split(':');
-          var i;
-          for (i = 0; i < ipAddressArray.length; i++) {
+          for (var i = 0; i < ipAddressArray.length; i++) {
             if (ipAddressArray[i].indexOf('.') > -1) {
               testPlan.clientIPAddress = ipAddressArray[i];
             }
@@ -73,11 +72,12 @@ app.get('/testplan', function (req, res) {
       testPlan.clientIPAddress = 'na';
     }
     //set server base url
-    testPlan.webSocketUrlIPv4 = 'ws://' + global.AddressIpv4 + webSocketPort;
+    testPlan.webSocketUrlIPv4 = 'ws://' + global.AddressIpv4 + ':' +webSocketPort;
     testPlan.webSocketPort = webSocketPort;
     if (global.hasAddressIpv6) {
       testPlan.hasIPv6 = true;
       testPlan.baseUrlIPv6 = '[' + global.AddressIpv6 + ']:' + webPort;
+      //TODO to investigate ipv6 address for localhost web sockets
       testPlan.webSocketUrlIPv6 = 'ws://v6-' + testPlan.osHostName + ':' + webSocketPort;
     } else {
       testPlan.hasIPv6 = false;
