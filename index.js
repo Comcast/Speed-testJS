@@ -6,6 +6,10 @@ var WebSocketServer = require('ws').Server;
 
 var domain = require('./modules/domain');
 var validateIP = require('validate-ip-node');
+
+//variables
+var webPort = 3000;
+var webSocketPort = 3001;
 /**
  * Latency test endpoint
  */
@@ -45,7 +49,6 @@ app.get('/testplan', function (req, res) {
   var testPlan = {};
   //get client ip address
     var ipaddress = req.connection.remoteAddress;
-
     if (validateIP(ipaddress) === true) {
       //running locally return machine ipv4 address
       if (req.headers.host.indexOf("localhost") > -1) {
@@ -70,17 +73,17 @@ app.get('/testplan', function (req, res) {
       testPlan.clientIPAddress = 'na';
     }
     //set server base url
-    testPlan.webSocketUrlIPv4 = 'ws://' + global.AddressIpv4 + ':3001';
-    testPlan.webSocketPort = '3001';
+    testPlan.webSocketUrlIPv4 = 'ws://' + global.AddressIpv4 + webSocketPort;
+    testPlan.webSocketPort = webSocketPort;
     if (global.hasAddressIpv6) {
-    testPlan.hasIPv6 = true;
-    testPlan.baseUrlIPv6 = '[' + global.AddressIpv6 + ']:' + '3000';
-    testPlan.webSocketUrlIPv6 = 'ws://v6-' + testPlan.osHostName + ':' + '3001';
-  } else {
-    testPlan.hasIPv6 = false;
-  }
-    testPlan.baseUrlIPv4 = global.AddressIpv4 + ':' + '3000';
-    testPlan.port = '3000';
+      testPlan.hasIPv6 = true;
+      testPlan.baseUrlIPv6 = '[' + global.AddressIpv6 + ']:' + webPort;
+      testPlan.webSocketUrlIPv6 = 'ws://v6-' + testPlan.osHostName + ':' + webSocketPort;
+    } else {
+      testPlan.hasIPv6 = false;
+    }
+    testPlan.baseUrlIPv4 = global.AddressIpv4 + ':' + webPort;
+    testPlan.port = webPort;
     res.json(JSON.stringify(testPlan));
 });
 
