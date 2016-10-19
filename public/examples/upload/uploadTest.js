@@ -1,6 +1,10 @@
 (function () {
     //setting the initialization method for upload test suite
-    window.onload = initUploadTest;
+    var oldOnload = window.onload;
+    window.onload = function(){
+        void(oldOnload instanceof Function && oldOnload());
+        initUploadTest();
+    };
 
     //test button node will be made available through this variable
     var testButton;
@@ -71,7 +75,7 @@
                     ['<tr>',
                         '<td>' + (i + 1) + '</td>',
                         '<td>' + auditTrail[i].event + '</td>',
-                        '<td>' + JSON.stringify(auditTrail[i].result) + '</td>',
+                        '<td class="results">' + JSON.stringify(auditTrail[i].result) + '</td>',
                         '</tr>'].join('')));
             }
             arr.push('</table>');
