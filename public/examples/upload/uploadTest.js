@@ -1,8 +1,8 @@
 (function () {
     //setting the initialization method for upload test suite
     var oldOnload = window.onload;
-    window.onload = function(){
-        void(oldOnload instanceof Function && oldOnload());
+    window.onload = function () {
+        void (oldOnload instanceof Function && oldOnload());
         initUploadTest();
     };
 
@@ -86,6 +86,7 @@
     function initUploadTest() {
         //update testButton variable with testButton dom node reference
         testButton = document.querySelector('.action-start');
+        testButton.disabled = true;
 
         //register click event for http upload tests
         var testTypes = document.querySelectorAll('input[name = "testType"]');
@@ -118,6 +119,9 @@
                 for (var i = 0; i < relatedEl.length; i++) {
                     relatedEl[i].style.display = (checked) ? 'block' : 'none';
                 }
+                //make sure at least one of ip version types is checked
+                var anyChecked = !!document.querySelectorAll('input[name = "testType"]:checked').length;
+                testButton.disabled = !anyChecked;
             }));
 
             //filelds related to test type (i.e. ipv4, ipv6).
@@ -126,6 +130,9 @@
                 checked = testTypes[i].checked;
                 fields[k].style.display = (checked) ? 'block' : 'none';
             }
+            //make sure at least one of ip version types is checked
+            var anyChecked = !!document.querySelectorAll('input[name = "testType"]:checked').length;
+            testButton.disabled = !anyChecked;
         }
 
         //add click event on "run test" button
