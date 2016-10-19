@@ -37,7 +37,7 @@
     this._beginTime = Date.now();
     //boolean on whether test  suite is running or not
     this._running = true;
-};
+  };
 
       /**
       * onTimeout method

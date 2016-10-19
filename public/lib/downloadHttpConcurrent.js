@@ -46,6 +46,7 @@
     downloadHttpConcurrent.prototype.onTestTimeout = function(result){
       this.clientCallbackTimeout(result);
     };
+
     /**
     * onComplete method
     * @return array of latencies
@@ -76,12 +77,7 @@
         var total = 0;
         this._running = false;
         if (this.finalResults && this.finalResults.length) {
-          //TODO use statistical calculator to calculate the end result
-          for (var j = 0; j < this.finalResults.length; j++) {
-            total += this.finalResults[j];
-          }
-          var finalValue = total / this.finalResults.length;
-          this.clientCallbackComplete(finalValue);
+          this.clientCallbackComplete(this.finalResults);
         } else {
           this.clientCallbackError('no measurements obtained');
         }

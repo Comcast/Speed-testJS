@@ -2,6 +2,7 @@ var express = require('express')
 var path = require('path');
 var stream = require('stream');
 var app = express();
+var bodyParser = require('body-parser');
 var WebSocketServer = require('ws').Server;
 var domain = require('./modules/domain');
 var validateIP = require('validate-ip-node');
@@ -10,6 +11,19 @@ var statisticalCalculator = require('./modules/statisticalCalculator');
 //variables
 var webPort = 3000;
 var webSocketPort = 3001;
+
+//used to read post data
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({limit: '75mb'}));
+
+//Allow cross domain requests
+app.use(function(req, res, next) {
+res.header('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'X-CSRF-Token, X-XSRF-TOKEN, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+next();
+});
 
 /**
  * Latency test endpoint
@@ -95,7 +109,7 @@ app.post('/calculator', function (req, res) {
     if (typeof req.body === 'undefined' && (!(req.body).length > 0) ) {
       throw('cannot perform calculations');
     }
-    var results = new statisticalCalculator.getResults(data, false);
+    var results = new statisticalCalculator.getResults(req.body, false);
     res.send(results);
   }
   catch (error) {
