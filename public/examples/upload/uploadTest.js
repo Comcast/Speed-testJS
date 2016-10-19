@@ -40,8 +40,6 @@
     function uploadHttpOnProgress(version, result) {
         auditTrail.push({ event: version + ': uploadHttpOnProgress', result: result });
         displayAuditTrail();
-        //restore ability to run tests again
-        testButton.disabled = false;
     }
 
     //callback for xmlHttp error event
