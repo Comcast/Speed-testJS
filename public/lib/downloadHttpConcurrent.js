@@ -77,7 +77,7 @@
         var total = 0;
         this._running = false;
         if (this.finalResults && this.finalResults.length) {
-          this.clientCallbackComplete(this.finalResults)
+          this.clientCallbackComplete(this.finalResults);
         } else {
           this.clientCallbackError('no measurements obtained');
         }

@@ -12,9 +12,9 @@ var statisticalCalculator = require('./modules/statisticalCalculator');
 var webPort = 3000;
 var webSocketPort = 3001;
 
+//used to read post data
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({limit: '75mb'}));
-
 
 //Allow cross domain requests
 app.use(function(req, res, next) {
