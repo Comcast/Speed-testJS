@@ -1,0 +1,16 @@
+---
+# roles/test-server/defaults/main.yml
+#
+
+prefix: "{{ bin_prefix | default ('Speed-testJS') }}"
+zipfile: "{{ prefix }}.{{ code_version }}.zip"
+zip_tmp: "/tmp/{{ zipfile }}"
+project_dir : "/opt/{{ prefix }}"
+dest_dir: "/opt/{{ prefix }}_{{ code_version }}"
+log_dir: "/var/log/speed-test"
+log_file: "speed-test.log"
+log_path: "{{ log_dir }}/{{ log_file }}"
+log_size_limit: "100M"
+log_rotate_size: "3"
+nodejs_mem: 4096
+deploys_to_keep: 5

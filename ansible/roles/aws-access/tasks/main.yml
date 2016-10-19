@@ -1,0 +1,14 @@
+---
+# roles/aws-access/tasks/main.yml
+#
+
+- name: ensure we have aws directory
+  file: name="/home/{{ aws_user }}/.aws" state=directory owner={{ aws_user }} group={{ aws_user }} mode=0700
+
+- name: push the templated file for aws config
+  template: src=aws_config.j2 dest="/home/{{ aws_user }}/.aws/config" owner={{ aws_user }} group={{ aws_user }} mode=0600
+
+- name: push the templated file for aws credentials
+  template: src=aws_credentials.j2 dest="/home/{{ aws_user }}/.aws/credentials" owner={{ aws_user }} group={{ aws_user }} mode=0600
+
+

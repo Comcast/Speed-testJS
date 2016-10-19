@@ -1,0 +1,51 @@
+---
+# roles/test-server/tasks/zip-from-dir.yml
+
+# let's make sure directory exists
+- name: check directory is correct exists
+  stat: path="{{ playbook_dir }}/{{ from_dir }}/public/lib/speed_test.js"
+  register: file_status
+
+- fail: msg="from_dir = {{ from_dir }}/public/lib/speed_test.js not exists or not a file"
+  when: not file_status.stat.isreg
+
+- name: set local code directory
+  set_fact:
+    code_dir: "{{ playbook_dir }}/{{ from_dir }}"
+
+- name: install dependencies needed by zip via apt
+  apt: name={{ item }}
+  with_items:
+  - zip
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+
+- name: install dependencies needed by zip via yum
+  yum: name={{ item }}
+  with_items:
+  - zip
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+# setup directory where code will run
+- name: ensure files are owned by current user
+  file: name={{ code_dir }} owner={{ from_dir_user }} recurse=yes
+
+- name: delete tmp directory 
+  file: name={{ code_dir }}/.tmp state=absent
+
+- name: obtain version 
+  shell: echo "`date -u +%Y%m%d%H%M%S`.`git rev-parse --short HEAD`" chdir={{ code_dir }}
+  register: sh_output
+
+- name: set version as most recent
+  set_fact: 
+    code_version: "{{ version | default(sh_output.stdout) }}"
+
+- name: include vars from test-server role
+  include_vars: "{{ playbook_dir }}/roles/test-server/defaults/main.yml"
+
+- name: remove any .zip file under tmp directory if existent
+  file: path={{ zip_tmp }} state=absent
+  sudo: yes
+
+- name: archive files
+  shell: zip -r {{ zip_tmp }}  package.json index.js public chdir={{ playbook_dir}}/{{ from_dir }}

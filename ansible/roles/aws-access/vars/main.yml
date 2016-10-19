@@ -1,0 +1,4 @@
+#roles/speedtest-api/vars/main.yml
+aws_access: 'my-aws-access'
+aws_secret: 'my-aws-secret'
+aws_endpoint: ''

@@ -1,0 +1,99 @@
+---
+# roles/test-server/tasks/main.yml
+
+# install required software
+- name: install yum packages
+  yum: name={{ item }}
+  with_items:
+  - lynx
+  - unzip
+  - bzip2
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: install apt packages
+  apt: name={{ item }}
+  with_items:
+  - lynx
+  - unzip
+  - bzip2
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+
+# let's get software
+- name: get zip from local directory
+  copy: src={{ zip_tmp }} dest={{ zip_tmp }} mode=0644
+
+# installing software
+- name: create user test_user
+  user: name={{ test_user }} shell=/bin/bash home=/home/{{ test_user }}
+
+- name: install pm2 to manage our server
+  npm: name=pm2 global=True
+
+- name: update PATH for test_user and ansible_ssh user
+  lineinfile: dest=/home/{{ item[0] }}/{{ item[1] }} line="export PATH=/usr/local/bin:$PATH" state=present create=yes mode=0644
+  with_nested:
+  - ['{{ test_user }}', '{{ ansible_ssh_user }}']
+  - ['.bashrc']
+
+- name: create destination directory
+  file: name="{{ dest_dir }}"  state=directory owner={{ test_user }} group={{ test_user }}
+
+- name: unzip the files
+  unarchive: src="{{ zip_tmp }}" dest="{{ dest_dir }}" copy=no 
+
+- name: push logrotate file
+  template: src=logrotate.conf.j2 dest=/etc/logrotate.d/speed-test mode=0440
+
+- name: update our link
+  file: src="{{ dest_dir }}" dest="{{ project_dir }}" owner={{ test_user }} group={{ test_user }} force=yes state=link
+
+- name: ensure ownership of all files go to test_user
+  file: dest="{{ dest_dir }}" owner={{ test_user }} group={{ test_user }} recurse=yes
+
+- name: change permissions to allow node modules to run
+  file: dest="/usr/lib/node_modules" group={{ test_user }} recurse=yes
+  ignore_errors: yes
+
+- name: create directory for log
+  file: name="{{ log_dir }}" state=directory owner={{ test_user }} group={{ test_user }} mode=0755
+
+# let's run it
+- name: clean npm cache
+  shell: npm cache clean chdir="{{ dest_dir }}"
+  become: yes
+  become_user: "{{ test_user }}"
+
+- name: run npm install
+  shell: npm install chdir="{{ dest_dir }}"
+  async: 900
+  poll: 15
+  become: yes
+  become_user: "{{ test_user }}"
+ 
+# use pm2 to manage our service
+# if pm2 was started before and we use stop now, it seems to only
+# pause the service, a subsequent start's args are ignored. Using
+# delete will force creating of new service with updated args
+- name: delete speed-test
+  shell: pm2 delete speed-test
+  ignore_errors: yes
+  become: yes
+  become_user: "{{ test_user }}"
+
+- name: start service via pm2
+  shell: 'env PATH=/usr/local/bin:$PATH:/usr/bin pm2 start --node-args="--max-old-space-size={{ nodejs_mem }}" "{{ project_dir }}/index.js" --name speed-test --user {{ test_user }} --watch --merge-logs --output {{ log_path }} --error {{ log_path }} --log-date-format "YYYY-MM-DD HH:mm:ss,SSS "'
+  become: yes
+  become_user: "{{ test_user }}"
+
+- name: create init scripts for pm2 so that it will run at reboot
+  shell: env PATH=/usr/local/bin:$PATH:/usr/bin pm2 startup centos -u {{ test_user }} --hp /home/{{ test_user }}
+  args:
+    creates: /etc/init.d/pm2-init.sh
+
+- name: save pm2 processes
+  shell: pm2 save
+  become: yes
+  become_user: "{{ test_user }}"
+
+- name: keep specified copies of deployment
+  shell: ls -1td {{ project_dir }}_* | tail -n +{{ deploys_to_keep + 1 }} | xargs rm -rf

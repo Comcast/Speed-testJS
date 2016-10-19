@@ -1,0 +1,14 @@
+"{{ log_path }}" /home/{{ test_user }}/.pm2/pm2.log /home/{{ test_user }}/.pm2/logs/*.log {
+  size={{ log_size_limit }}
+  missingok
+  rotate {{ log_rotate_size }}
+  start 1
+  nocompress
+  notifempty
+  sharedscripts
+  dateformat -%Y%m%d-%s
+  create 0644 {{ test_user }} {{ test_user }}
+  postrotate
+    kill -s SIGUSR2 `cat /home/{{ test_user }}/.pm2/pm2.pid 2> /dev/null` 2> /dev/null || true
+  endscript
+}
