@@ -1,6 +1,10 @@
 (function () {
     //setting the initialization method for download test suite
-    window.onload = initDownloadTest;
+    var oldOnload = window.onload;
+    window.onload = function () {
+        void (oldOnload instanceof Function && oldOnload());
+        initDownloadTest();
+    };
 
     //test button node will be made available through this variable
     var testButton;
@@ -36,33 +40,6 @@
     function downloadHttpOnProgress(version, result) {
         auditTrail.push({ event: version + ': downloadHttpOnProgress', result: result });
         displayAuditTrail();
-        //restore ability to run tests again
-        testButton.disabled = false;
-    }
-
-    //callback for xmlHttp abort event
-    function downloadHttpOnAbort(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnAbort', result: result });
-        displayAuditTrail();
-
-        //restore ability to run tests again
-        testButton.disabled = false;
-    }
-
-    //callback for xmlHttp timeout event
-    function downloadHttpOnTimeout(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnTimeout', result: result });
-        displayAuditTrail();
-        var next = testRunner.shift();
-
-        //restore ability to return tests again
-        testButton.disabled = false;
-
-        //restore ability to choose test type again
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        for (var i = 0; i < testTypes.length; i++) {
-            testTypes[i].disabled = false;
-        }
     }
 
     //callback for xmlHttp error event
@@ -84,6 +61,36 @@
         }
     }
 
+    //callback for xmlHttp abort event
+    function downloadHttpOnAbort(version, result) {
+        auditTrail.push({ event: version + ': downloadHttpOnAbort', result: result });
+        displayAuditTrail();
+
+        //restore ability to choose tests again
+        testButton.disabled = false;
+        var testTypes = document.querySelectorAll('input[name = "testType"]');
+        for (var i = 0; i < testTypes.length; i++) {
+            testTypes[i].disabled = false;
+        }
+    }
+
+    //callback for xmlHttp timeout event
+    function downloadHttpOnTimeout(version, result) {
+        auditTrail.push({ event: version + ': downloadHttpOnTimeout', result: result });
+        displayAuditTrail();
+        var next = testRunner.shift();
+
+        //restore ability to return tests again
+        testButton.disabled = false;
+
+        //restore ability to choose test type again
+        var testTypes = document.querySelectorAll('input[name = "testType"]');
+        for (var i = 0; i < testTypes.length; i++) {
+            testTypes[i].disabled = false;
+        }
+    }
+
+
     //displays event trail from start to completion and they api results at those different points
     function displayAuditTrail() {
         var arr = [];
@@ -96,7 +103,7 @@
                     ['<tr>',
                         '<td>' + (i + 1) + '</td>',
                         '<td>' + auditTrail[i].event + '</td>',
-                        '<td>' + JSON.stringify(auditTrail[i].result) + '</td>',
+                        '<td class="results">' + JSON.stringify(auditTrail[i].result) + '</td>',
                         '</tr>'].join('')));
             }
             arr.push('</table>');
@@ -107,6 +114,7 @@
     function initDownloadTest() {
         //update testButton variable with testButton dom node reference
         testButton = document.querySelector('.action-start');
+        testButton.disabled = true;
 
         //register click event for http download tests
         var testTypes = document.querySelectorAll('input[name = "testType"]');
@@ -139,6 +147,9 @@
                 for (var i = 0; i < relatedEl.length; i++) {
                     relatedEl[i].style.display = (checked) ? 'block' : 'none';
                 }
+                //make sure at least one of ip version types is checked
+                var anyChecked = !!document.querySelectorAll('input[name = "testType"]:checked').length;
+                testButton.disabled = !anyChecked;
             }));
 
             //filelds related to test type (i.e. ipv4, ipv6).
@@ -147,6 +158,9 @@
                 checked = testTypes[i].checked;
                 fields[k].style.display = (checked) ? 'block' : 'none';
             }
+            //make sure at least one of ip version types is checked
+            var anyChecked = !!document.querySelectorAll('input[name = "testType"]:checked').length;
+            testButton.disabled = !anyChecked;
         }
 
         //add click event on "run test" button
@@ -182,6 +196,7 @@
                     testRunner.push(new window.downloadHttpConcurrent(baseUrl + '/download?bufferSize=100000000', 'GET', 4, 15000, 10000,
                         callback(testType, downloadHttpOnComplete), callback(testType, downloadHttpOnProgress), callback(testType, downloadHttpOnAbort),
                         callback(testType, downloadHttpOnTimeout), callback(testType, downloadHttpOnError)));
+
                 }
             }
             var next = testRunner.shift();
