@@ -37,7 +37,9 @@
     this._beginTime = Date.now();
     //boolean on whether test  suite is running or not
     this._running = true;
-  };
+    //object holding all test progress measurements
+    this._progressResults = {};
+};
 
       /**
       * onTimeout method
@@ -104,7 +106,9 @@
     * onProgress method
     */
     uploadHttpConcurrent.prototype.onTestProgress = function(result){
-        //this.clientCallbackProgress(result);
+      this._progressResults['arrayProgressResults'+result.id].push(result.bandwidth);
+      console.log(this._progressResults['arrayProgressResults'+result.id].toString());
+      //todo add moving average counter and formulate results and return to client
     };
     /**
     * Start the test
@@ -117,6 +121,7 @@
           for (var g = 1; g <= this.concurrentRuns; g++) {
             this._testIndex++;
             this['arrayResults'+this._testIndex] = [];
+            this._progressResults['arrayProgressResults'+this._testIndex] = new Array();
             var request = new window.xmlHttpRequest('POST',this.url,this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
             this.onTestAbort.bind(this),this.onTestTimeout.bind(this),this.onTestError.bind(this));
             this._activeTests.push({
@@ -131,6 +136,7 @@
           for (var p = 1; p <= this.concurrentRuns; p++) {
             this._testIndex++;
             this['arrayResults'+this._testIndex] = [];
+            this._progressResults['arrayProgressResults'+this._testIndex] = new Array();
             var request = new window.xmlHttpRequest('POST',this.url,this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
             this.onTestAbort.bind(this),this.onTestTimeout.bind(this),this.onTestError.bind(this));
             this._activeTests.push({

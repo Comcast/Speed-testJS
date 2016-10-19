@@ -22,6 +22,7 @@
     this.prevLoad = 0;
     this.progressCount = 0;
     this.totalBytes = 0;
+    this.currentTime = 0;
     this.callbackComplete = callbackComplete;
     this.callbackProgress = callbackProgress;
     this.callbackAbort = callbackAbort;
@@ -171,46 +172,47 @@
     * Handle onProgress
     */
    xmlHttpRequest.prototype._handleOnProgressDownload = function (response) {
-     if (this.progressCount > 0) {
-         if ((response.timeStamp - this.prevTime > 100)) {
-           this.totalBytes += response.loaded;
-           var result = {};
-           result.duration = ((response.timeStamp - this.prevTime) / 1000);
-           result.bandwidth = ((response.loaded - this.prevLoad) * 8 / 1000000) / result.duration;
-           result.id = this.id;
-
-           //this.callbackProgress(result);
-           //this.prevTime = response.timeStamp;
-           //this.prevLoad = response.loaded;
-         }
-     }
-     //increment onProgressEvent
-     this.progressCount++;
-
+        //measure bandwidth after one progress event due to rampup
+        if (this.progressCount > 1) {
+          var result = {};
+          result.id = this.id;
+          this.currentTime = Date.now();
+          result.totalTime = this.currentTime - this.prevTime;
+          var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
+          var transferDurationSeconds = result.totalTime/1000;
+          result.bandwidth = transferSizeMbs/transferDurationSeconds;
+          if(isFinite(result.bandwidth)){
+            this.callbackProgress(result);
+            this.prevTime = this.currentTime;
+            this.prevLoad = response.loaded;
+          }
+        }
+      //increment onProgressEvent
+      this.progressCount++;
    };
 
    /**
      * Handle onProgress
      */
     xmlHttpRequest.prototype._handleOnProgressUpload = function (response) {
-
-      if (this.progressCount > 0) {
-            var result = {};
-            this.totalTime = Date.now() - this.prevTime;
-            //only report value is
-            if(this.totalTime>0){
-            result.totalTime = this.totalTime;
-            var transferSizeMbs = (response.loaded * 8) / 1000000;
-            var transferDurationSeconds = result.totalTime/1000;
-            result.bandwidth = transferSizeMbs/transferDurationSeconds;
-            result.id = this.id;
+        //measure bandwidth after one progress event due to rampup
+        if (this.progressCount > 1) {
+          var result = {};
+          result.id = this.id;
+          this.currentTime = Date.now();
+          result.totalTime = this.currentTime - this.prevTime;
+          var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
+          var transferDurationSeconds = result.totalTime/1000;
+          result.bandwidth = transferSizeMbs/transferDurationSeconds;
+          if(isFinite(result.bandwidth)){
+            this.callbackProgress(result);
+            this.prevTime = this.currentTime;
+            this.prevLoad = response.loaded;
           }
-            //this.callbackProgress(result);
-            //this.prevTime = response.timeStamp;
-            //this.prevLoad = response.loaded;
+        }
+        //increment onProgressEvent
+        this.progressCount++;
 
-      }
-      this.progressCount++;
 
     };
 
