@@ -43,7 +43,7 @@ app.get('/download', function (req, res) {
 
 
 /**
- * Download test endpoint
+ * TestPlan endpoint
  */
 app.get('/testplan', function (req, res) {
   var testPlan = {};
