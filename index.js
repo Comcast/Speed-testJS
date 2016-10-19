@@ -3,6 +3,13 @@ var path = require('path');
 var stream = require('stream');
 var app = express()
 var WebSocketServer = require('ws').Server;
+
+var domain = require('./modules/domain');
+var validateIP = require('validate-ip-node');
+
+//variables
+var webPort = 3000;
+var webSocketPort = 3001;
 /**
  * Latency test endpoint
  */
@@ -33,6 +40,53 @@ app.get('/download', function (req, res) {
      bufferStream.write(responseBuffer);
      bufferStream.end();
 });
+
+
+/**
+ * TestPlan endpoint
+ */
+app.get('/testplan', function (req, res) {
+  var testPlan = {};
+  //get client ip address
+    var ipaddress = req.connection.remoteAddress;
+    if (validateIP(ipaddress)) {
+      //running locally return machine ipv4 address
+      if (req.headers.host.indexOf("localhost") > -1) {
+        testPlan.clientIPAddress = global.AddressIpv4;
+      }
+      else {
+        //format ip address it is normal remove ff ie...  ::ffff:10.36.107.238
+        if (ipaddress.indexOf("ff") > -1) {
+          var ipAddressArray = ipaddress.split(':');
+          for (var i = 0; i < ipAddressArray.length; i++) {
+            if (ipAddressArray[i].indexOf('.') > -1) {
+              testPlan.clientIPAddress = ipAddressArray[i];
+            }
+          }
+        } else {
+          testPlan.clientIPAddress = ipaddress;
+        }
+      }
+    }
+    else {
+      testPlan.clientIPAddress = 'na';
+    }
+    //set server base url
+    testPlan.webSocketUrlIPv4 = 'ws://' + global.AddressIpv4 + ':' +webSocketPort;
+    testPlan.webSocketPort = webSocketPort;
+    if (global.hasAddressIpv6) {
+      testPlan.hasIPv6 = true;
+      testPlan.baseUrlIPv6 = '[' + global.AddressIpv6 + ']:' + webPort;
+      //TODO to investigate ipv6 address for localhost web sockets
+      testPlan.webSocketUrlIPv6 = 'ws://v6-' + testPlan.osHostName + ':' + webSocketPort;
+    } else {
+      testPlan.hasIPv6 = false;
+    }
+    testPlan.baseUrlIPv4 = global.AddressIpv4 + ':' + webPort;
+    testPlan.port = webPort;
+    res.json(JSON.stringify(testPlan));
+});
+
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -73,3 +127,5 @@ if (message.flag === 'latency'){
 
   });
 });
+//set global ipv4 and ipv6 server address
+domain.setIpAddresses();

@@ -10,6 +10,8 @@
   "license": "UNLICENSED",
   "dependencies": {
     "express": "^4.14.0",
+    "ip-address": "^5.8.2",
+    "validate-ip-node": "^1.0.6",
     "ws": "^1.1.1"
   }
 }
