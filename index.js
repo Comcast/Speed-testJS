@@ -92,8 +92,8 @@ app.get('/testplan', function (req, res) {
  */
 app.post('/calculator', function (req, res) {
   try {
-    if ((req.body).length <= 0) {
-      throw('error');
+    if (typeof req.body === 'undefined' && (!(req.body).length > 0) ) {
+      throw('cannot perform calculations');
     }
     var results = new statisticalCalculator.getResults(data, false);
     res.send(results);
