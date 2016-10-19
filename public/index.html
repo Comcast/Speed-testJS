@@ -12,6 +12,7 @@
   </table>
 </body>
 
+<script src="lib/calculateStats.js"></script>
 <script src="lib/server.js"></script>
 <script src="lib/xmlhttprequest.js"></script>
 <script src="lib/webSocket.js"></script>
@@ -73,8 +74,18 @@ latencyWebSocketTest.start();
 
 //downloadHttpConcurrent
 
+function calculateStatsonComplete(result) {
+  console.log(result);
+}
+
+function calculateStatsonError(result) {
+  console.log(result);
+}
+
 function downloadHttpOnComplete(result){
   console.dir(result);
+  var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
+  calculateMeanStats.performCalculations();
 }
 function downloadHttpOnProgress(result){
   console.log(result);
