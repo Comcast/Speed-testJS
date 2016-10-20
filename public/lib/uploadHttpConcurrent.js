@@ -47,8 +47,10 @@
       * @return error object
       */
       uploadHttpConcurrent.prototype.onTestTimeout = function(error){
-        this.clientCallbackError(error);
-        this._running = false;
+        if(this._running){
+          this.clientCallbackError(error);
+          this._running = false;
+        }
       };
 
       /**
@@ -57,8 +59,10 @@
       * @return error object
       */
       uploadHttpConcurrent.prototype.onTestAbort = function(error){
-        this.clientCallbackError(error);
-        this._running = false;
+        if(this._running){
+          this.clientCallbackError(error);
+          this._running = false;
+        }
       };
 
     /**
@@ -67,8 +71,10 @@
     * @return error object
     */
     uploadHttpConcurrent.prototype.onTestError = function(error){
-      this.clientCallbackError(error);
-      this._running = false;
+      if(this._running){
+        this.clientCallbackError(error);
+        this._running = false;
+      }
     };
     /**
     * onComplete method

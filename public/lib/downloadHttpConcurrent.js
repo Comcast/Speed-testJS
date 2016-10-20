@@ -1,7 +1,7 @@
 (function() {
   'use strict';
   /**
-   * Latency testing based on httpRequests
+   * download testing based on httpRequests
    **/
   function downloadHttpConcurrent(url, type, concurrentRuns, timeout, testLength,callbackComplete, callbackProgress,callbackAbort,
   callbackTimeout,callbackError) {
@@ -10,9 +10,11 @@
     this.concurrentRuns = concurrentRuns;
     this.timeout = timeout;
     this.testLength = testLength;
-    this._test = null;
+    //unique id or test
     this._testIndex = 0;
+    //array holding all results
     this._results = [];
+    //array holding active tests
     this._activeTests = [];
     this._resultsHolder = {};
     this.clientCallbackComplete = callbackComplete;
@@ -20,8 +22,11 @@
     this.clientCallbackAbort = callbackAbort;
     this.clientCallbackTimeout = callbackTimeout;
     this.clientCallbackError = callbackError;
+    //start time of test suite
     this._beginTime = Date.now();
+    //boolean on whether test  suite is running or not
     this._running = true;
+    //array holding  results
     this.finalResults = [];
     //object holding all test progress measurements
     this._progressResults = {};
@@ -29,29 +34,37 @@
 
     /**
     * onError method
-    * @return abort object
+    * @return error object
     */
     downloadHttpConcurrent.prototype.onTestError = function(result){
-      this.clientCallbackError(result);
+      if(this._running){
+        this.clientCallbackError(result);
+        this._running = false;
+      }
     };
     /**
     * onAbort method
     * @return abort object
     */
     downloadHttpConcurrent.prototype.onTestAbort = function(result){
-      this.clientCallbackAbort(result);
+      if(this._running){
+        this.clientCallbackAbort(result);
+        this._running = false;
+      }
     };
     /**
     * onTimeout method
-    * @return abort object
+    * @return timeout object
     */
     downloadHttpConcurrent.prototype.onTestTimeout = function(result){
-      this.clientCallbackTimeout(result);
+      if(this._running){
+        this.clientCallbackTimeout(result);
+        this._running = false;
+      }
     };
 
     /**
     * onComplete method
-    * @return array of latencies
     */
     downloadHttpConcurrent.prototype.onTestComplete = function(result){
 
@@ -94,11 +107,10 @@
 
     /**
     * onProgress method
-    * @return single latency result
     */
     downloadHttpConcurrent.prototype.onTestProgress = function(result){
       this._progressResults['arrayProgressResults'+result.id].push(result.bandwidth);
-      console.log(this._progressResults['arrayProgressResults'+result.id].toString());
+      //console.log(this._progressResults['arrayProgressResults'+result.id].toString());
       //todo add moving average counter and formulate results and return to client
     };
     /**
