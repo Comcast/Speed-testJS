@@ -3,7 +3,7 @@
   /**
    * Upload Bandwidth testing based on httpRequests
    * @param string server endpoint for upload testing
-   * @param string post for get request
+   * @param string post or get request
    * @param integer number of concurrentRuns
    * @param integer timeout of the request
    * @param integer length of the testLength
