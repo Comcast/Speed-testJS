@@ -106,14 +106,14 @@
 
  })();
 //Example on how to call
-
+/*
  function downloadProbeTestOnComplete(result){
    console.dir(result);
  }
  function downloadProbeTestOnError(result){
    console.dir(result);
  }
-/*
+
  var downloadProbeTestRun = new window.downloadProbeTest('/download?bufferSize=762939', false, 3000,762939,downloadProbeTestOnComplete,
  downloadProbeTestOnError);
  downloadProbeTestRun.start();
