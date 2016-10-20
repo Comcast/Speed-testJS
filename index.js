@@ -7,6 +7,7 @@ var WebSocketServer = require('ws').Server;
 var domain = require('./modules/domain');
 var validateIP = require('validate-ip-node');
 var statisticalCalculator = require('./modules/statisticalCalculator');
+//module provides download test sizes based off of probe data
 var downloadData = require('./modules/downloadData');
 //variables
 var webPort = 3000;
@@ -121,6 +122,7 @@ app.post('/calculator', function (req, res) {
  * downloadProbe endpoint
  */
 app.get('/downloadProbe', function (req, res) {
+     //set no-cache headers
      res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
      res.header('Expires', '-1');
      res.header('Pragma', 'no-cache');
