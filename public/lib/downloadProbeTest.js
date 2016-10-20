@@ -2,6 +2,12 @@
   'use strict';
   /**
    * DownloadProbe test to get sizes for download testing
+   * @param string server endpoint for upload testing
+   * @param boolean whether  latency conditions
+   * @param integer length of the testLength
+   * @param integer size of the download request
+   * @param function callback function for test suite complete event
+   * @param function callback function for test suite error event
    **/
    function downloadProbeTest(url, lowLatency, timeout,size, callbackComplete,callbackError) {
      this.url = url;
@@ -27,21 +33,21 @@
    };
    /**
    * onError method
-   * @return error object
+   * @param error object
    */
    downloadProbeTest.prototype.onTestError = function (result) {
      this.clientCallbackError(result);
    };
    /**
    * onAbort method
-   * @return abort object
+   * @param abort object
    */
    downloadProbeTest.prototype.onTestAbort = function (result) {
      this.clientCallbackError(result);
    };
    /**
    * onTimeout method
-   * @return timeout object
+   * @param timeout object
    */
    downloadProbeTest.prototype.onTestTimeout = function (result) {
      this.clientCallbackError(result);
@@ -49,7 +55,7 @@
 
    /**
    * onComplete method
-   * @return array of latencies
+   * @param probe object
    */
    downloadProbeTest.prototype.onTestComplete = function (result) {
       console.log(result);
@@ -68,7 +74,7 @@
 
    /**
    * onProgress method
-   * @return  result
+   * @param  result
    */
    downloadProbeTest.prototype.onTestProgress = function(result){
 
