@@ -95,7 +95,6 @@
      downloadProbeTest.prototype.abortAll = function() {
        this._running = false;
        for(var i=0;i<this._activeTests.length;i++){
-         debugger;
          if (typeof(this._activeTests[i])!== 'undefined') {
            this._activeTests[i].xhr._request.abort();
          }
@@ -106,17 +105,3 @@
    window.downloadProbeTest = downloadProbeTest;
 
  })();
-//Example on how to call
-
- function downloadProbeTestOnComplete(result){
-   console.dir(result);
- }
- function downloadProbeTestOnError(result){
-   console.dir(result);
- }
-/*
- var downloadProbeTestRun = new window.downloadProbeTest('/download?bufferSize=762939', false, 3000,762939,downloadProbeTestOnComplete,
- downloadProbeTestOnError);
- downloadProbeTestRun.start();
- setTimeout(downloadProbeTestRun.abortAll().bind(downloadProbeTestRun),10);
-*/
