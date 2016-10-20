@@ -39,7 +39,7 @@
     this._running = true;
     //object holding all test progress measurements
     this._progressResults = {};
-};
+}
 
       /**
       * onTimeout method

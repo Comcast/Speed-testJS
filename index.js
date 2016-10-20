@@ -7,7 +7,8 @@ var WebSocketServer = require('ws').Server;
 var domain = require('./modules/domain');
 var validateIP = require('validate-ip-node');
 var statisticalCalculator = require('./modules/statisticalCalculator');
-
+//module provides download test sizes based off of probe data
+var downloadData = require('./modules/downloadData');
 //variables
 var webPort = 3000;
 var webSocketPort = 3001;
@@ -117,10 +118,20 @@ app.post('/calculator', function (req, res) {
   }
 });
 
+/**
+ * downloadProbe endpoint
+ */
+app.get('/downloadProbe', function (req, res) {
+     //set no-cache headers
+     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+     res.header('Expires', '-1');
+     res.header('Pragma', 'no-cache');
+     var downloadTestSizes = downloadData.GetDownloadSize(req.query.bufferSize, req.query.time, req.query.lowLatency);
+     res.json({bufferSizes: downloadTestSizes});
+});
+
+
 app.use(express.static(path.join(__dirname, 'public')));
-
-
-
 app.listen(3000,'::');
 
 var wss = new WebSocketServer({port: 3001 });
