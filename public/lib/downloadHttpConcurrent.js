@@ -142,7 +142,6 @@
               testRun: this._testIndex
             });
             request.start(0,this._testIndex);
-
           }
         }
         else {
@@ -154,6 +153,19 @@
           }
         }
       }
+
+      /**
+      * Cancel the test
+      */
+        downloadHttpConcurrent.prototype.abortAll = function() {
+          this._running = false;
+          for(var i=0;i<this._activeTests.length;i++){
+            debugger;
+            if (typeof(this._activeTests[i])!== 'undefined') {
+              this._activeTests[i].xhr._request.abort();
+            }
+          }
+        }
 
   window.downloadHttpConcurrent = downloadHttpConcurrent;
   })();

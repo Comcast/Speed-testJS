@@ -16,6 +16,8 @@
      this.size = size;
      //id of request
      this._testIndex = 0;
+     //array holding active tests
+     this._activeTests = [];
      this.clientCallbackComplete = callbackComplete;
      this.clientCallbackError = callbackError;
    }
@@ -29,6 +31,10 @@
      this.onTestProgress.bind(this),this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
      this._testIndex++;
      this._test.start(0, this._testIndex);
+     this._activeTests.push({
+       xhr: this._test,
+       testRun: this._testIndex
+     });
    };
 
    /**
@@ -46,7 +52,7 @@
    downloadProbeTest.prototype.onTestAbort = function (result) {
      this.clientCallbackError(result);
    };
-   
+
    /**
    * onTimeout method
    * @param timeout object
@@ -83,19 +89,34 @@
      //todo add moving average counter and formulate results and return to client
    };
 
+   /**
+   * Cancel the test
+   */
+     downloadProbeTest.prototype.abortAll = function() {
+       this._running = false;
+       for(var i=0;i<this._activeTests.length;i++){
+         debugger;
+         if (typeof(this._activeTests[i])!== 'undefined') {
+           this._activeTests[i].xhr._request.abort();
+         }
+       }
+     }
+
+
    window.downloadProbeTest = downloadProbeTest;
 
  })();
 //Example on how to call
-/*
+
  function downloadProbeTestOnComplete(result){
    console.dir(result);
  }
  function downloadProbeTestOnError(result){
    console.dir(result);
  }
-
+/*
  var downloadProbeTestRun = new window.downloadProbeTest('/download?bufferSize=762939', false, 3000,762939,downloadProbeTestOnComplete,
  downloadProbeTestOnError);
  downloadProbeTestRun.start();
+ setTimeout(downloadProbeTestRun.abortAll().bind(downloadProbeTestRun),10);
 */
