@@ -118,7 +118,7 @@ app.post('/calculator', function (req, res) {
 });
 
 /**
- * Download test endpoint
+ * downloadProbe endpoint
  */
 app.get('/downloadProbe', function (req, res) {
      res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');

@@ -25,7 +25,7 @@
     this.finalResults = [];
     //object holding all test progress measurements
     this._progressResults = {};
-  };
+  }
 
     /**
     * onError method

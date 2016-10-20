@@ -14,12 +14,11 @@
      this.lowLatency = lowLatency;
      this.timeout = timeout;
      this.size = size;
+     //id of request
      this._testIndex = 0;
-     this._results;
      this.clientCallbackComplete = callbackComplete;
      this.clientCallbackError = callbackError;
-
-   };
+   }
 
    /**
    * Execute the request
@@ -27,10 +26,11 @@
    downloadProbeTest.prototype.start = function () {
      var cachebuster = Date.now();
      this._test = new window.xmlHttpRequest('GET', [this.url, '&', cachebuster].join(''), this.timeout, this.onTestComplete.bind(this),
-       this.onTestProgress.bind(this),this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
+     this.onTestProgress.bind(this),this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
      this._testIndex++;
      this._test.start(0, this._testIndex);
    };
+
    /**
    * onError method
    * @param error object
@@ -38,6 +38,7 @@
    downloadProbeTest.prototype.onTestError = function (result) {
      this.clientCallbackError(result);
    };
+
    /**
    * onAbort method
    * @param abort object
@@ -45,6 +46,7 @@
    downloadProbeTest.prototype.onTestAbort = function (result) {
      this.clientCallbackError(result);
    };
+   
    /**
    * onTimeout method
    * @param timeout object
@@ -58,7 +60,6 @@
    * @param probe object
    */
    downloadProbeTest.prototype.onTestComplete = function (result) {
-      console.log(result);
       var self =this;
       var xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function() {
