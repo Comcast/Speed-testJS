@@ -3,7 +3,7 @@
   /**
    * Upload Bandwidth testing based on httpRequests
    * @param string server endpoint for upload testing
-   * @param string post for get request
+   * @param string post or get request
    * @param integer number of concurrentRuns
    * @param integer timeout of the request
    * @param integer length of the testLength
@@ -47,8 +47,10 @@
       * @return error object
       */
       uploadHttpConcurrent.prototype.onTestTimeout = function(error){
-        this.clientCallbackError(error);
-        this._running = false;
+        if(this._running){
+          this.clientCallbackError(error);
+          this._running = false;
+        }
       };
 
       /**
@@ -57,8 +59,10 @@
       * @return error object
       */
       uploadHttpConcurrent.prototype.onTestAbort = function(error){
-        this.clientCallbackError(error);
-        this._running = false;
+        if(this._running){
+          this.clientCallbackError(error);
+          this._running = false;
+        }
       };
 
     /**
@@ -67,8 +71,10 @@
     * @return error object
     */
     uploadHttpConcurrent.prototype.onTestError = function(error){
-      this.clientCallbackError(error);
-      this._running = false;
+      if(this._running){
+        this.clientCallbackError(error);
+        this._running = false;
+      }
     };
     /**
     * onComplete method
