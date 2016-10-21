@@ -1,0 +1,40 @@
+---
+# roles/node-version/tasks/main.yml
+
+- name: install node and npm via yum
+  yum: name={{ item }}
+  with_items:
+  - nodejs
+  - npm
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: install node and npm via apt 
+  apt: name={{ item }}
+  with_items:
+  - nodejs
+  - npm
+  when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+
+- name: clean npm cache
+  shell: npm cache clean
+
+- name: use npm and install n
+  npm: name={{ item.0 }} global=True version={{ item.1 }}
+  with_together:
+  - ['n', 'npm']
+  - ['{{ n_version }}', '{{ npm_version }}']
+
+- name: use n to install node
+  shell: n {{ node_version }}
+
+- name: see if node got installed in the local bin directory
+  stat: path=/usr/local/bin/node 
+  register: node_local
+
+- name: fail if node is not installed
+  fail: msg="/usr/local/bin/node not detected"
+  when: node_local.stat.exists == False
+
+- name: set correct permissions (in some OSs it seems it is not executable?)
+  file: path=/usr/local/bin/node mode=0755 state=file
+  when: node_local.stat.exists is defined and node_local.stat.exists 

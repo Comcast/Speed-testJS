@@ -1,0 +1,48 @@
+---
+# deploy-servers.yml
+#
+# optional parameters:
+# from_dir: a path to the directory containing index.js, package.json and public/ (defaults to '..')
+#
+# version: the version set for the code base
+#
+
+
+- name: generate local binaries 
+  hosts: local
+  connection: local
+  become: yes
+  vars:
+  - from_dir: '..'
+
+  tasks:
+  - include: "{{ playbook_dir }}/roles/test-server/tasks/zip-from-dir.yml from_dir_user={{ ansible_env.SUDO_USER }}"
+
+- name: configure test servers 
+  hosts: speed-test-servers
+  become: yes
+  become_user:
+  environment:
+    PATH: "/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
+  vars:
+  - test_user: 'test-user'
+  - from_dir: '..'
+
+  pre_tasks:
+
+  - name: get code_version
+    set_fact:
+      code_version: "{{ hostvars['127.0.0.1']['code_version'] }}"
+
+  roles:
+    - role: node-version
+      tags: node
+
+    - role: test-server 
+      tags: test-server
+
+    - role: aws-access
+      aws_user: "{{ test_user }}"
+      tags: aws
+
+

@@ -1,0 +1,7 @@
+---
+# roles/node-version/defaults/main.yml
+
+npm_version: '3.8.3'
+node_version: '5.10.0'
+n_version: '2.1.0'
+
