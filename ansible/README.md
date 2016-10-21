@@ -2,7 +2,7 @@
 
 The essential steps for deploying to the server are:
 
-* Copy the files `package.json`, `index.js` and `public/lib` from `Speed-testJS` directory to the test server and put them under one directory, e.g. `/opt/Speed-testJS`
+* Copy the files `package.json`, `index.js`, `modules` and `public/lib` from `Speed-testJS` directory to the test server and put them under one directory, e.g. `/opt/Speed-testJS`
 
 * Install `node.js`, `npm`
 
@@ -22,7 +22,7 @@ If you control your own server, you can create a key pair by following the instr
 
 The following instructions assume:
 
-* the private key created is called `id_hackathon.pem` and is placed in a directory named `private`. This `private` directory is placed inside the `ansible` directory,
+* the private key created is called `id_hackathon.pem` and is placed in a directory named `private` with permissions of 0600. This `private` directory is placed inside the `ansible` directory,
 e.g.:
 
 ```
@@ -32,6 +32,7 @@ Speed-testJS/
    |      |-- private/
    |
    |-- public/
+   |-- modules/
    |
    |-- Vagrantfile
    |-- index.js
@@ -87,6 +88,8 @@ each line containing the name (or IP address) of one server
 * Ensure you have created the `private` directory and placed the private key there (as described above). Update `ansible.cfg` file
 so that the line containing `private_key_file` matches the name and location where you have placed the key.
 
+**Ensure permissions to the key are 0600.**
+
 * If you would like ansible deployment to run without performing host checking, update `ssh.config` and add a section similar to:
 
 ```
@@ -107,11 +110,15 @@ ansible-playbook deploy-servers.yml [-e version=<version_name>,aws_access=<aws a
 ```
 
 Ansible will create a user named `test-user` if not present in the server. If `version_name` is not passed when
-invoking the `ansible-playbook` command, the default `version_name` created will be `YYYYMMDDHHmmSS.<git hash>`.
-Ansible will zip `package.json`, `index.js` and `public/` and push to the test server, unzipping it under
+invoking the `ansible-playbook` command, the default `version_name` created will be `YYYYMMDDHHmmSS.<git hash>`. Do not change files 
+or checkout a different git branch while the deployment playbook is executing as this may affect the code that is deployed.
+Ansible will zip `package.json`, `index.js`, `modules` and `public/` and push to the test server, unzipping it under
 `/opt/Speed-testJS_<version_name>`. It will then symlink `/opt/Speed-testJS` to that directory. It will install
  `node`, `npm` and perform `npm install` to pull all the modules. It will also install `aws` credentials that
  are used to store test results to DynamoDB.
+
+ **While Ansible is running the deployment playbook, do not change files (or checkout a different git branch) as this
+ may affect the code that is submitted to the test server.**
 
  Ansible will install `pm2` to manage the node process and will start under `test-user`. If you want to check on the status
 of the process, you can ssh into the server

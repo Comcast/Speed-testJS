@@ -5,7 +5,6 @@
 - name: install yum packages
   yum: name={{ item }}
   with_items:
-  - lynx
   - unzip
   - bzip2
   when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
@@ -13,7 +12,6 @@
 - name: install apt packages
   apt: name={{ item }}
   with_items:
-  - lynx
   - unzip
   - bzip2
   when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'

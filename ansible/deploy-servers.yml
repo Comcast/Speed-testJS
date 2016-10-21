@@ -15,11 +15,7 @@
   vars:
   - from_dir: '..'
 
-  roles:
-    - role: node-version
-      tags: node
-  
-  post_tasks:
+  tasks:
   - include: "{{ playbook_dir }}/roles/test-server/tasks/zip-from-dir.yml from_dir_user={{ ansible_env.SUDO_USER }}"
 
 - name: configure test servers 

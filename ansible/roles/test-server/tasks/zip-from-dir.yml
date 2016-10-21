@@ -3,11 +3,11 @@
 
 # let's make sure directory exists
 - name: check directory is correct exists
-  stat: path="{{ playbook_dir }}/{{ from_dir }}/public/lib/speed_test.js"
-  register: file_status
+  stat: path="{{ playbook_dir }}/{{ from_dir }}/public/lib"
+  register: dir_status
 
-- fail: msg="from_dir = {{ from_dir }}/public/lib/speed_test.js not exists or not a file"
-  when: not file_status.stat.isreg
+- fail: msg="from_dir = {{ from_dir }}/public/lib not exists or not a directory"
+  when: dir_status.stat.isdir is not defined or not dir_status.stat.isdir
 
 - name: set local code directory
   set_fact:
@@ -48,4 +48,4 @@
   sudo: yes
 
 - name: archive files
-  shell: zip -r {{ zip_tmp }}  package.json index.js public chdir={{ playbook_dir}}/{{ from_dir }}
+  shell: zip -r {{ zip_tmp }}  package.json index.js modules public chdir={{ playbook_dir}}/{{ from_dir }}
