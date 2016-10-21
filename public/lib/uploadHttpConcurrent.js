@@ -154,6 +154,17 @@
         }
       }
 
+      /**
+      * Cancel the test
+      */
+        uploadHttpConcurrent.prototype.abortAll = function() {
+          this._running = false;
+          for(var i=0;i<this._activeTests.length;i++){
+            if (typeof(this._activeTests[i])!== 'undefined') {
+              this._activeTests[i].xhr._request.abort();
+            }
+          }
+        }
 
    window.uploadHttpConcurrent = uploadHttpConcurrent;
    })();
