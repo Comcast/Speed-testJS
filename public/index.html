@@ -30,6 +30,7 @@
   </table>
 </body>
 
+<script src='lib/latencyBasedRouting.js'></script>
 <script src="lib/calculateStats.js"></script>
 <script src="lib/xmlhttprequest.js"></script>
 <script src="lib/webSocket.js"></script>
@@ -47,7 +48,14 @@ xhr.onreadystatechange = function() {
 }
 xhr.open('GET', '/testplan', true);
 xhr.send(null);
-
+function callbackComplete(result) {
+  console.log(result);
+}
+function callbackError(result) {
+  console.log(result);
+}
+var latencyBasedRouting = new window.latencyBasedRouting('NJ', callbackComplete, callbackError);
+latencyBasedRouting.getNearestServer();
 ///latencyHttpTestSuite
 /*
 function latencyHttpOnComplete(result){
@@ -65,12 +73,10 @@ function latencyHttpOnTimeout(result){
 function latencyHttpOnError(result){
   console.dir(result);
 }
-
 var latencyHttpTestSuite = new window.latencyHttpTest('/latency', 10 ,30000, latencyHttpOnComplete, latencyHttpOnProgress,
 latencyHttpOnAbort, latencyHttpOnTimeout,latencyHttpOnError);
 latencyHttpTestSuite.start();
 */
-
 //latencyWebSocketTestSuite
 /*
 function latencyWebSocketOnComplete(result){
@@ -85,43 +91,38 @@ function latencyWebSocketOnError(result){
 var latencyWebSocketTest = new window.latencyWebSocketTest('ws://localhost:3001', 'GET', '0','10',3000,latencyWebSocketOnComplete,
 latencyWebSocketOnProgress,latencyWebSocketOnError);
 latencyWebSocketTest.start();
-
-
 */
-
 //downloadHttpConcurrent
-
-function calculateStatsonComplete(result) {
-  console.log(result);
-}
-
-function calculateStatsonError(result) {
-  console.log(result);
-}
-
-function downloadHttpOnComplete(result){
-  console.dir(result);
-  var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
-  calculateMeanStats.performCalculations();
-}
-function downloadHttpOnProgress(result){
-  console.log(result);
-}
-function downloadHttpOnAbort(result){
-  //console.dir(result);
-}
-function downloadHttpOnTimeout(result){
-  console.dir(result);
-}
-function downloadHttpOnError(result){
-  console.dir(result);
-}
-
-var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=10000000','GET', 4 ,15000, 10000,downloadHttpOnComplete, downloadHttpOnProgress,
-downloadHttpOnAbort,downloadHttpOnTimeout,downloadHttpOnError);
-downloadHttpConcurrentTestSuite.start();
-
-
+//
+// function calculateStatsonComplete(result) {
+//   console.log(result);
+// }
+//
+// function calculateStatsonError(result) {
+//   console.log(result);
+// }
+//
+// function downloadHttpOnComplete(result){
+//   console.dir(result);
+//   var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
+//   calculateMeanStats.performCalculations();
+// }
+// function downloadHttpOnProgress(result){
+//   console.log(result);
+// }
+// function downloadHttpOnAbort(result){
+//   //console.dir(result);
+// }
+// function downloadHttpOnTimeout(result){
+//   console.dir(result);
+// }
+// function downloadHttpOnError(result){
+//   console.dir(result);
+// }
+//
+// var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=10000000','GET', 4 ,15000, 10000,downloadHttpOnComplete, downloadHttpOnProgress,
+// downloadHttpOnAbort,downloadHttpOnTimeout,downloadHttpOnError);
+// downloadHttpConcurrentTestSuite.start();
 //uploadHttpConcurrent
 /*
 function uploadHttpOnComplete(result){
@@ -141,10 +142,8 @@ function uploadHttpOnTimeout(result){
 function uploadHttpOnError(result){
   console.dir(result);
 }
-
 var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent('/upload','POST',2,15000,15000,uploadHttpOnComplete, uploadHttpOnProgress,
 uploadHttpOnError,500000);
 uploadHttpConcurrentTestSuite.start();
 */
-
 </script>
