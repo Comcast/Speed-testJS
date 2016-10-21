@@ -99,7 +99,7 @@ app.get('/testplan', function (req, res) {
     }
     testPlan.baseUrlIPv4 = global.AddressIpv4 + ':' + webPort;
     testPlan.port = webPort;
-    res.json(JSON.stringify(testPlan));
+    res.json(testPlan);
 });
 
 /**
