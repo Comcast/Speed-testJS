@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "measure internet bandwidth",
   "main": "index.js",
-  "scripts": {
-    "test": "start"
-  },
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
