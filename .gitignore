@@ -4,3 +4,10 @@ private
 *.iml
 .vagrant
 .idea
+.swp
+.cache
+.classpath
+.project
+.settings/
+.springBeans
+target/
