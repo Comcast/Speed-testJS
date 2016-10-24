@@ -1,0 +1,46 @@
+th{
+    border: 1px solid #000;
+    background-color: #000;
+    color: #fff;
+    text-align: left;
+    padding: 10px;
+}
+td{
+    border: 1px solid #000;
+    background-color: #fff;
+    color: #000;
+}
+.form-row {
+    display: block;
+    padding: 20px;
+}
+
+label{
+    font-weight: bold;
+}
+
+label.block {
+    display: block;
+    padding: 10px 0;
+}
+
+.events{
+    max-height: 300px;
+    overflow: scroll;
+    max-width: 50%;
+    
+}
+.results{
+    word-break: break-all;
+}
+
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0,0,0,.5);
+    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
