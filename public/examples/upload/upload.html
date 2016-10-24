@@ -23,54 +23,7 @@
 	<meta charset="utf-8" />
 	<base href="/" />
 	<title> Example: Upload Test</title>
-	<style type="text/css">
-		th{
-			border: 1px solid #000;
-			background-color: #000;
-			color: #fff;
-			text-align: left;
-			padding: 10px;
-		}
-		td{
-			border: 1px solid #000;
-			background-color: #fff;
-			color: #000;
-		}
-		.form-row {
-			display: block;
-			padding: 20px;
-		}
-
-		label{
-			font-weight: bold;
-		}
-
-		label.block {
-			display: block;
-			padding: 10px 0;
-		}
-
-		.events{
-			max-height: 300px;
-			overflow: scroll;
-			max-width: 50%;
-			
-		}
-		.results{
-			word-break: break-all;
-		}
-
-		::-webkit-scrollbar {
-		-webkit-appearance: none;
-		width: 7px;
-		}
-		
-		::-webkit-scrollbar-thumb {
-			border-radius: 4px;
-			background-color: rgba(0,0,0,.5);
-			-webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
-		}
-	</style>
+	<link rel="stylesheet" type="text/css" href="examples/examples.css">
 </head>
 
 <body>
@@ -80,7 +33,7 @@
 		<input type="checkbox" name="testType" value="IPv4" checked id="IPv4" />
 		<label for="IPv4">IPv4</label>
 		<input type="checkbox" name="testType" value="IPv6" id="IPv6" />
-		<label for="websockets">IPv6</label>
+		<label for="IPv6">IPv6</label>
 	</div>
 	<div class="form-row">
 		<p class="block">Event Trail:</p>
