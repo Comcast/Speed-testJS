@@ -28,7 +28,10 @@
     var testButton;
     var currentTest;
     var auditTrail;
+    var eventsEl;
+    var testVersions;
     var testRunner = [];
+    var testType = 'download';
     //event binding method for buttons
     function addEvent(el, ev, fn) {
         void (el.addEventListener && el.addEventListener(ev, fn, false));
@@ -37,83 +40,65 @@
     }
 
     //callback for xmlHttp complete event
-    function downloadHttpOnComplete(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnComplete', result: result });
-        document.querySelector('.download-' + version).value = result + ' Mbps';
+    function genericEventHandler(testName, version, result) {
+        //store call in event audit trail
+        auditTrail.push({ event: [version, typeType, ': ', testName].join(''), result: result });
+        //update field value
+        document.querySelector(['.', testType, '-', version].join('')).value = result + ' Mbps';
+        //update the audit trail on screen
         displayAuditTrail();
+        //if there are more tests to run
         var next = testRunner.shift();
         if (next) {
             next.start();
             return;
         }
+        //if no other tests to run
         //restore ability to choose tests again
         testButton.disabled = false;
-        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
+
         for (var i = 0; i < testVersions.length; i++) {
             testVersions[i].disabled = false;
         }
-    }
+    };
 
-    //callback for xmlHttp progress event
-    function downloadHttpOnProgress(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnProgress', result: result });
-        displayAuditTrail();
+    function onComplete(version, results) {
+        return function () {
+            genericEventHandler.call(this, 'onComplete', version, results);
+        };
     }
 
     //callback for xmlHttp error event
-    function downloadHttpOnError(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnError', result: result });
-        displayAuditTrail();
-        var next = testRunner.shift();
-        if (next) {
-            next.start();
-            return;
-        }
-        //restore ability to return tests again
-        testButton.disabled = false;
-
-        //restore ability to choose test type again
-        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
-        for (var i = 0; i < testVersions.length; i++) {
-            testVersions[i].disabled = false;
-        }
+    function onError(version, result) {
+        return function () {
+            genericEventHandler.call(this, 'onError', version, results);
+        };
     }
 
     //callback for xmlHttp abort event
-    function downloadHttpOnAbort(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnAbort', result: result });
-        displayAuditTrail();
-
-        //restore ability to choose tests again
-        testButton.disabled = false;
-        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
-        for (var i = 0; i < testVersions.length; i++) {
-            testVersions[i].disabled = false;
-        }
+    function onAbort(version, result) {
+        return function () {
+            genericEventHandler.call(this, 'onAbort', version, results);
+        };
     }
 
     //callback for xmlHttp timeout event
-    function downloadHttpOnTimeout(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnTimeout', result: result });
-        displayAuditTrail();
-        var next = testRunner.shift();
-
-        //restore ability to return tests again
-        testButton.disabled = false;
-
-        //restore ability to choose test type again
-        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
-        for (var i = 0; i < testVersions.length; i++) {
-            testVersions[i].disabled = false;
-        }
+    function onTimeout(version, result) {
+        return function () {
+            genericEventHandler.call(this, 'onTimeout', version, results);
+        };
     }
 
+    //callback for xmlHttp progress event
+    function onProgress(version, result) {
+        auditTrail.push({ event: [version, testType, ': onProgress'].join(''), result: result });
+        displayAuditTrail();
+    }
 
     //displays event trail from start to completion and they api results at those different points
     function displayAuditTrail() {
         var arr = [];
-        var events = document.querySelector('.events');
-        events.innerHTML = '';
+        eventsEl.innerHTML = '';
         if (auditTrail.length) {
             arr.push('<table><tr><th></th><th>Event</th><th>Results</th></tr>');
             for (var i = 0; i < auditTrail.length; i++) {
@@ -125,26 +110,31 @@
                         '</tr>'].join('')));
             }
             arr.push('</table>');
-            events.innerHTML = arr.join('');
+            eventsEl.innerHTML = arr.join('');
         }
     }
     //load event callback
     function initDownloadTest() {
-        //update testButton variable with testButton dom node reference
+        //reference run test button dom element
         testButton = document.querySelector('.action-start');
+        //reference to event trail parent element
+        eventsEl = document.querySelector('.events');
+        //disable testButton until a test version is chosen
         testButton.disabled = true;
-
         //register click event for http download tests
-        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
-        document.querySelector('.events').innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
+        testVersions = document.querySelectorAll('input[name = "testVersion"]');
+        //set event audit trail text to default value
+        eventsEl.innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
         var callback = function (version, func) {
             return function (event) {
                 func.call(this, event, version);
             };
         };
+        //bind click event to each checkbox
+        //this will also show/hide elements based on whether they are need for the test type or not
+        
         for (var i = 0, fields, checked; i < testVersions.length; i++) {
             addEvent(testVersions[i], 'click', callback(testVersions[i].value, function (e, version) {
-                var events = document.querySelector('.events');
                 var el = e.target || e.srcElement;
                 var checked = el.checked;
                 var relatedEl = document.querySelectorAll('.' + version);
@@ -153,7 +143,7 @@
                 var value = el.value;
                 //reset audit trail
                 //reset audit trail list
-                events.innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
+                eventsEl.innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
                 //reset lowest download value field
                 resultsEl.style.display = (checked) ? 'block' : 'none';
 
@@ -191,12 +181,12 @@
             //reset audit trail
             auditTrail = [];
             //reset audit trail list
-            document.querySelector('.events').innerHTML = '';
+            eventsEl.innerHTML = '';
             //get test type value
             var testVersions = document.querySelectorAll('input[name = "testVersion"]');
             //create an instance of downloadHttpTest
 
-            //set IPv6 version here
+            //set IPversion here
             var callback = function (version, func) {
                 return function (results) {
                     func.call(this, version, results);
@@ -212,8 +202,8 @@
                     testVersion = testVersions[i].value;
                     baseUrl = (testVersion === 'IPv6') ? '' : '';
                     testRunner.push(new window.downloadHttpConcurrent(baseUrl + '/download?bufferSize=100000000', 'GET', 4, 15000, 10000,
-                        callback(testVersion, downloadHttpOnComplete), callback(testVersion, downloadHttpOnProgress), callback(testVersion, downloadHttpOnAbort),
-                        callback(testVersion, downloadHttpOnTimeout), callback(testVersion, downloadHttpOnError)));
+                        callback(testVersion, onComplete), callback(testVersion, onProgress), callback(testVersion, onAbort),
+                        callback(testVersion, onTimeout), callback(testVersion, onError)));
 
                 }
             }
