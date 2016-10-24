@@ -21,7 +21,7 @@
     var oldOnload = window.onload;
     window.onload = function () {
         void (oldOnload instanceof Function && oldOnload());
-        initDownloadTest();
+        initTest();
     };
 
     //test button node will be made available through this variable
@@ -40,13 +40,19 @@
     }
 
     //callback for xmlHttp complete event
-    function genericEventHandler(testName, version, result) {
+    function genericEventHandler(testName, version, results) {
         //store call in event audit trail
-        auditTrail.push({ event: [version, typeType, ': ', testName].join(''), result: result });
+        auditTrail.push({ event: [version, testType, ': ', testName].join(''), results: results });
         //update field value
-        document.querySelector(['.', testType, '-', version].join('')).value = result + ' Mbps';
+        if (testName === 'onComplete') {
+            document.querySelector(['.', testType, '-', version].join('')).value = results + ' Mbps';
+        }
         //update the audit trail on screen
         displayAuditTrail();
+
+        if (testName === 'onProgress') {
+            return;
+        }
         //if there are more tests to run
         var next = testRunner.shift();
         if (next) {
@@ -63,37 +69,27 @@
     };
 
     function onComplete(version, results) {
-        return function () {
-            console.log('onComplete');
-            genericEventHandler.call(this, 'onComplete', version, results);
-        };
+        genericEventHandler.call(undefined, 'onComplete', version, results);
     }
 
     //callback for xmlHttp error event
-    function onError(version, result) {
-        return function () {
-            genericEventHandler.call(this, 'onError', version, results);
-        };
+    function onError(version, results) {
+        genericEventHandler.call(undefined, 'onError', version, results);
     }
 
     //callback for xmlHttp abort event
-    function onAbort(version, result) {
-        return function () {
-            genericEventHandler.call(this, 'onAbort', version, results);
-        };
+    function onAbort(version, results) {
+        genericEventHandler.call(undefined, 'onAbort', version, results);
     }
 
     //callback for xmlHttp timeout event
-    function onTimeout(version, result) {
-        return function () {
-            genericEventHandler.call(this, 'onTimeout', version, results);
-        };
+    function onTimeout(version, results) {
+        genericEventHandler.call(undefined, 'onTimeout', version, results);
     }
 
     //callback for xmlHttp progress event
-    function onProgress(version, result) {
-        auditTrail.push({ event: [version, testType, ': onProgress'].join(''), result: result });
-        displayAuditTrail();
+    function onProgress(version, results) {
+        genericEventHandler.call(undefined, 'onProgress', version, results);
     }
 
     //displays event trail from start to completion and they api results at those different points
@@ -107,15 +103,40 @@
                     ['<tr>',
                         '<td>' + (i + 1) + '</td>',
                         '<td>' + auditTrail[i].event + '</td>',
-                        '<td class="results">' + JSON.stringify(auditTrail[i].result) + '</td>',
+                        '<td class="results">' + JSON.stringify(auditTrail[i].results) + '</td>',
                         '</tr>'].join('')));
             }
             arr.push('</table>');
             eventsEl.innerHTML = arr.join('');
         }
     }
+
+    function clickEventHandler(e, version) {
+        var el = e.target || e.srcElement;
+        var checked = el.checked;
+        var relatedEl = document.querySelectorAll('.' + version);
+        var resultsEl = document.querySelectorAll(['.', testType, '-result'].join(''));
+        //reset audit trail
+        //reset audit trail list
+        eventsEl.innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
+        //reset lowest download value field
+
+        //reset results input values
+        for (var i = 0; i < resultsEl.length; i++) {
+            resultsEl[i].value = '';
+        }
+
+        //toggle all related elements
+        for (var i = 0; i < relatedEl.length; i++) {
+            relatedEl[i].style.display = (checked) ? 'block' : 'none';
+        }
+        //make sure at least one of ip version types is checked
+        var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
+        testButton.disabled = !anyChecked;
+    }
+
     //load event callback
-    function initDownloadTest() {
+    function initTest() {
         //reference run test button dom element
         testButton = document.querySelector('.action-start');
         //reference to event trail parent element
@@ -135,31 +156,7 @@
         //this will also show/hide elements based on whether they are need for the test type or not
 
         for (var i = 0, fields, checked; i < testVersions.length; i++) {
-            addEvent(testVersions[i], 'click', callback(testVersions[i].value, function (e, version) {
-                var el = e.target || e.srcElement;
-                var checked = el.checked;
-                var relatedEl = document.querySelectorAll('.' + version);
-                var resultsEl = document.querySelector(['.', testType, '-', version].join(''));
-                var display = el.style.display;
-                var value = el.value;
-                //reset audit trail
-                //reset audit trail list
-                eventsEl.innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
-                //reset lowest download value field
-                resultsEl.style.display = (checked) ? 'block' : 'none';
-
-                //clear both result types
-                var resultsEl = document.querySelector('.download-IPv4').value = '';
-                var resultsEl = document.querySelector('.download-IPv6').value = '';
-
-                //toggle all related elements
-                for (var i = 0; i < relatedEl.length; i++) {
-                    relatedEl[i].style.display = (checked) ? 'block' : 'none';
-                }
-                //make sure at least one of ip version types is checked
-                var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
-                testButton.disabled = !anyChecked;
-            }));
+            addEvent(testVersions[i], 'click', callback(testVersions[i].value, clickEventHandler));
 
             //filelds related to test type (i.e. ipv4, ipv6).
             fields = document.querySelectorAll('.' + testVersions[i].value);
@@ -202,7 +199,6 @@
                     testRunner.push(new window.downloadHttpConcurrent(baseUrl + '/download?bufferSize=100000000', 'GET', 4, 15000, 10000,
                         callback(testVersion, onComplete), callback(testVersion, onProgress), callback(testVersion, onAbort),
                         callback(testVersion, onTimeout), callback(testVersion, onError)));
-
                 }
             }
             var next = testRunner.shift();
