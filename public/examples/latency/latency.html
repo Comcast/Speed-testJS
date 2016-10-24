@@ -32,8 +32,8 @@
 		<p> Select Test Protocol:</p>
 		<input type="checkbox" name="testProtocol" value="http" checked id="http" />
 		<label for="http">http</label>
-		<input type="checkbox" name="testProtocol" value="websockets" id="websockets" />
-		<label for="websockets">websockets</label>
+		<input type="checkbox" name="testProtocol" value="webSocket" id="webSocket" />
+		<label for="webSocket">webSocket</label>
 		<p> Select IP version:</p>
 		<input type="checkbox" name="testVersion" value="IPv4" checked id="IPv4" />
 		<label for="IPv4">IPv4</label>
@@ -47,13 +47,13 @@
 	</div>
 	<div class="form-row">
 		<label for="latency-http-IPv4" class="block IPv4">Latency Result (lowest value, IPv4, HTTP)</label>
-		<input class="latency-http-IPv4 IPv4 latency-result" name="latency-http-IPv4" id="latency-http-IPv4" disabled/>
+		<input class="latency-http-IPv4 http IPv4 latency-result" name="latency-http-IPv4" id="latency-http-IPv4" disabled/>
 		<label for="latency-http-IPv6" class="block IPv6">Latency Result (lowest value, IPv6, HTTP)</label>
-		<input class="latency-http-IPv6 IPv6 latency-result" name="latency-http-IPv6" id="latency-http-IPv6" disabled/>
-		<label for="latency-webSockets-IPv4" class="block IPv4">Latency Result (lowest value, IPv4, web sockets)</label>
-		<input class="latency-webSockets-IPv4 IPv4 latency-result" name="latency-webSockets-IPv4" id="latency-webSockets-IPv4" disabled/>
-		<label for="latency-webSockets-IPv6" class="block IPv6">Latency Result (lowest value, IPv6, web sockets)</label>
-		<input class="latency-webSockets-IPv6 IPv6 latency-result" name="latency-webSockets-IPv6" id="latency-webSockets-IPv6" disabled/>
+		<input class="latency-http-IPv6 http IPv6 latency-result" name="latency-http-IPv6" id="latency-http-IPv6" disabled/>
+		<label for="latency-webSocket-IPv4" class="block webSocket IPv4">Latency Result (lowest value, IPv4, web socket)</label>
+		<input class="latency-webSocket-IPv4 webSocket IPv4 latency-result" name="latency-webSocket-IPv4" id="latency-webSocket-IPv4" disabled/>
+		<label for="latency-webSocket-IPv6" class="block IPv6 webSocket">Latency Result (lowest value, IPv6, web socket)</label>
+		<input class="latency-webSocket-IPv6 IPv6 webSocket latency-result" name="latency-webSocket-IPv6" id="latency-webSocket-IPv6" disabled/>
 	</div>
 	<div class="form-row">
 		<button class="action-start">Run Test</button>

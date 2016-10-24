@@ -92,7 +92,6 @@
                 return +a.time - +b.time;
             });
             //display to end user
-            console.log(['.', testType, '-', testProtocol, '-', version].join(''));
             document.querySelector(['.', testType, '-', testProtocol, '-', version].join('')).value = arr[0].time + 'ms';
         }
         //update the audit trail on screen
@@ -180,9 +179,11 @@
         for (var i = 0; i < relatedEl.length; i++) {
             relatedEl[i].style.display = (checked) ? 'block' : 'none';
         }
+        
         //make sure at least one of ip version types is checked
-        var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
-        testButton.disabled = !anyChecked;
+        var testVersionChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
+        var testProtocolChecked = !!document.querySelectorAll('input[name = "testProtocol"]:checked').length;
+        testButton.disabled = !testVersionChecked && !testProtocolChecked;
     }
 
     //load event callback
@@ -211,7 +212,7 @@
             //bind click event to each checkbox
             //this will also show/hide elements based on whether they are need for the test type or not
 
-            for (var i = 0, fields, checked; i < testVersions.length; i++) {
+            for (var i = 0, fields, checked, testVersionChecked; i < testVersions.length; i++) {
                 addEvent(testVersions[i], 'click', callback(testVersions[i].value, clickEventHandler));
 
                 //filelds and labels related to test type (i.e. IPv4, IPv6).
@@ -221,9 +222,24 @@
                     fields[k].style.display = (checked) ? 'block' : 'none';
                 }
                 testVersions[i].disabled = (testVersions[i].value === 'IPv6' && !testPlan.hasIPv6) ? true : false;
-                //make sure at least one of ip version types is checked
-                var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
-                testButton.disabled = !anyChecked;
+                //make sure at least one ip version is checked
+                testVersionsChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
+                testButton.disabled = !testVersionChecked;
+            }
+
+
+            for (var i = 0, fields, checked, anyChecked, testProtocolChecked; i < testProtocols.length; i++) {
+                addEvent(testProtocols[i], 'click', callback(testProtocols[i].value, clickEventHandler));
+
+                //filelds and labels related to test protocol (i.e. http, webSocket).
+                fields = document.querySelectorAll('.' + testProtocols[i].value);
+                for (var k = 0, checked; k < fields.length; k++) {
+                    checked = testProtocols[i].checked;
+                    fields[k].style.display = (checked) ? 'block' : 'none';
+                }
+                //make sure at least one protocols is checked
+                testProtocolChecked = !!document.querySelectorAll('input[name = "testProtocol"]:checked').length;
+                testButton.disabled = !testProtocolChecked;
             }
 
             //add click event on "run test" button
@@ -259,22 +275,25 @@
                         }
                         //IP version
                         testVersion = testVersions[i].value;
-                        testProtocol = testProtocols[i].value;
-                        if (testPlan && testPlan['baseUrl' + testVersion]) {
-                            if (testProtocol === 'http') {
-                                //create an instance of latencyHttpTest
-                                baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/latency'].join('');
-                                testRunner.push(new window.latencyHttpTest(baseUrl, 10, 30000, callback('http', testVersion, onComplete), callback('http', testVersion, onProgress),
-                                    callback(testProtocol, testVersion, onAbort), callback(testVersion, onTimeout), callback('http', testVersion, onError)));
-                                //start latencyHttpTest
+                        for (var k = 0; k < testProtocols.length; k++) {
+                            testProtocol = testProtocols[k].value;
+                            if (testPlan && testPlan['baseUrl' + testVersion]) {
+                                if (testProtocol === 'http') {
+                                    //create an instance of latencyHttpTest
+                                    baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/latency'].join('');
+                                    testRunner.push(new window.latencyHttpTest(baseUrl, 10, 30000, callback('http', testVersion, onComplete), callback('http', testVersion, onProgress),
+                                        callback(testProtocol, testVersion, onAbort), callback(testVersion, onTimeout), callback('http', testVersion, onError)));
+                                    //start latencyHttpTest
+                                }
+                                if (testProtocol === 'webSocket') {
+                                    //create an instance of latencyWebSocketTest
+                                    baseUrl = [testPlan['webSocketUrl' + testVersion], '/latency'].join('');
+                                    testRunner.push(new window.latencyWebSocketTest(baseUrl, 'GET', '0', '10', 3000, callback('webSocket', testVersion, onComplete),
+                                        callback(testProtocol, testVersion, onProgress), callback('webSocket', testVersion, onError)));
+                                    //start latencyWebSocketTest
+                                }
                             }
-                            if (testProtocol === 'websockets') {
-                                //create an instance of latencyWebSocketTest
-                                baseUrl = [testPlan['webSocketsUrl' + testVersion], '/latency'].join('');
-                                testRunner.pus(new window.latencyWebSocketTest(baseUrl, 'GET', '0', '10', 3000, callback('webSockets', testVersion, onComplete),
-                                    callback(testProtocol, testVersion, onProgress), callback('webSockets', testVersion, onError)));
-                                //start latencyWebSocketTest
-                            }
+
                         }
                     }
                 }
