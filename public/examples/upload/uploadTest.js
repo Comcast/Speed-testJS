@@ -29,6 +29,7 @@
     var currentTest;
     var auditTrail;
     var testRunner = [];
+
     //event binding method for buttons
     function addEvent(el, ev, fn) {
         void (el.addEventListener && el.addEventListener(ev, fn, false));
@@ -48,9 +49,9 @@
         }
         //restore ability to choose tests again
         testButton.disabled = false;
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        for (var i = 0; i < testTypes.length; i++) {
-            testTypes[i].disabled = false;
+        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
+        for (var i = 0; i < testVersions.length; i++) {
+            testVersions[i].disabled = false;
         }
     }
 
@@ -73,9 +74,9 @@
         testButton.disabled = false;
 
         //restore ability to choose test type again
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        for (var i = 0; i < testTypes.length; i++) {
-            testTypes[i].disabled = false;
+        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
+        for (var i = 0; i < testVersions.length; i++) {
+            testVersions[i].disabled = false;
         }
     }
 
@@ -105,15 +106,15 @@
         testButton.disabled = true;
 
         //register click event for http upload tests
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
+        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
         document.querySelector('.events').innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
         var callback = function (version, func) {
             return function (event) {
                 func.call(this, event, version);
             };
         };
-        for (var i = 0, fields, checked; i < testTypes.length; i++) {
-            addEvent(testTypes[i], 'click', callback(testTypes[i].value, function (e, version) {
+        for (var i = 0, fields, checked; i < testVersions.length; i++) {
+            addEvent(testVersions[i], 'click', callback(testVersions[i].value, function (e, version) {
                 var events = document.querySelector('.events');
                 var el = e.target || e.srcElement;
                 var checked = el.checked;
@@ -136,18 +137,18 @@
                     relatedEl[i].style.display = (checked) ? 'block' : 'none';
                 }
                 //make sure at least one of ip version types is checked
-                var anyChecked = !!document.querySelectorAll('input[name = "testType"]:checked').length;
+                var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
                 testButton.disabled = !anyChecked;
             }));
 
             //filelds related to test type (i.e. ipv4, ipv6).
-            fields = document.querySelectorAll('.' + testTypes[i].value);
+            fields = document.querySelectorAll('.' + testVersions[i].value);
             for (var k = 0, checked; k < fields.length; k++) {
-                checked = testTypes[i].checked;
+                checked = testVersions[i].checked;
                 fields[k].style.display = (checked) ? 'block' : 'none';
             }
             //make sure at least one of ip version types is checked
-            var anyChecked = !!document.querySelectorAll('input[name = "testType"]:checked').length;
+            var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
             testButton.disabled = !anyChecked;
         }
 
@@ -163,7 +164,7 @@
             //reset audit trail list
             document.querySelector('.events').innerHTML = '';
             //get test type value
-            var testTypes = document.querySelectorAll('input[name = "testType"]');
+            var testVersions = document.querySelectorAll('input[name = "testVersion"]');
             //create an instance of uploadHttpTest
 
             //set IPv6 version here
@@ -175,14 +176,14 @@
 
             //disable the checkbox while test is running
             //for all checked test types run the upload test
-            for (var i = 0, testType, checked; i < testTypes.length; i++) {
-                checked = testTypes[i].checked;
-                testTypes[i].disabled = true;
+            for (var i = 0, testVersion, checked; i < testVersions.length; i++) {
+                checked = testVersions[i].checked;
+                testVersions[i].disabled = true;
                 if (checked) {
-                    testType = testTypes[i].value;
-                    baseUrl = (testType === 'IPv6') ? '' : '';
+                    testVersion = testVersions[i].value;
+                    baseUrl = (testVersion === 'IPv6') ? '' : '';
                     testRunner.push(new window.uploadHttpConcurrent(baseUrl + '/upload', 'POST', 2, 15000, 15000,
-                        callback(testType, uploadHttpOnComplete), callback(testType, uploadHttpOnProgress), callback(testType, uploadHttpOnError), 500000));
+                        callback(testVersion, uploadHttpOnComplete), callback(testVersion, uploadHttpOnProgress), callback(testVersion, uploadHttpOnError), 500000));
                 }
             }
             var next = testRunner.shift();

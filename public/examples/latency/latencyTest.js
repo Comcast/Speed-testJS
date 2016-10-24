@@ -120,14 +120,13 @@
     function initLatencyTest() {
         //update testButton variable with testButton dom node reference
         testButton = document.querySelector('.action-start');
-        var auditButton = document.querySelector('.action-audit-trail');
 
         //register click event for http latency tests
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
+        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
         document.querySelector('.events').innerHTML = 'Click "Run Test" to begin';
 
-        for (var i = 0; i < testTypes.length; i++) {
-            addEvent(testTypes[i], 'click', function () {
+        for (var i = 0; i < testVersions.length; i++) {
+            addEvent(testVersions[i], 'click', function () {
                 //reset audit trail
                 auditTrail = [];
                 //reset audit trail list
@@ -147,15 +146,15 @@
             //reset audit trail list
             document.querySelector('.events').innerHTML = 'Click "Run Test" to begin';
             //get test type value
-            var testType = document.querySelector('input[name = "testType"]:checked').value;
+            var testVersion = document.querySelector('input[name = "testVersion"]:checked').value;
 
-            if (testType === 'http') {
+            if (testVersion === 'http') {
                 //create an instance of latencyHttpTest
                 var latencyHttpTestSuite = new window.latencyHttpTest('/latency', 10, 30000, latencyHttpOnComplete, latencyHttpOnProgress,
                     latencyHttpOnAbort, latencyHttpOnTimeout, latencyHttpOnError);
                 //start latencyHttpTest
                 latencyHttpTestSuite.start();
-            } else if (testType === 'websockets') {
+            } else if (testVersion === 'websockets') {
                 //create an instance of latencyWebSocketTest
                 var latencyWebSocketTest = new window.latencyWebSocketTest('ws://localhost:3001', 'GET', '0', '10', 3000, latencyWebSocketOnComplete,
                     latencyWebSocketOnProgress, latencyWebSocketOnError);

@@ -48,9 +48,9 @@
         }
         //restore ability to choose tests again
         testButton.disabled = false;
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        for (var i = 0; i < testTypes.length; i++) {
-            testTypes[i].disabled = false;
+        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
+        for (var i = 0; i < testVersions.length; i++) {
+            testVersions[i].disabled = false;
         }
     }
 
@@ -73,9 +73,9 @@
         testButton.disabled = false;
 
         //restore ability to choose test type again
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        for (var i = 0; i < testTypes.length; i++) {
-            testTypes[i].disabled = false;
+        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
+        for (var i = 0; i < testVersions.length; i++) {
+            testVersions[i].disabled = false;
         }
     }
 
@@ -86,9 +86,9 @@
 
         //restore ability to choose tests again
         testButton.disabled = false;
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        for (var i = 0; i < testTypes.length; i++) {
-            testTypes[i].disabled = false;
+        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
+        for (var i = 0; i < testVersions.length; i++) {
+            testVersions[i].disabled = false;
         }
     }
 
@@ -102,9 +102,9 @@
         testButton.disabled = false;
 
         //restore ability to choose test type again
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        for (var i = 0; i < testTypes.length; i++) {
-            testTypes[i].disabled = false;
+        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
+        for (var i = 0; i < testVersions.length; i++) {
+            testVersions[i].disabled = false;
         }
     }
 
@@ -135,15 +135,15 @@
         testButton.disabled = true;
 
         //register click event for http download tests
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
+        var testVersions = document.querySelectorAll('input[name = "testVersion"]');
         document.querySelector('.events').innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
         var callback = function (version, func) {
             return function (event) {
                 func.call(this, event, version);
             };
         };
-        for (var i = 0, fields, checked; i < testTypes.length; i++) {
-            addEvent(testTypes[i], 'click', callback(testTypes[i].value, function (e, version) {
+        for (var i = 0, fields, checked; i < testVersions.length; i++) {
+            addEvent(testVersions[i], 'click', callback(testVersions[i].value, function (e, version) {
                 var events = document.querySelector('.events');
                 var el = e.target || e.srcElement;
                 var checked = el.checked;
@@ -166,18 +166,18 @@
                     relatedEl[i].style.display = (checked) ? 'block' : 'none';
                 }
                 //make sure at least one of ip version types is checked
-                var anyChecked = !!document.querySelectorAll('input[name = "testType"]:checked').length;
+                var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
                 testButton.disabled = !anyChecked;
             }));
 
             //filelds related to test type (i.e. ipv4, ipv6).
-            fields = document.querySelectorAll('.' + testTypes[i].value);
+            fields = document.querySelectorAll('.' + testVersions[i].value);
             for (var k = 0, checked; k < fields.length; k++) {
-                checked = testTypes[i].checked;
+                checked = testVersions[i].checked;
                 fields[k].style.display = (checked) ? 'block' : 'none';
             }
             //make sure at least one of ip version types is checked
-            var anyChecked = !!document.querySelectorAll('input[name = "testType"]:checked').length;
+            var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
             testButton.disabled = !anyChecked;
         }
 
@@ -193,7 +193,7 @@
             //reset audit trail list
             document.querySelector('.events').innerHTML = '';
             //get test type value
-            var testTypes = document.querySelectorAll('input[name = "testType"]');
+            var testVersions = document.querySelectorAll('input[name = "testVersion"]');
             //create an instance of downloadHttpTest
 
             //set IPv6 version here
@@ -205,15 +205,15 @@
 
             //disable the checkbox while test is running
             //for all checked test types run the download test
-            for (var i = 0, testType, checked; i < testTypes.length; i++) {
-                checked = testTypes[i].checked;
-                testTypes[i].disabled = true;
+            for (var i = 0, testVersion, checked; i < testVersions.length; i++) {
+                checked = testVersions[i].checked;
+                testVersions[i].disabled = true;
                 if (checked) {
-                    testType = testTypes[i].value;
-                    baseUrl = (testType === 'IPv6') ? '' : '';
+                    testVersion = testVersions[i].value;
+                    baseUrl = (testVersion === 'IPv6') ? '' : '';
                     testRunner.push(new window.downloadHttpConcurrent(baseUrl + '/download?bufferSize=100000000', 'GET', 4, 15000, 10000,
-                        callback(testType, downloadHttpOnComplete), callback(testType, downloadHttpOnProgress), callback(testType, downloadHttpOnAbort),
-                        callback(testType, downloadHttpOnTimeout), callback(testType, downloadHttpOnError)));
+                        callback(testVersion, downloadHttpOnComplete), callback(testVersion, downloadHttpOnProgress), callback(testVersion, downloadHttpOnAbort),
+                        callback(testVersion, downloadHttpOnTimeout), callback(testVersion, downloadHttpOnError)));
 
                 }
             }
