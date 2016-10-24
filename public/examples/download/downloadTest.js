@@ -21,17 +21,23 @@
     var oldOnload = window.onload;
     window.onload = function () {
         void (oldOnload instanceof Function && oldOnload());
+        //init for test
         initTest();
     };
 
     //test button node will be made available through this variable
     var testButton;
-    var currentTest;
+    //private object to track event calls and results
     var auditTrail;
+    //reference to event audit trail parent dom el
     var eventsEl;
+    //reference to input elements allowing users to choose IP version for test
     var testVersions;
+    //get the base url and server information from local node server to be used to run tests
     var testPlan;
+    //array used to setup up ordering for test execution based on IP version
     var testRunner = [];
+    //the type of test. options are upload, download, latency
     var testType = 'download';
     //event binding method for buttons
     function addEvent(el, ev, fn) {
@@ -39,7 +45,7 @@
         void (el.attachEvent && el.attachEvent('on' + ev, fn));
         void (!(el.addEventListener || el.attachEvent) && function (el, ev) { el['on' + ev] = fn } (el, ev));
     }
-
+    //get json with testPlan info
     function getTestPlan(func) {
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
@@ -109,6 +115,7 @@
     }
 
     //displays event trail from start to completion and they api results at those different points
+    //creates table for displaying event audit trail
     function displayAuditTrail() {
         var arr = [];
         eventsEl.innerHTML = '';
@@ -126,7 +133,8 @@
             eventsEl.innerHTML = arr.join('');
         }
     }
-
+    
+    //basic click event binding
     function clickEventHandler(e, version) {
         var el = e.target || e.srcElement;
         var checked = el.checked;
@@ -195,8 +203,10 @@
                 e.preventDefault();
 
                 testButton.disabled = true;
+                
                 //reset audit trail
                 auditTrail = [];
+                
                 //reset audit trail list
                 eventsEl.innerHTML = '';
 
