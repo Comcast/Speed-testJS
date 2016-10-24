@@ -64,6 +64,7 @@
 
     function onComplete(version, results) {
         return function () {
+            console.log('onComplete');
             genericEventHandler.call(this, 'onComplete', version, results);
         };
     }
@@ -132,13 +133,13 @@
         };
         //bind click event to each checkbox
         //this will also show/hide elements based on whether they are need for the test type or not
-        
+
         for (var i = 0, fields, checked; i < testVersions.length; i++) {
             addEvent(testVersions[i], 'click', callback(testVersions[i].value, function (e, version) {
                 var el = e.target || e.srcElement;
                 var checked = el.checked;
                 var relatedEl = document.querySelectorAll('.' + version);
-                var resultsEl = document.querySelector('.download-' + version);
+                var resultsEl = document.querySelector(['.', testType, '-', version].join(''));
                 var display = el.style.display;
                 var value = el.value;
                 //reset audit trail
@@ -182,9 +183,6 @@
             auditTrail = [];
             //reset audit trail list
             eventsEl.innerHTML = '';
-            //get test type value
-            var testVersions = document.querySelectorAll('input[name = "testVersion"]');
-            //create an instance of downloadHttpTest
 
             //set IPversion here
             var callback = function (version, func) {
