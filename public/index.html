@@ -44,7 +44,7 @@ xhr.onreadystatechange = function() {
       var data = JSON.parse(xhr.responseText);
       console.dir(data);
     }
-}
+};
 xhr.open('GET', '/testplan', true);
 xhr.send(null);
 
