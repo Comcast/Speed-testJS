@@ -30,6 +30,7 @@
     var auditTrail;
     var eventsEl;
     var testVersions;
+    var testPlan;
     var testRunner = [];
     var testType = 'download';
     //event binding method for buttons
@@ -37,6 +38,21 @@
         void (el.addEventListener && el.addEventListener(ev, fn, false));
         void (el.attachEvent && el.attachEvent('on' + ev, fn));
         void (!(el.addEventListener || el.attachEvent) && function (el, ev) { el['on' + ev] = fn } (el, ev));
+    }
+
+    function getTestPlan(func) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                //make testPlan data globally available to functions
+                testPlan = JSON.parse(xhr.responseText);
+                if (func) {
+                    func(testPlan);
+                }
+            }
+        }
+        xhr.open('GET', '/testplan', true);
+        xhr.send(null);
     }
 
     //callback for xmlHttp complete event
@@ -64,7 +80,7 @@
         testButton.disabled = false;
 
         for (var i = 0; i < testVersions.length; i++) {
-            testVersions[i].disabled = false;
+            testVersions[i].disabled = (testVersions[i].value === 'IPv6' && !testPlan.hasIPv6) ? true : false;
         }
     };
 
@@ -137,75 +153,87 @@
 
     //load event callback
     function initTest() {
-        //reference run test button dom element
-        testButton = document.querySelector('.action-start');
-        //reference to event trail parent element
-        eventsEl = document.querySelector('.events');
-        //disable testButton until a test version is chosen
-        testButton.disabled = true;
-        //register click event for http download tests
-        testVersions = document.querySelectorAll('input[name = "testVersion"]');
-        //set event audit trail text to default value
-        eventsEl.innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
-        var callback = function (version, func) {
-            return function (event) {
-                func.call(this, event, version);
-            };
-        };
-        //bind click event to each checkbox
-        //this will also show/hide elements based on whether they are need for the test type or not
-
-        for (var i = 0, fields, checked; i < testVersions.length; i++) {
-            addEvent(testVersions[i], 'click', callback(testVersions[i].value, clickEventHandler));
-
-            //filelds related to test type (i.e. ipv4, ipv6).
-            fields = document.querySelectorAll('.' + testVersions[i].value);
-            for (var k = 0, checked; k < fields.length; k++) {
-                checked = testVersions[i].checked;
-                fields[k].style.display = (checked) ? 'block' : 'none';
-            }
-            //make sure at least one of ip version types is checked
-            var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
-            testButton.disabled = !anyChecked;
-        }
-
-        //add click event on "run test" button
-        addEvent(testButton, 'click', function (e) {
-            //prevent default click action in browser;
-            var baseUrl = '';
-            e.preventDefault();
-
+        //get test plan and then run code
+        getTestPlan(function (testPlan) {
+            //reference run test button dom element
+            testButton = document.querySelector('.action-start');
+            //reference to event trail parent element
+            eventsEl = document.querySelector('.events');
+            //disable testButton until a test version is chosen
             testButton.disabled = true;
-            //reset audit trail
-            auditTrail = [];
-            //reset audit trail list
-            eventsEl.innerHTML = '';
-
-            //set IPversion here
+            //register click event for http download tests
+            testVersions = document.querySelectorAll('input[name = "testVersion"]');
+            //set event audit trail text to default value
+            eventsEl.innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
             var callback = function (version, func) {
-                return function (results) {
-                    func.call(this, version, results);
+                return function (event) {
+                    func.call(this, event, version);
                 };
             };
+            //bind click event to each checkbox
+            //this will also show/hide elements based on whether they are need for the test type or not
 
-            //disable the checkbox while test is running
-            //for all checked test types run the download test
-            for (var i = 0, testVersion, checked; i < testVersions.length; i++) {
-                checked = testVersions[i].checked;
-                testVersions[i].disabled = true;
-                if (checked) {
-                    testVersion = testVersions[i].value;
-                    baseUrl = (testVersion === 'IPv6') ? '' : '';
-                    testRunner.push(new window.downloadHttpConcurrent(baseUrl + '/download?bufferSize=100000000', 'GET', 4, 15000, 10000,
-                        callback(testVersion, onComplete), callback(testVersion, onProgress), callback(testVersion, onAbort),
-                        callback(testVersion, onTimeout), callback(testVersion, onError)));
+            for (var i = 0, fields, checked; i < testVersions.length; i++) {
+                addEvent(testVersions[i], 'click', callback(testVersions[i].value, clickEventHandler));
+
+                //filelds and labels related to test type (i.e. ipv4, ipv6).
+                fields = document.querySelectorAll('.' + testVersions[i].value);
+                for (var k = 0, checked; k < fields.length; k++) {
+                    checked = testVersions[i].checked;
+                    fields[k].style.display = (checked) ? 'block' : 'none';
                 }
+                testVersions[i].disabled = (testVersions[i].value === 'IPv6' && !testPlan.hasIPv6) ? true : false;
+                //make sure at least one of ip version types is checked
+                var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
+                testButton.disabled = !anyChecked;
             }
-            var next = testRunner.shift();
-            if (next) {
-                next.start();
-            }
+
+            //add click event on "run test" button
+            addEvent(testButton, 'click', function (e) {
+                //prevent default click action in browser;
+                var baseUrl = '';
+                e.preventDefault();
+
+                testButton.disabled = true;
+                //reset audit trail
+                auditTrail = [];
+                //reset audit trail list
+                eventsEl.innerHTML = '';
+
+                //set IPversion here
+                var callback = function (version, func) {
+                    return function (results) {
+                        func.call(this, version, results);
+                    };
+                };
+
+                //disable the checkbox while test is running
+                //for all checked test types run the download test
+                for (var i = 0, testVersion, checked; i < testVersions.length; i++) {
+                    checked = testVersions[i].checked && !testVersions[i].disabled;
+                    if (checked) {
+                        testVersions[i].disabled = true;
+                        var resultsEl = document.querySelectorAll(['.', testType, '-result'].join(''));
+                        for (var k = 0; k < resultsEl.length; k++) {
+                            resultsEl[k].value = '';
+                        }
+                        testVersion = testVersions[i].value;
+                        if (testPlan && testPlan['baseUrl' + testVersion]) {
+                            baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/download?bufferSize=100000000'].join('');
+                            testRunner.push(new window.downloadHttpConcurrent(baseUrl, 'GET', 4, 15000, 10000,
+                                callback(testVersion, onComplete), callback(testVersion, onProgress), callback(testVersion, onAbort),
+                                callback(testVersion, onTimeout), callback(testVersion, onError)));
+                        }
+                    }
+                }
+                var next = testRunner.shift();
+                if (next) {
+                    next.start();
+                }
+            });
+
         });
+
     }
 
 })();
