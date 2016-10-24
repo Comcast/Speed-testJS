@@ -36,6 +36,7 @@
 <script src="lib/latencyHttpTest.js"></script>
 <script src="lib/latencyWebSocketTest.js"></script>
 <script src="lib/downloadHttpConcurrent.js"></script>
+<script src="lib/downloadHttpConcurrentProgress.js"></script>
 <script src="lib/uploadHttpConcurrent.js"></script>
 <script>
 var xhr = new XMLHttpRequest();
@@ -90,7 +91,7 @@ latencyWebSocketTest.start();
 */
 
 //downloadHttpConcurrent
-
+/*
 function calculateStatsonComplete(result) {
   console.log(result);
 }
@@ -121,7 +122,7 @@ var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/downlo
 downloadHttpOnAbort,downloadHttpOnTimeout,downloadHttpOnError);
 downloadHttpConcurrentTestSuite.start();
 
-
+*/
 //uploadHttpConcurrent
 /*
 function uploadHttpOnComplete(result){
@@ -146,5 +147,36 @@ var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent('/upload','P
 uploadHttpOnError,500000);
 uploadHttpConcurrentTestSuite.start();
 */
+
+function calculateStatsonComplete(result) {
+    console.log(result);
+}
+
+function calculateStatsonError(result) {
+    console.log(result);
+}
+
+function downloadHttpOnComplete(result){
+    console.log('downloadHttpOnComplete');
+    console.dir(result);
+    var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
+    calculateMeanStats.performCalculations();
+}
+function downloadHttpOnProgress(result){
+    console.log('resultOnProgress: ' + result);
+}
+function downloadHttpOnAbort(result){
+    //console.dir(result);
+}
+function downloadHttpOnTimeout(result){
+    console.dir(result);
+}
+function downloadHttpOnError(result){
+    console.dir(result);
+}
+
+var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrentProgress('/download?bufferSize=10000000','GET', 6 ,15000, 10000,10,downloadHttpOnComplete, downloadHttpOnProgress,
+        downloadHttpOnAbort,downloadHttpOnTimeout,downloadHttpOnError);
+downloadHttpConcurrentTestSuite.start();
 
 </script>
