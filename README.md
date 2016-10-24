@@ -1,3 +1,5 @@
+<img src="https://travis-ci.com/Comcast/Speed-testJS.svg?token=az4nWCYAfTiiz3zyEFcf&branch=master">
+
 # SpeedtestJS
 Initializing Repo
 
