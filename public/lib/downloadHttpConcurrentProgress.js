@@ -146,7 +146,6 @@
         this._progressCount++;
         //populate array
         this._progressResults['arrayProgressResults' + result.id].push(result.bandwidth);
-
         //calculate moving average
         if (this._progressCount % this.movingAverage === 0) {
             //check if all test still running
@@ -154,6 +153,7 @@
                 //loop thru active tests to calculate totalMovingAverage
                 var totalMovingAverage = 0;
                 for (var i = 0; i < this._activeTests.length; i++) {
+
                     if (typeof(this._activeTests[i]) !== 'undefined') {
                         // get array size and loop thru size of moving average series or array length
                         var lastElem = Math.min(this._progressResults['arrayProgressResults' + this._activeTests[i].testRun].length, this.movingAverage);
@@ -166,9 +166,9 @@
                                 }
                             }
                             singleMovingAverage = singleMovingAverage / lastElem;
-                        }
+                            totalMovingAverage = totalMovingAverage + singleMovingAverage;
 
-                        totalMovingAverage = totalMovingAverage + singleMovingAverage;
+                        }
                     }
 
                 }
