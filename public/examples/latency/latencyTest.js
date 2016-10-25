@@ -161,41 +161,51 @@
 
     //basic click event binding
     function clickEventHandler(e, version) {
-        var el = e.target || e.srcElement;
-        var checked = el.checked;
-        var relatedEl = document.querySelectorAll('.' + version);
-        var resultsEl = document.querySelectorAll(['.', testType, '-result'].join(''));
+        var checked = {};
+        var testVersionChecked;
+        var testProtocolChecked;
         //reset audit trail
         //reset audit trail list
         eventsEl.innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
-        //reset lowest download value field
-
-        //reset results input values
-        for (var i = 0; i < resultsEl.length; i++) {
-            resultsEl[i].value = '';
+        for (var i = 0; i < testVersions.length; i++) {
+            checked[testVersions[i].value] = testVersions[i].checked;
+            if (testVersions[i].checked && !testVersionChecked) {
+                testVersionChecked = true;
+            }
         }
 
-        //toggle all related elements
-        for (var i = 0; i < relatedEl.length; i++) {
-            relatedEl[i].style.display = (checked) ? 'block' : 'none';
+        for (var i = 0, el; i < testProtocols.length; i++) {
+            checked[testProtocols[i].value] = testProtocols[i].checked;
+            if (testProtocols[i].checked && !testProtocolChecked) {
+                testProtocolChecked = true;
+            }
         }
-        
-        //make sure at least one of ip version types is checked
-        var testVersionChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
-        var testProtocolChecked = !!document.querySelectorAll('input[name = "testProtocol"]:checked').length;
-        testButton.disabled = !testVersionChecked && !testProtocolChecked;
+
+        document.querySelector('input.http.IPv4').style.display = (checked['http'] && checked['IPv4']) ? 'block' : 'none';
+        document.querySelector('input.http.IPv4').value = '';
+        document.querySelector('label.http.IPv4').style.display = (checked['http'] && checked['IPv4']) ? 'block' : 'none';
+        document.querySelector('input.http.IPv6').style.display = (checked['http'] && checked['IPv6']) ? 'block' : 'none';
+        document.querySelector('input.http.IPv6').value = '';
+        document.querySelector('label.http.IPv6').style.display = (checked['http'] && checked['IPv6']) ? 'block' : 'none';
+        document.querySelector('input.webSocket.IPv4').style.display = (checked['webSocket'] && checked['IPv4']) ? 'block' : 'none';
+        document.querySelector('input.webSocket.IPv4').value = '';
+        document.querySelector('label.webSocket.IPv4').style.display = (checked['webSocket'] && checked['IPv4']) ? 'block' : 'none';
+        document.querySelector('input.webSocket.IPv6').style.display = (checked['webSocket'] && checked['IPv6']) ? 'block' : 'none';
+        document.querySelector('input.webSocket.IPv6').value = '';
+        document.querySelector('label.webSocket.IPv6').style.display = (checked['webSocket'] && checked['IPv6']) ? 'block' : 'none';
+        testButton.disabled = !(testVersionChecked && testProtocolChecked);
     }
 
     //load event callback
     function initTest() {
         //get test plan and then run code
         getTestPlan(function (testPlan) {
+            var testVersionChecked;
+            var testProtocolChecked;
             //reference run test button dom element
             testButton = document.querySelector('.action-start');
             //reference to event trail parent element
             eventsEl = document.querySelector('.events');
-            //disable testButton until a test version is chosen
-            testButton.disabled = true;
             //register click event for http download tests
             testVersions = document.querySelectorAll('input[name = "testVersion"]');
 
@@ -209,38 +219,38 @@
                     func.call(this, event, version);
                 };
             };
+
+            var checked = {};
             //bind click event to each checkbox
             //this will also show/hide elements based on whether they are need for the test type or not
 
-            for (var i = 0, fields, checked, testVersionChecked; i < testVersions.length; i++) {
+            for (var i = 0; i < testVersions.length; i++) {
                 addEvent(testVersions[i], 'click', callback(testVersions[i].value, clickEventHandler));
-
-                //filelds and labels related to test type (i.e. IPv4, IPv6).
-                fields = document.querySelectorAll('.' + testVersions[i].value);
-                for (var k = 0, checked; k < fields.length; k++) {
-                    checked = testVersions[i].checked;
-                    fields[k].style.display = (checked) ? 'block' : 'none';
+                checked[testVersions[i].value] = testVersions[i].checked;
+                if (testVersions[i].checked) {
+                    testVersionChecked = true;
                 }
-                testVersions[i].disabled = (testVersions[i].value === 'IPv6' && !testPlan.hasIPv6) ? true : false;
-                //make sure at least one ip version is checked
-                testVersionsChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
-                testButton.disabled = !testVersionChecked;
+                testVersions[i].disabled = (testVersions[i].value === 'IPv6' && !testPlan.hasIPv6);
             }
 
-
-            for (var i = 0, fields, checked, anyChecked, testProtocolChecked; i < testProtocols.length; i++) {
+            for (var i = 0, el; i < testProtocols.length; i++) {
                 addEvent(testProtocols[i], 'click', callback(testProtocols[i].value, clickEventHandler));
-
-                //filelds and labels related to test protocol (i.e. http, webSocket).
-                fields = document.querySelectorAll('.' + testProtocols[i].value);
-                for (var k = 0, checked; k < fields.length; k++) {
-                    checked = testProtocols[i].checked;
-                    fields[k].style.display = (checked) ? 'block' : 'none';
+                checked[testProtocols[i].value] = testProtocols[i].checked;
+                if (testProtocols[i].checked) {
+                    testProtocolChecked = true;
                 }
-                //make sure at least one protocols is checked
-                testProtocolChecked = !!document.querySelectorAll('input[name = "testProtocol"]:checked').length;
-                testButton.disabled = !testProtocolChecked;
             }
+
+
+            document.querySelector('input.http.IPv4').style.display = (checked['http'] && checked['IPv4']) ? 'block' : 'none';
+            document.querySelector('label.http.IPv4').style.display = (checked['http'] && checked['IPv4']) ? 'block' : 'none';
+            document.querySelector('input.http.IPv6').style.display = (checked['http'] && checked['IPv6']) ? 'block' : 'none';
+            document.querySelector('label.http.IPv6').style.display = (checked['http'] && checked['IPv6']) ? 'block' : 'none';
+            document.querySelector('input.webSocket.IPv4').style.display = (checked['webSocket'] && checked['IPv4']) ? 'block' : 'none';
+            document.querySelector('label.webSocket.IPv4').style.display = (checked['webSocket'] && checked['IPv4']) ? 'block' : 'none';
+            document.querySelector('input.webSocket.IPv6').style.display = (checked['webSocket'] && checked['IPv6']) ? 'block' : 'none';
+            document.querySelector('label.webSocket.IPv6').style.display = (checked['webSocket'] && checked['IPv6']) ? 'block' : 'none';
+            testButton.disabled = !(testVersionChecked && testProtocolChecked);
 
             //add click event on "run test" button
             addEvent(testButton, 'click', function (e) {
@@ -261,42 +271,36 @@
                     };
                 };
 
-                //disable the checkbox while test is running
-                //for all checked test types run the download test
-                for (var i = 0, testVersion, testProtocol, checked; i < testVersions.length; i++) {
-                    checked = testVersions[i].checked && !testVersions[i].disabled;
-                    if (checked) {
-                        //disable all testVersions
-                        testVersions[i].disabled = true;
-                        //empty all input fields
-                        var resultsEl = document.querySelectorAll(['.', testType, '-result'].join(''));
-                        for (var k = 0; k < resultsEl.length; k++) {
-                            resultsEl[k].value = '';
-                        }
-                        //IP version
+                var checked = {};
+                //bind click event to each checkbox
+                //this will also show/hide elements based on whether they are need for the test type or not
+                for (var i = 0; i < testProtocols.length; i++) {
+                    checked[testProtocols[i].value] = testProtocols[i].checked;
+                }
+                if (testPlan) {
+                    for (var i = 0, testVersion; i < testVersions.length; i++) {
                         testVersion = testVersions[i].value;
-                        for (var k = 0; k < testProtocols.length; k++) {
+                        checked[testVersion] = testVersions[i].checked;
+                        for (var k = 0, testProtocol; k < testProtocols.length; k++) {
                             testProtocol = testProtocols[k].value;
-                            if (testPlan && testPlan['baseUrl' + testVersion]) {
-                                if (testProtocol === 'http') {
-                                    //create an instance of latencyHttpTest
-                                    baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/latency'].join('');
-                                    testRunner.push(new window.latencyHttpTest(baseUrl, 10, 30000, callback('http', testVersion, onComplete), callback('http', testVersion, onProgress),
-                                        callback(testProtocol, testVersion, onAbort), callback(testVersion, onTimeout), callback('http', testVersion, onError)));
-                                    //start latencyHttpTest
-                                }
-                                if (testProtocol === 'webSocket') {
-                                    //create an instance of latencyWebSocketTest
-                                    baseUrl = [testPlan['webSocketUrl' + testVersion], '/latency'].join('');
-                                    testRunner.push(new window.latencyWebSocketTest(baseUrl, 'GET', '0', '10', 3000, callback('webSocket', testVersion, onComplete),
-                                        callback(testProtocol, testVersion, onProgress), callback('webSocket', testVersion, onError)));
-                                    //start latencyWebSocketTest
-                                }
+                            checked[testProtocol] = testProtocols[k].checked;
+                            if (testProtocol === 'http' && (checked[testVersion] && checked[testProtocol])) {
+                                //create an instance of latencyHttpTest
+                                baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/latency'].join('');
+                                testRunner.push(new window.latencyHttpTest(baseUrl, 10, 30000, callback('http', testVersion, onComplete), callback('http', testVersion, onProgress),
+                                    callback(testProtocol, testVersion, onAbort), callback(testVersion, onTimeout), callback('http', testVersion, onError)));
+                                //start latencyHttpTest
+                            }else if (testProtocol === 'webSocket' && (checked[testVersion] && checked[testProtocol])) {
+                                //create an instance of latencyWebSocketTest
+                                baseUrl = [testPlan['webSocketUrl' + testVersion], '/latency'].join('');
+                                testRunner.push(new window.latencyWebSocketTest(baseUrl, 'GET', '0', '10', 3000, callback('webSocket', testVersion, onComplete),
+                                    callback(testProtocol, testVersion, onProgress), callback('webSocket', testVersion, onError)));
+                                //start latencyWebSocketTest
                             }
-
                         }
                     }
                 }
+
                 var next = testRunner.shift();
                 if (next) {
                     next.start();
