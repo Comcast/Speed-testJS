@@ -196,7 +196,7 @@
         this._progressResults = {};
         this._progressCount = 0;
         this._running = true;
-        this._beginTime = Date.now()
+        this._beginTime = Date.now();
         this.start();
     };
 
