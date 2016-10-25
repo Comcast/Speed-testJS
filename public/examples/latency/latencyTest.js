@@ -36,7 +36,7 @@
  */
 
 (function () {
-    //setting the initialization method for download test suite
+    //setting the initialization method for latency test suite
     var oldOnload = window.onload;
     window.onload = function () {
         void (oldOnload instanceof Function && oldOnload());
@@ -58,7 +58,7 @@
     var testPlan;
     //array used to setup up ordering for test execution based on IP version
     var testRunner = [];
-    //the type of test. options are upload, download, latency
+    //the type of test. options are upload, latency, latency
     var testType = 'latency';
     //event binding method for buttons
     function addEvent(el, ev, fn) {
@@ -206,10 +206,10 @@
             testButton = document.querySelector('.action-start');
             //reference to event trail parent element
             eventsEl = document.querySelector('.events');
-            //register click event for http download tests
+            //register click event for http latency tests
             testVersions = document.querySelectorAll('input[name = "testVersion"]');
 
-            //register click event for http download tests
+            //register click event for http latency tests
             testProtocols = document.querySelectorAll('input[name = "testProtocol"]');
 
             //set event audit trail text to default value
