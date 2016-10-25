@@ -71,6 +71,7 @@
             this._running = false;
         }
     };
+    
     /**
      * onAbort method
      * @return abort object
@@ -171,7 +172,7 @@
                 this.test.start(this.size, this._testIndex);
             }
         }
-    }
+    };
 
     /**
      * Cancel the test
@@ -183,7 +184,7 @@
                 this._activeTests[i].xhr._request.abort();
             }
         }
-    }
+    };
 
     /**
      * init test suite
