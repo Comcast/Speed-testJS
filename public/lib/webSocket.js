@@ -71,6 +71,7 @@ webSocket.prototype._handleOnClose = function(){
   this._request.close();
 };
 
+
 window.webSocket = webSocket;
 
   })();

@@ -117,12 +117,12 @@
      }
      else{
        this._running = false;
-       this.clientCallbackComplete(this._finalResults);
        for(var i=0;i<this._activeTests.length;i++){
          if (typeof(this._activeTests[i])!== 'undefined') {
          this._activeTests[i].xhr._request.abort();
         }
        }
+         this.clientCallbackComplete(this._finalResults);
      }
     };
 
@@ -183,6 +183,21 @@
             }
           }
         }
+
+    /**
+     * init test suite
+     */
+    uploadHttpConcurrent.prototype.initiateTest = function(){
+        this._testIndex = 0;
+        this._results.length=0;
+        this._finalResults.length=0;
+        this._activeTests.length=0;
+        this._progressResults = {};
+        this._progressCount = 0;
+        this._running = true;
+        this._beginTime = Date.now();
+        this.start();
+    };
 
    window.uploadHttpConcurrent = uploadHttpConcurrent;
    })();

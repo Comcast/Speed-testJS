@@ -96,7 +96,7 @@
         //if there are more tests to run
         var next = testRunner.shift();
         if (next) {
-            next.start();
+            next.initiateTest();
             return;
         }
         //if no other tests to run
@@ -245,7 +245,7 @@
                 }
                 var next = testRunner.shift();
                 if (next) {
-                    next.start();
+                    next.initiateTest();
                 }
             });
 
