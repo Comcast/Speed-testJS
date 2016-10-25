@@ -113,5 +113,18 @@
       }
     }
 
+
+  /**
+   * init test suite
+   */
+  latencyHttpTest.prototype.initiateTest = function(){
+    this._testIndex = 0;
+    this._results.length =0;
+    //array holding active tests
+    this._activeTests.length=0;
+    this._running = true;
+    this.start();
+  };
+
   window.latencyHttpTest = latencyHttpTest;
 })();

@@ -78,7 +78,7 @@
         //if there are more tests to run
         var next = testRunner.shift();
         if (next) {
-            next.start();
+            next.initiateTest();
             return;
         }
         //if no other tests to run
@@ -133,7 +133,7 @@
             eventsEl.innerHTML = arr.join('');
         }
     }
-    
+
     //basic click event binding
     function clickEventHandler(e, version) {
         var el = e.target || e.srcElement;
@@ -203,10 +203,10 @@
                 e.preventDefault();
 
                 testButton.disabled = true;
-                
+
                 //reset audit trail
                 auditTrail = [];
-                
+
                 //reset audit trail list
                 eventsEl.innerHTML = '';
 
@@ -229,7 +229,7 @@
                         }
                         testVersion = testVersions[i].value;
                         if (testPlan && testPlan['baseUrl' + testVersion]) {
-                            baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/download?bufferSize=100000000'].join('');
+                            baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/download?bufferSize=10000000'].join('');
                             testRunner.push(new window.downloadHttpConcurrent(baseUrl, 'GET', 4, 15000, 10000,
                                 callback(testVersion, onComplete), callback(testVersion, onProgress), callback(testVersion, onAbort),
                                 callback(testVersion, onTimeout), callback(testVersion, onError)));
@@ -238,7 +238,7 @@
                 }
                 var next = testRunner.shift();
                 if (next) {
-                    next.start();
+                    next.initiateTest();
                 }
             });
 
