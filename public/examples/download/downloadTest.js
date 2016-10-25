@@ -229,7 +229,7 @@
                         }
                         testVersion = testVersions[i].value;
                         if (testPlan && testPlan['baseUrl' + testVersion]) {
-                            baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/download?bufferSize=100000000'].join('');
+                            baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/download?bufferSize=10000000'].join('');
                             testRunner.push(new window.downloadHttpConcurrent(baseUrl, 'GET', 4, 15000, 10000,
                                 callback(testVersion, onComplete), callback(testVersion, onProgress), callback(testVersion, onAbort),
                                 callback(testVersion, onTimeout), callback(testVersion, onError)));
