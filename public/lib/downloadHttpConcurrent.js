@@ -153,7 +153,7 @@
             this._testIndex++;
             this['arrayResults'+this._testIndex] = [];
             this._progressResults['arrayProgressResults'+this._testIndex] = new Array();
-            var request = new window.xmlHttpRequest('GET',[this.url, '?', Date.now()].join(''),this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
+            var request = new window.xmlHttpRequest('GET',[this.url, '&', Date.now()].join(''),this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
             this.onTestAbort.bind(this),this.onTestTimeout.bind(this),this.onTestError.bind(this));
             this._activeTests.push({
               xhr: request,

@@ -21,99 +21,104 @@
     var oldOnload = window.onload;
     window.onload = function () {
         void (oldOnload instanceof Function && oldOnload());
-        initDownloadTest();
+        //init for test
+        initTest();
     };
 
     //test button node will be made available through this variable
     var testButton;
-    var currentTest;
+    //private object to track event calls and results
     var auditTrail;
+    //reference to event audit trail parent dom el
+    var eventsEl;
+    //reference to input elements allowing users to choose IP version for test
+    var testVersions;
+    //get the base url and server information from local node server to be used to run tests
+    var testPlan;
+    //array used to setup up ordering for test execution based on IP version
     var testRunner = [];
+    //the type of test. options are upload, download, latency
+    var testType = 'download';
     //event binding method for buttons
     function addEvent(el, ev, fn) {
         void (el.addEventListener && el.addEventListener(ev, fn, false));
         void (el.attachEvent && el.attachEvent('on' + ev, fn));
         void (!(el.addEventListener || el.attachEvent) && function (el, ev) { el['on' + ev] = fn } (el, ev));
     }
+    //get json with testPlan info
+    function getTestPlan(func) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                //make testPlan data globally available to functions
+                testPlan = JSON.parse(xhr.responseText);
+                if (func) {
+                    func(testPlan);
+                }
+            }
+        }
+        xhr.open('GET', '/testplan', true);
+        xhr.send(null);
+    }
 
     //callback for xmlHttp complete event
-    function downloadHttpOnComplete(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnComplete', result: result });
-        document.querySelector('.download-' + version).value = result + ' Mbps';
+    function genericEventHandler(testName, version, results) {
+        //store call in event audit trail
+        auditTrail.push({ event: [version, testType, ': ', testName].join(''), results: results });
+        //update field value
+        if (testName === 'onComplete') {
+            document.querySelector(['.', testType, '-', version].join('')).value = results + ' Mbps';
+        }
+        //update the audit trail on screen
         displayAuditTrail();
+
+        if (testName === 'onProgress') {
+            return;
+        }
+        //if there are more tests to run
         var next = testRunner.shift();
         if (next) {
             next.start();
             return;
         }
+        //if no other tests to run
         //restore ability to choose tests again
         testButton.disabled = false;
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        for (var i = 0; i < testTypes.length; i++) {
-            testTypes[i].disabled = false;
-        }
-    }
 
-    //callback for xmlHttp progress event
-    function downloadHttpOnProgress(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnProgress', result: result });
-        displayAuditTrail();
+        for (var i = 0; i < testVersions.length; i++) {
+            testVersions[i].disabled = (testVersions[i].value === 'IPv6' && !testPlan.hasIPv6) ? true : false;
+        }
+    };
+
+    function onComplete(version, results) {
+        genericEventHandler.call(undefined, 'onComplete', version, results);
     }
 
     //callback for xmlHttp error event
-    function downloadHttpOnError(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnError', result: result });
-        displayAuditTrail();
-        var next = testRunner.shift();
-        if (next) {
-            next.start();
-            return;
-        }
-        //restore ability to return tests again
-        testButton.disabled = false;
-
-        //restore ability to choose test type again
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        for (var i = 0; i < testTypes.length; i++) {
-            testTypes[i].disabled = false;
-        }
+    function onError(version, results) {
+        genericEventHandler.call(undefined, 'onError', version, results);
     }
 
     //callback for xmlHttp abort event
-    function downloadHttpOnAbort(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnAbort', result: result });
-        displayAuditTrail();
-
-        //restore ability to choose tests again
-        testButton.disabled = false;
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        for (var i = 0; i < testTypes.length; i++) {
-            testTypes[i].disabled = false;
-        }
+    function onAbort(version, results) {
+        genericEventHandler.call(undefined, 'onAbort', version, results);
     }
 
     //callback for xmlHttp timeout event
-    function downloadHttpOnTimeout(version, result) {
-        auditTrail.push({ event: version + ': downloadHttpOnTimeout', result: result });
-        displayAuditTrail();
-        var next = testRunner.shift();
-
-        //restore ability to return tests again
-        testButton.disabled = false;
-
-        //restore ability to choose test type again
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        for (var i = 0; i < testTypes.length; i++) {
-            testTypes[i].disabled = false;
-        }
+    function onTimeout(version, results) {
+        genericEventHandler.call(undefined, 'onTimeout', version, results);
     }
 
+    //callback for xmlHttp progress event
+    function onProgress(version, results) {
+        genericEventHandler.call(undefined, 'onProgress', version, results);
+    }
 
     //displays event trail from start to completion and they api results at those different points
+    //creates table for displaying event audit trail
     function displayAuditTrail() {
         var arr = [];
-        var events = document.querySelector('.events');
-        events.innerHTML = '';
+        eventsEl.innerHTML = '';
         if (auditTrail.length) {
             arr.push('<table><tr><th></th><th>Event</th><th>Results</th></tr>');
             for (var i = 0; i < auditTrail.length; i++) {
@@ -121,107 +126,124 @@
                     ['<tr>',
                         '<td>' + (i + 1) + '</td>',
                         '<td>' + auditTrail[i].event + '</td>',
-                        '<td class="results">' + JSON.stringify(auditTrail[i].result) + '</td>',
+                        '<td class="results">' + JSON.stringify(auditTrail[i].results) + '</td>',
                         '</tr>'].join('')));
             }
             arr.push('</table>');
-            events.innerHTML = arr.join('');
+            eventsEl.innerHTML = arr.join('');
         }
     }
-    //load event callback
-    function initDownloadTest() {
-        //update testButton variable with testButton dom node reference
-        testButton = document.querySelector('.action-start');
-        testButton.disabled = true;
+    
+    //basic click event binding
+    function clickEventHandler(e, version) {
+        var el = e.target || e.srcElement;
+        var checked = el.checked;
+        var relatedEl = document.querySelectorAll('.' + version);
+        var resultsEl = document.querySelectorAll(['.', testType, '-result'].join(''));
+        //reset audit trail
+        //reset audit trail list
+        eventsEl.innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
+        //reset lowest download value field
 
-        //register click event for http download tests
-        var testTypes = document.querySelectorAll('input[name = "testType"]');
-        document.querySelector('.events').innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
-        var callback = function (version, func) {
-            return function (event) {
-                func.call(this, event, version);
-            };
-        };
-        for (var i = 0, fields, checked; i < testTypes.length; i++) {
-            addEvent(testTypes[i], 'click', callback(testTypes[i].value, function (e, version) {
-                var events = document.querySelector('.events');
-                var el = e.target || e.srcElement;
-                var checked = el.checked;
-                var relatedEl = document.querySelectorAll('.' + version);
-                var resultsEl = document.querySelector('.download-' + version);
-                var display = el.style.display;
-                var value = el.value;
-                //reset audit trail
-                //reset audit trail list
-                events.innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
-                //reset lowest download value field
-                resultsEl.style.display = (checked) ? 'block' : 'none';
-
-                //clear both result types
-                var resultsEl = document.querySelector('.download-IPv4').value = '';
-                var resultsEl = document.querySelector('.download-IPv6').value = '';
-
-                //toggle all related elements
-                for (var i = 0; i < relatedEl.length; i++) {
-                    relatedEl[i].style.display = (checked) ? 'block' : 'none';
-                }
-                //make sure at least one of ip version types is checked
-                var anyChecked = !!document.querySelectorAll('input[name = "testType"]:checked').length;
-                testButton.disabled = !anyChecked;
-            }));
-
-            //filelds related to test type (i.e. ipv4, ipv6).
-            fields = document.querySelectorAll('.' + testTypes[i].value);
-            for (var k = 0, checked; k < fields.length; k++) {
-                checked = testTypes[i].checked;
-                fields[k].style.display = (checked) ? 'block' : 'none';
-            }
-            //make sure at least one of ip version types is checked
-            var anyChecked = !!document.querySelectorAll('input[name = "testType"]:checked').length;
-            testButton.disabled = !anyChecked;
+        //reset results input values
+        for (var i = 0; i < resultsEl.length; i++) {
+            resultsEl[i].value = '';
         }
 
-        //add click event on "run test" button
-        addEvent(testButton, 'click', function (e) {
-            //prevent default click action in browser;
-            var baseUrl = '';
-            e.preventDefault();
+        //toggle all related elements
+        for (var i = 0; i < relatedEl.length; i++) {
+            relatedEl[i].style.display = (checked) ? 'block' : 'none';
+        }
+        //make sure at least one of ip version types is checked
+        var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
+        testButton.disabled = !anyChecked;
+    }
 
+    //load event callback
+    function initTest() {
+        //get test plan and then run code
+        getTestPlan(function (testPlan) {
+            //reference run test button dom element
+            testButton = document.querySelector('.action-start');
+            //reference to event trail parent element
+            eventsEl = document.querySelector('.events');
+            //disable testButton until a test version is chosen
             testButton.disabled = true;
-            //reset audit trail
-            auditTrail = [];
-            //reset audit trail list
-            document.querySelector('.events').innerHTML = '';
-            //get test type value
-            var testTypes = document.querySelectorAll('input[name = "testType"]');
-            //create an instance of downloadHttpTest
-
-            //set IPv6 version here
+            //register click event for http download tests
+            testVersions = document.querySelectorAll('input[name = "testVersion"]');
+            //set event audit trail text to default value
+            eventsEl.innerHTML = 'No Event Trail. <p>Click "Run Test" to begin</p>';
             var callback = function (version, func) {
-                return function (results) {
-                    func.call(this, version, results);
+                return function (event) {
+                    func.call(this, event, version);
                 };
             };
+            //bind click event to each checkbox
+            //this will also show/hide elements based on whether they are need for the test type or not
 
-            //disable the checkbox while test is running
-            //for all checked test types run the download test
-            for (var i = 0, testType, checked; i < testTypes.length; i++) {
-                checked = testTypes[i].checked;
-                testTypes[i].disabled = true;
-                if (checked) {
-                    testType = testTypes[i].value;
-                    baseUrl = (testType === 'IPv6') ? '' : '';
-                    testRunner.push(new window.downloadHttpConcurrent(baseUrl + '/download?bufferSize=100000000', 'GET', 4, 15000, 10000,
-                        callback(testType, downloadHttpOnComplete), callback(testType, downloadHttpOnProgress), callback(testType, downloadHttpOnAbort),
-                        callback(testType, downloadHttpOnTimeout), callback(testType, downloadHttpOnError)));
+            for (var i = 0, fields, checked; i < testVersions.length; i++) {
+                addEvent(testVersions[i], 'click', callback(testVersions[i].value, clickEventHandler));
 
+                //filelds and labels related to test type (i.e. ipv4, ipv6).
+                fields = document.querySelectorAll('.' + testVersions[i].value);
+                for (var k = 0, checked; k < fields.length; k++) {
+                    checked = testVersions[i].checked;
+                    fields[k].style.display = (checked) ? 'block' : 'none';
                 }
+                testVersions[i].disabled = (testVersions[i].value === 'IPv6' && !testPlan.hasIPv6) ? true : false;
+                //make sure at least one of ip version types is checked
+                var anyChecked = !!document.querySelectorAll('input[name = "testVersion"]:checked').length;
+                testButton.disabled = !anyChecked;
             }
-            var next = testRunner.shift();
-            if (next) {
-                next.start();
-            }
+
+            //add click event on "run test" button
+            addEvent(testButton, 'click', function (e) {
+                //prevent default click action in browser;
+                var baseUrl = '';
+                e.preventDefault();
+
+                testButton.disabled = true;
+                
+                //reset audit trail
+                auditTrail = [];
+                
+                //reset audit trail list
+                eventsEl.innerHTML = '';
+
+                //set IPversion here
+                var callback = function (version, func) {
+                    return function (results) {
+                        func.call(this, version, results);
+                    };
+                };
+
+                //disable the checkbox while test is running
+                //for all checked test types run the download test
+                for (var i = 0, testVersion, checked; i < testVersions.length; i++) {
+                    checked = testVersions[i].checked && !testVersions[i].disabled;
+                    if (checked) {
+                        testVersions[i].disabled = true;
+                        var resultsEl = document.querySelectorAll(['.', testType, '-result'].join(''));
+                        for (var k = 0; k < resultsEl.length; k++) {
+                            resultsEl[k].value = '';
+                        }
+                        testVersion = testVersions[i].value;
+                        if (testPlan && testPlan['baseUrl' + testVersion]) {
+                            baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/download?bufferSize=100000000'].join('');
+                            testRunner.push(new window.downloadHttpConcurrent(baseUrl, 'GET', 4, 15000, 10000,
+                                callback(testVersion, onComplete), callback(testVersion, onProgress), callback(testVersion, onAbort),
+                                callback(testVersion, onTimeout), callback(testVersion, onError)));
+                        }
+                    }
+                }
+                var next = testRunner.shift();
+                if (next) {
+                    next.start();
+                }
+            });
+
         });
+
     }
 
 })();
