@@ -17,6 +17,8 @@
  */
 
 (function () {
+    'use strict';
+    
     //setting the initialization method for download test suite
     var oldOnload = window.onload;
     window.onload = function () {
