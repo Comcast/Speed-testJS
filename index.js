@@ -154,9 +154,9 @@ app.get('/downloadProbe', function (req, res) {
 
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.listen(3000,'::');
+app.listen(webPort,'::');
 
-var wss = new WebSocketServer({port: 3001 });
+var wss = new WebSocketServer({port: webSocketPort });
 wss.on('connection', function connection(ws) {
   console.log('client connected');
 
