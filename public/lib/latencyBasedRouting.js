@@ -29,8 +29,6 @@
         this.location = location;
         this.clientCallbackComplete = callbackComplete;
         this.clientCallbackError = callbackError;
-        // when running add server information to this array
-        this.testData = [];
         this.latencyHttpTestRequest = [];
         this.numServersResponded = 0;
     }
@@ -48,8 +46,16 @@
      * Function getNearestServer returns all the available servers in a particular location
      */
     latencyBasedRouting.prototype.getNearestServer = function () {
-        //TODO get the server information from a database
-        this.performLatencyBasedRouting(this.testData);
+        var self = this;
+        var url = '/testServer?location=' + this.location;
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function () {
+            if (request.readyState === XMLHttpRequest.DONE) {
+                self.performLatencyBasedRouting(JSON.parse(request.responseText));
+            }
+        };
+        request.open('GET', url, true);
+        request.send(null);
     };
 
     /**
@@ -58,6 +64,7 @@
      * @param data object contains server the information
      */
     latencyBasedRouting.prototype.performLatencyBasedRouting = function (data) {
+        console.log(data);
         var serverInfo;
         for (var i = 0; i < data.length; i++) {
             serverInfo = data[i];
