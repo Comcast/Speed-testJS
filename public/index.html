@@ -17,132 +17,46 @@
   -->
 
 <html>
+
+<head>
+	<meta charset="utf-8" />
+	<base href="/" />
+	<title> Speed Test</title>
+	<link rel="stylesheet" type="text/css" href="speed-testJS.css">
+</head>
+
 <body>
-  <table>
-    <tr>
-        <td>
-          Select Server:
-        </td>
-        <td>
-          <select id="selectServer"  />
-        </td>
-    </tr>
-  </table>
+	<div class="container">
+		<div class="row top">
+			<div class="speed-gauge">
+			</div>
+		</div>
+		<div class="secondary-results">
+			<div class="latency">ping:</div>
+      <div class="server-location">server location:</div>
+		</div>
+		<div class="bottom">
+			<div class="results">
+				<div class="download">
+					download
+				</div>
+				<div class="upload">
+					upload
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="lib/calculateStats.js"></script>
+	<script src="lib/xmlhttprequest.js"></script>
+	<script src="lib/webSocket.js"></script>
+	<script src="lib/latencyHttpTest.js"></script>
+	<script src="lib/latencyWebSocketTest.js"></script>
+	<script src="lib/downloadHttpConcurrent.js"></script>
+	<script src="lib/uploadHttpConcurrent.js"></script>
+	<script src="lib/uploadHttpConcurrent.js"></script>
+	<script src="lib/echarts.min.js"></script>
+	<script src="speed-testJS.js"></script>
 </body>
 
-<script src="lib/calculateStats.js"></script>
-<script src="lib/xmlhttprequest.js"></script>
-<script src="lib/webSocket.js"></script>
-<script src="lib/latencyHttpTest.js"></script>
-<script src="lib/latencyWebSocketTest.js"></script>
-<script src="lib/downloadHttpConcurrent.js"></script>
-<script src="lib/uploadHttpConcurrent.js"></script>
-<script>
-var xhr = new XMLHttpRequest();
-xhr.onreadystatechange = function() {
-    if (xhr.readyState == XMLHttpRequest.DONE) {
-      var data = JSON.parse(xhr.responseText);
-      console.dir(data);
-    }
-};
-xhr.open('GET', '/testplan', true);
-xhr.send(null);
-
-///latencyHttpTestSuite
-/*
-function latencyHttpOnComplete(result){
-  console.dir(result);
-}
-function latencyHttpOnProgress(result){
-  console.log(result);
-}
-function latencyHttpOnAbort(result){
-  console.dir(result);
-}
-function latencyHttpOnTimeout(result){
-  console.dir(result);
-}
-function latencyHttpOnError(result){
-  console.dir(result);
-}
-
-var latencyHttpTestSuite = new window.latencyHttpTest('/latency', 10 ,30000, latencyHttpOnComplete, latencyHttpOnProgress,
-latencyHttpOnAbort, latencyHttpOnTimeout,latencyHttpOnError);
-latencyHttpTestSuite.initiateTest();
-*/
-
-//latencyWebSocketTestSuite
-/*
-function latencyWebSocketOnComplete(result){
-  console.dir(result);
-}
-function latencyWebSocketOnProgress(result){
-  console.log(result);
-}
-function latencyWebSocketOnError(result){
-  console.dir(result);
-}
-var latencyWebSocketTest = new window.latencyWebSocketTest('ws://localhost:3001', 'GET', '0','10',3000,latencyWebSocketOnComplete,
-latencyWebSocketOnProgress,latencyWebSocketOnError);
-latencyWebSocketTest.initiateTest();
-*/
-
-//downloadHttpConcurrent
-/*
-function calculateStatsonComplete(result) {
-  console.log(result);
-}
-
-function calculateStatsonError(result) {
-  console.log(result);
-}
-
-function downloadHttpOnComplete(result){
-  console.dir(result);
-  var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
-  calculateMeanStats.performCalculations();
-}
-function downloadHttpOnProgress(result){
-  console.log(result);
-}
-function downloadHttpOnAbort(result){
-  //console.dir(result);
-}
-function downloadHttpOnTimeout(result){
-  console.dir(result);
-}
-function downloadHttpOnError(result){
-  console.dir(result);
-}
-
-var downloadHttpConcurrentTestSuite = new window.downloadHttpConcurrent('/download?bufferSize=10000000','GET', 4 ,15000, 10000,downloadHttpOnComplete, downloadHttpOnProgress,
-downloadHttpOnAbort,downloadHttpOnTimeout,downloadHttpOnError);
-downloadHttpConcurrentTestSuite.initiateTest();
-
-*/
-//uploadHttpConcurrent
-
-function uploadHttpOnComplete(result){
-  console.dir(result);
-  var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
-  calculateMeanStats.performCalculations();
-}
-function uploadHttpOnProgress(result){
-  console.log('indexTestProgres: ' + result);
-}
-function uploadHttpOnAbort(result){
-  //console.dir(result);
-}
-function uploadHttpOnTimeout(result){
-  console.dir(result);
-}
-function uploadHttpOnError(result){
-  console.dir(result);
-}
-
-var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent('/upload','POST',2,15000,15000,uploadHttpOnComplete, uploadHttpOnProgress,
-uploadHttpOnError,500000);
-uploadHttpConcurrentTestSuite.initiateTest();
-
-
-</script>
+</html>
