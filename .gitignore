@@ -11,3 +11,5 @@ private
 .settings/
 .springBeans
 target/
+dist.tar.gz
+dist
