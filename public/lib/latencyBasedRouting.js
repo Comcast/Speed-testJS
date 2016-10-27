@@ -69,8 +69,8 @@
         for (var i = 0; i < data.length; i++) {
             serverInfo = data[i];
             var serverData = {
-                'IPv4': serverInfo.IPv4Address,
-                'IPv6': serverInfo.IPv6Address,
+                'IPv4Address': serverInfo.IPv4Address,
+                'IPv6Address': serverInfo.IPv6Address,
                 'Fqdn': serverInfo.Fqdn,
                 'latencyResult': []
             };

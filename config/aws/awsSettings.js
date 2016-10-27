@@ -23,7 +23,8 @@ var AWS = {};
 AWS = require('aws-sdk');
 AWS.config.credentials = new AWS.SharedIniFileCredentials({profile: 'default'});
 
-//change the endpoint and the profile to point to your account
+//this is the default profile we have locally to access dynamodb
+//to set up one and install dynamodb locally look at the README.md
 AWS.config.update({
     region: 'us-east-1',
     endpoint: 'http://localhost:8000'

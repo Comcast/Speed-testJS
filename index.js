@@ -180,7 +180,7 @@ app.get('/testServer', function (req, res) {
                 data.Items.map(function (val) {
                     testServer.push({
                         IPv4Address: val.IPv4Address.S +':8080',
-                        IPv6Address: val.IPv6Address.S +':8080',
+                        IPv6Address: '[' + val.IPv6Address.S + ']:' + '8080',
                         Location: val.Location.S,
                         Sitename: val.Sitename.S,
                         Fqdn: val.Hostname.S

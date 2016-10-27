@@ -131,20 +131,19 @@
         xhr.send(null);
     }
 
-    function callbackComplete(result) {
+    function latencyBasedRoutingOnComplete(result) {
         //TODO update the base urls for websockets if you want to perform the latency test via websockets
-        testPlan.baseUrlIPv4 = result.IPv4;
-        testPlan.baseUrlIPv6 = result.IPv6;
-        console.log(result);
+        testPlan.baseUrlIPv4 = result.IPv4Address;
+        testPlan.baseUrlIPv6 = result.IPv6Address;
     }
 
-    function callbackError(result) {
+    function latencyBasedRoutingOnError(result) {
         console.log(result);
     }
 
     function latencyBasedRouting() {
         // pass in the client location instead of the hard coded value
-        var latencyBasedRouting = new window.latencyBasedRouting('NJ', callbackComplete, callbackError);
+        var latencyBasedRouting = new window.latencyBasedRouting('NJ', latencyBasedRoutingOnComplete, latencyBasedRoutingOnError);
         latencyBasedRouting.getNearestServer();
     }
 
