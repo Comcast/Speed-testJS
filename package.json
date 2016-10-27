@@ -7,7 +7,6 @@
   "license": "UNLICENSED",
   "dependencies": {
     "body-parser": "^1.15.2",
-    "echarts": "^3.2.3",
     "express": "^4.14.0",
     "ip-address": "^5.8.2",
     "karma-jasmine-ajax": "^0.1.13",
