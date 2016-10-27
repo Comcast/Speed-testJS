@@ -85,6 +85,8 @@ app.get('/testplan', function (req, res) {
     var testPlan = {};
     //to get the hostname of the operating system
     testPlan.osHostName = os.hostname();
+    //flag to turn on/off the latency based routing the test
+    testPlan.performLatencyRouting = false;
     //get client ip address
     var ipaddress = req.connection.remoteAddress;
     if (validateIP(ipaddress)) {
@@ -178,7 +180,7 @@ app.get('/testServer', function (req, res) {
                 data.Items.map(function (val) {
                     testServer.push({
                         IPv4Address: val.IPv4Address.S +':8080',
-                        IPv6Address: val.IPv6Address.S,
+                        IPv6Address: val.IPv6Address.S +':8080',
                         Location: val.Location.S,
                         Sitename: val.Sitename.S,
                         Fqdn: val.Hostname.S

@@ -121,7 +121,9 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
-                latencyBasedRouting();
+                if (testPlan.performLatencyRouting) {
+                    latencyBasedRouting();
+                }
                 void ((func && func instanceof Function) && func(data));
             }
         };
@@ -130,6 +132,9 @@
     }
 
     function callbackComplete(result) {
+        //TODO update the base urls for websockets if you want to perform the latency test via websockets
+        testPlan.baseUrlIPv4 = result.IPv4;
+        testPlan.baseUrlIPv6 = result.IPv6;
         console.log(result);
     }
 
@@ -138,6 +143,7 @@
     }
 
     function latencyBasedRouting() {
+        // pass in the client location instead of the hard coded value
         var latencyBasedRouting = new window.latencyBasedRouting('NJ', callbackComplete, callbackError);
         latencyBasedRouting.getNearestServer();
     }
