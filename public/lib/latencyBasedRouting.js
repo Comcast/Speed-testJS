@@ -74,7 +74,7 @@
                 'Fqdn': serverInfo.Fqdn,
                 'latencyResult': []
             };
-            var url = 'http://' + serverInfo.IPv4Address + '/latencys';
+            var url = 'http://' + serverInfo.IPv4Address + '/latency';
             this.selectServer(url, serverData);
         }
 
