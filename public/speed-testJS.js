@@ -45,26 +45,6 @@
             startTest();
         });
         getTestPlan(function (testPlan) {
-            /*
-                        testRunner.push(new window.downloadHttpConcurrent(['http://', testPlan.baseUrlIPv4, '/download?bufferSize=', '10000000'].join(''), 'GET', 4, 15000, 10000, downloadHttpOnComplete, downloadHttpOnProgress,
-                            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError));
-                        //IPv6
-                        void (testPlan.hasIPv6 && testRunner.push(new window.downloadHttpConcurrent(['http://', testPlan.baseUrlIPv6, '/download?bufferSize=', '10000000'].join(''), 'GET', 4, 15000, 10000, downloadHttpOnComplete, downloadHttpOnProgress,
-                            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError)));
-            
-                        testRunner.push(new window.uploadHttpConcurrent(['http://', testPlan.baseUrlIPv4, '/upload'].join(''), 'POST', 2, 15000, 15000, uploadHttpOnComplete, uploadHttpOnProgress,
-                            uploadHttpOnError, 500000));
-                        //IPv6
-                        void (testPlan.hasIPv6 && testRunner.push(new window.uploadHttpConcurrent(['http://', testPlan.baseUrlIPv6, '/upload'].join(''), 'POST', 2, 15000, 15000, uploadHttpOnComplete, uploadHttpOnProgress,
-                            uploadHttpOnError, 500000)));
-            
-                        testRunner.push(new window.latencyHttpTest(['http://', testPlan.baseUrlIPv4, '/latency'].join(''), 10, 30000, latencyHttpOnComplete, latencyHttpOnProgress,
-                            latencyHttpOnAbort, latencyHttpOnTimeout, latencyHttpOnError));
-                        //IPv6
-                        void (testPlan.hasIPv6 && testRunner.push(new window.latencyHttpTest(['http://', testPlan.baseUrlIPv6, '/latency'].join(''), 10, 30000, latencyHttpOnComplete, latencyHttpOnProgress,
-                            latencyHttpOnAbort, latencyHttpOnTimeout, latencyHttpOnError)));
-                */
-
             //initialize speedometer
             myChart = echarts.init(document.querySelector('.speed-gauge'));
             option = {
@@ -72,9 +52,30 @@
                     {
                         name: 'Download',
                         type: 'gauge',
-                        detail: {
-                            formatter: '{value} MBps',
+                        min: 0,
+                        max: 500,
+                        precision: 2,
+                        axisLine: {
                             show: true,
+                            lineStyle: {
+                                color: [[0.1, '#ff4500'], [0.3, '#ffa700'], [1, '#5bc942']],
+                                width: 30,
+                                type: 'solid'
+                            }
+                        },
+                        axisTick: {
+                            show: true,
+                            splitNumber: 5,
+                            length: 8,
+                            lineStyle: {
+                                color: '#000',
+                                width: 1,
+                                type: 'solid'
+                            }
+                        },
+                        detail: {
+                            formatter: '{value}',
+                            show: false,
                             backgroundColor: 'rgba(0,0,0,0)',
                             borderWidth: 0,
                             borderColor: '#ccc',
@@ -95,7 +96,6 @@
             option.series[0].data[0].name = '';
             option.series[0].detail.formatter = '';
             myChart.setOption(option, true);
-
         });
     }
 
@@ -123,7 +123,7 @@
     function startTest() {
         if (firstRun) {
             firstRun = false;
-        }else{
+        } else {
             var resultsEl = document.querySelectorAll('.test-result');
             for (var i = 0; i < resultsEl.length; i++) {
                 resultsEl[i].innerHTML = '';
@@ -135,15 +135,22 @@
         //so we basically recreate the gagues if the user start another test run.
         startTestButton.disabled = true;
         //update button text to communicate current state of test as In Progress
-        startTestButton.innerHTML = 'In Progress ...';
+        startTestButton.innerHTML = 'Testing in Progress ...';
+        startTestButton.style.backgroundColor = '#d1d1d1';
     }
 
+    function formatSpeed(value) {
+        var value = parseFloat(Math.round(value * 100) / 100).toFixed(2);
+        value = (value > 1000) ? parseFloat(value / 1000).toFixed(2) + ' GBps' : value + ' MBps';
+        return value;
+    }
 
     function latencyTest(version) {
         var currentTest = 'latency';
         option.series[0].data[0].value = 0;
         option.series[0].data[0].name = 'Testing Latency (ping)';
         option.series[0].detail.formatter = '{value} ms';
+        option.series[0].detail.show = true;
         myChart.setOption(option, true);
 
         function latencyHttpOnComplete(result) {
@@ -201,7 +208,7 @@
         var currentTest = 'download';
         option.series[0].data[0].value = 0;
         option.series[0].data[0].name = 'Testing Download ...';
-        option.series[0].detail.formatter = '{value} Mbps';
+        option.series[0].detail.formatter = formatSpeed;
         myChart.setOption(option, true);
 
         function calculateStatsonComplete(result) {
@@ -225,8 +232,7 @@
         }
 
         function downloadHttpOnProgress(result) {
-            option.series[0].data[0].value = parseFloat(Math.round(result * 100) / 100).toFixed(2);
-            option.series[0].detail.formatter = (result > 1000) ? '{value} GBps' : '{value} MBps';
+            option.series[0].data[0].value = result;
             myChart.setOption(option, true);
         }
 
@@ -259,7 +265,7 @@
         var currentTest = 'upload';
         option.series[0].data[0].value = 0;
         option.series[0].data[0].name = 'Testing Upload...';
-        option.series[0].detail.formatter = '{value} Mbps';
+        option.series[0].detail.formatter = formatSpeed;
         myChart.setOption(option, true);
 
         function calculateStatsonComplete(result) {
@@ -273,7 +279,8 @@
                 startTestButton.innerHTML = 'Start Test';
                 option.series[0].data[0].value = 0;
                 option.series[0].data[0].name = 'Test Complete';
-                option.series[0].detail.formatter = '{value} Mbps';
+                startTestButton.style.backgroundColor = '';
+                option.series[0].detail.show = false;
                 myChart.setOption(option, true);
             }
 
@@ -290,8 +297,7 @@
             calculateMeanStats.performCalculations();
         }
         function uploadHttpOnProgress(result) {
-            option.series[0].data[0].value = parseFloat(Math.round(result * 100) / 100).toFixed(2);
-            option.series[0].detail.formatter = (result > 1000) ? '{value} GBps' : '{value} MBps';
+            option.series[0].data[0].value = result;
             myChart.setOption(option, true);
         }
         function uploadHttpOnAbort(result) {
