@@ -60,18 +60,11 @@ the folder structure of the client application:
 * img: images for testing or ui
 
 
+#Manual deployment
+Grunt is being used to package the needed files and folders to deploy the application to a server to run the application.
+The steps are listed below:
 
-Manual Deployment requires deployment of files required to run the 
-application. The following files folders should be removed for deployment.
-
-	.DS_Store
-	.git
-	.gitignore
-	.travis.yml
-	.vagrant
-	ansible folder
-	Vagrant file
-
-Once these files are removed, please zip the root folder Speed-testJS and copy to your server. Unzip the file and run “node index.js” from the root folder. The web site is browsable via the ip address of your server and port
-number and public\index.html is the default page. Build tools such as grunt, gulp, WebPack … can be used to automate this process and complete
-other operations (ie. Minify,..)
+1. run grunt package from the root folder
+2. tar, zip or compress the resulting dist folder
+3. deploy and uncompress on your server
+4. execute node index.js from the console.
