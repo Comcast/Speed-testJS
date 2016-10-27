@@ -22,7 +22,7 @@ If you control your own server, you can create a key pair by following the instr
 
 The following instructions assume:
 
-* the private key created is called `id_hackathon.pem` and is placed in a directory named `private` with permissions of 0600. This `private` directory is placed inside the `ansible` directory,
+* the private key created is called `hackathon.pem` and is placed in a directory named `private` with permissions of 0600. This `private` directory is placed inside the `ansible` directory,
 e.g.:
 
 ```
@@ -39,8 +39,8 @@ Speed-testJS/
    |-- package.json
 ```
 
-* the remote user on the test server is `centos` and the public key has already been copied to
-`/home/centos/.ssh/authorized_keys`.
+* the remote user on the test server is `clduser` and the public key has already been copied to
+`/home/clduser/.ssh/authorized_keys`.
 
 ## Starting Vagrant
 Vagrant allows us to easily create customizable virtual machines so we have the same deployment environment.
@@ -124,9 +124,9 @@ Ansible will zip `package.json`, `index.js`, `modules` and `public/` and push to
 of the process, you can ssh into the server
 
 ```
-~/Speed-testJS/ansible$ ssh -i private/id_hackathon.pem centos@<my-test-server>
+~/Speed-testJS/ansible$ ssh -i private/hackathon.pem clduser@<my-test-server>
 
-[centos@my-test-server ~]$ sudo su test-server
+[clduser@my-test-server ~]$ sudo su test-server
 [test-user@my-test-server ~]$ pm2 status
 [test-user@my-test-server ~]$ pm2 logs # for checking logs
 ```
@@ -135,3 +135,24 @@ The log file is under `/var/logs/speed-test/speed-test.log`. Logrotate is config
 it under 100 MB, and keep 3 most recent log files.
 
 Ansible will keep 5 versions of the software before starting to remove older deployments.
+
+## Configuring via jumphost
+
+If the test servers are not directly accessible, and we need to go through a jumphost to configure them, we
+can take advantage of ssh `ProxyCommand` to run the playbook locally (we assume OpenSSH version >= 5.4).
+
+In this setup, we do not specify the `private_key_file` in `ansible.cfg` file but instead specify
+which user account is used to access the jumphost and the test servers and their respective identity key
+files in `ssh.config`. So for `ssh.config` we would have the following sections:
+
+```
+Host jumphost
+       User <account to access jumphost>
+       IdentityFile <for the account to access jumphost>
+       Hostname <FQDN or IP of the jumphost>
+
+Host <FQDN or IP addresses of test servers>
+       User <account to configure test server>
+       IdentityFile <for the account to configure test server>
+       ProxyCommand ssh jumphost -F ssh.config -o StrictHostKeyChecking=no -W %h:%p
+```
