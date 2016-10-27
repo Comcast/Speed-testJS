@@ -41,6 +41,10 @@
             void (!(el.addEventListener || el.attachEvent) && function (el, ev) { el['on' + ev] = fn } (el, ev));
         }
         startTestButton = document.querySelector(".action-start");
+        var resultsEl = document.querySelectorAll('.test-result');
+        for (var i = 0; i < resultsEl.length; i++) {
+            resultsEl[i].innerHTML = '';
+        }
         addEvent(startTestButton, 'click', function () {
             startTest();
         });
@@ -136,12 +140,13 @@
         startTestButton.disabled = true;
         //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
+        startTestButton.style.cursor = 'not-allowed';
         startTestButton.style.backgroundColor = '#d1d1d1';
     }
 
     function formatSpeed(value) {
         var value = parseFloat(Math.round(value * 100) / 100).toFixed(2);
-        value = (value > 1000) ? parseFloat(value / 1000).toFixed(2) + ' GBps' : value + ' MBps';
+        value = (value > 1000) ? parseFloat(value / 1000).toFixed(2) + ' Gbps' : value + ' Mbps';
         return value;
     }
 
@@ -159,7 +164,7 @@
             result = result.sort(function (a, b) {
                 return +a.time - +b.time;
             });
-            updateValue(currentTest, result[0].time + 'ms');
+            updateValue(currentTest, result[0].time + ' ms');
         }
 
         function latencyHttpOnProgress(result) {
@@ -213,7 +218,7 @@
 
         function calculateStatsonComplete(result) {
             var finalValue = parseFloat(Math.round(result.peakValue * 100) / 100).toFixed(2);
-            finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' GBps' : finalValue + ' MBps';
+            finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
             void (version === 'IPv6' && downloadTest('IPv4'));
             void (!(version === 'IPv6') && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'));
             updateValue([currentTest, '-', version].join(''), finalValue);
@@ -270,7 +275,7 @@
 
         function calculateStatsonComplete(result) {
             var finalValue = parseFloat(Math.round(result.peakValue * 100) / 100).toFixed(2);
-            finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' GBps' : finalValue + ' MBps';
+            finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
             void ((version === 'IPv6') && uploadTest('IPv4'));
             if (!(version === 'IPv6')) {
                 //update dom with final result
@@ -280,6 +285,7 @@
                 option.series[0].data[0].value = 0;
                 option.series[0].data[0].name = 'Test Complete';
                 startTestButton.style.backgroundColor = '';
+                startTestButton.style.cursor = 'pointer';
                 option.series[0].detail.show = false;
                 myChart.setOption(option, true);
             }
