@@ -28,6 +28,7 @@ var os = require('os');
 var statisticalCalculator = require('./modules/statisticalCalculator');
 //module provides download test sizes based off of probe data
 var downloadData = require('./modules/downloadData');
+var dynamo = require('./modules/dynamo');
 
 //variables
 var webPort = 3000;
@@ -84,6 +85,8 @@ app.get('/testplan', function (req, res) {
     var testPlan = {};
     //to get the hostname of the operating system
     testPlan.osHostName = os.hostname();
+    //flag to turn on/off the latency based routing the test
+    testPlan.performLatencyRouting = false;
     //get client ip address
     var ipaddress = req.connection.remoteAddress;
     if (validateIP(ipaddress)) {
@@ -150,6 +153,49 @@ app.get('/downloadProbe', function (req, res) {
      res.header('Pragma', 'no-cache');
      var downloadTestSizes = downloadData.GetDownloadSize(req.query.bufferSize, req.query.time, req.query.lowLatency);
      res.json({bufferSizes: downloadTestSizes});
+});
+
+/**
+ * testServer endpoint
+ */
+app.get('/testServer', function (req, res) {
+    try {
+
+        //validate query parameters
+        if (!(req.query.location).match(/^[a-zA-Z ]+$/)) {
+            throw('error');
+        }
+
+        var queryParams = {
+            TableName: 'SpeedTestServerInfo',
+            IndexName: 'SitenameIndex',
+            KeyConditionExpression: 'Sitename = :id',
+            ExpressionAttributeValues: {':id': {'S': req.query.location}}
+        };
+
+        var testServer = [];
+
+        var queryCallback = function (data) {
+            if (data) {
+                data.Items.map(function (val) {
+                    testServer.push({
+                        IPv4Address: val.IPv4Address.S +':8080',
+                        IPv6Address: '[' + val.IPv6Address.S + ']:' + '8080',
+                        Location: val.Location.S,
+                        Sitename: val.Sitename.S,
+                        Fqdn: val.Hostname.S
+                    });
+
+                });
+            }
+            res.json(testServer);
+        };
+
+        dynamo.query(queryParams, queryCallback);
+    }
+    catch (err) {
+        res.status(422).end('You must specify location.');
+    }
 });
 
 
