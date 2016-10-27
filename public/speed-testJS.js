@@ -41,10 +41,6 @@
             void (!(el.addEventListener || el.attachEvent) && function (el, ev) { el['on' + ev] = fn } (el, ev));
         }
         startTestButton = document.querySelector(".action-start");
-        var resultsEl = document.querySelectorAll('.test-result');
-        for (var i = 0; i < resultsEl.length; i++) {
-            resultsEl[i].innerHTML = '';
-        }
         addEvent(startTestButton, 'click', function () {
             startTest();
         });
@@ -100,6 +96,14 @@
             option.series[0].data[0].name = '';
             option.series[0].detail.formatter = '';
             myChart.setOption(option, true);
+
+            //show ipv6 fields if supported
+            var resultsEl = document.querySelectorAll('.IPv6');
+            if (testPlan.hasIPv6) {
+                for (var i = 0; i < resultsEl.length; i++) {
+                    resultsEl[i].style.display = 'block';
+                }
+            }
         });
     }
 
@@ -153,9 +157,9 @@
     function latencyTest(version) {
         var currentTest = 'latency';
         option.series[0].data[0].value = 0;
-        option.series[0].data[0].name = 'Testing Latency (ping)';
+        option.series[0].data[0].name = '';
         option.series[0].detail.formatter = '{value} ms';
-        option.series[0].detail.show = true;
+        option.series[0].detail.show = false;
         myChart.setOption(option, true);
 
         function latencyHttpOnComplete(result) {
@@ -214,6 +218,7 @@
         option.series[0].data[0].value = 0;
         option.series[0].data[0].name = 'Testing Download ...';
         option.series[0].detail.formatter = formatSpeed;
+        option.series[0].detail.show = true;
         myChart.setOption(option, true);
 
         function calculateStatsonComplete(result) {

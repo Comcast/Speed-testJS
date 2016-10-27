@@ -87,7 +87,10 @@ body {
 }
 
 .ip-icon{
-    font-size: 12px;
+    font-size: 10px;
+    border-radius: 2px;
+    border: 1px solid #ccc;
+    text-align: center;
 }
 
 .wrapper{
@@ -96,4 +99,8 @@ body {
 
 .latency-result{
     text-transform: lowercase;
+}
+
+.IPv6{
+    display: none;
 }
