@@ -121,11 +121,25 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
+                latencyBasedRouting();
                 void ((func && func instanceof Function) && func(data));
             }
         };
         xhr.open('GET', '/testplan', true);
         xhr.send(null);
+    }
+
+    function callbackComplete(result) {
+        console.log(result);
+    }
+
+    function callbackError(result) {
+        console.log(result);
+    }
+
+    function latencyBasedRouting() {
+        var latencyBasedRouting = new window.latencyBasedRouting('NJ', callbackComplete, callbackError);
+        latencyBasedRouting.getNearestServer();
     }
 
     function startTest() {
