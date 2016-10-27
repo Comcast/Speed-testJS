@@ -101,10 +101,31 @@
             var resultsEl = document.querySelectorAll('.IPv6');
             if (testPlan.hasIPv6) {
                 for (var i = 0; i < resultsEl.length; i++) {
-                    resultsEl[i].style.display = 'block';
+                    removeClass(resultsEl[i], 'hide');
                 }
             }
         });
+    }
+
+    function hasClass(el, className) {
+        return (el.classList) ? el.classList.contains(className) : !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'));
+    }
+
+    function addClass(el, className) {
+        if (!hasClass(el, className)) {
+            el.className += " " + className;
+            return;
+        }
+        void (el.classList && el.classList.add(className));
+    }
+
+    function removeClass(el, className) {
+        if (hasClass(el, className)) {
+            var reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
+            el.className = el.className.replace(reg, ' ');
+            return;
+        }
+        void ((el.classList) && el.classList.remove(className));
     }
 
     function updateCurrentValue(currentLabel, currentValue) {
@@ -157,14 +178,14 @@
             }
         }
         latencyTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4');
-        //we reset here in case the user starts another test
-        //it is a limitation in the google gauges that you can only update in setInterval
-        //so we basically recreate the gagues if the user start another test run.
-        startTestButton.disabled = true;
+
         //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
-        startTestButton.style.cursor = 'not-allowed';
-        startTestButton.style.backgroundColor = '#d1d1d1';
+        //disable button
+        startTestButton.disabled = true;
+        //set accessiblity aria-disabled state. 
+        //This will also effect the visual look by corresponding css
+        startTestButton.setAttribute('aria-disabled', true);
     }
 
     function formatSpeed(value) {
@@ -308,8 +329,10 @@
                 startTestButton.innerHTML = 'Start Test';
                 option.series[0].data[0].value = 0;
                 option.series[0].data[0].name = 'Test Complete';
-                startTestButton.style.backgroundColor = '';
-                startTestButton.style.cursor = 'pointer';
+                //set accessiblity aria-disabled state. 
+                //This will also effect the visual look by corresponding css
+                startTestButton.setAttribute('aria-disabled', false);
+                startTestButton.disabled = false;
                 option.series[0].detail.show = false;
                 myChart.setOption(option, true);
             }
