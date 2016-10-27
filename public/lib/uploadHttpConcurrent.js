@@ -131,7 +131,6 @@
     */
     uploadHttpConcurrent.prototype.onTestProgress = function(result){
       this._progressResults['arrayProgressResults'+result.id].push(result.bandwidth);
-      console.log(this._progressResults['arrayProgressResults'+result.id].toString());
       //todo add moving average counter and formulate results and return to client
     };
     /**

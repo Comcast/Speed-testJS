@@ -13,7 +13,7 @@ body {
 }
 .speed-gauge {
     width: 500px;
-    height: 500px;
+    height: 600px;
     margin: 0 auto;
     position: relative;
     top: -30px;
@@ -35,6 +35,7 @@ body {
     padding: 15px;
     text-transform: capitalize;
     font-weight: 700;
+    align-items: center;
 }
 .latency,
 .download {
@@ -52,4 +53,20 @@ body {
     left: 15px;
     margin: 0;
     padding: 0;
+}
+.action-start{
+    position: relative;
+    background-color: #edf9fb;
+    color: brown;
+    padding: 5px;
+    font-weight: 700px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 4px rgba(0, 0, 0, .14), 0 4px 8px rgba(0, 0, 0, .28);
+    cursor: pointer;
+
+}
+
+.action-start:hover{
+    background-color: #000;
+    color: #fff;
 }

@@ -54,7 +54,6 @@ webSocket.prototype._handleOnOpen = function(){
 };
 
 webSocket.prototype._handleOnMessage = function(event){
-  //console.dir(Date.now() - parseInt(event.data));
   var finaltime = Date.now() - parseInt(event.data);
   var result={};
   result.time = finaltime;
