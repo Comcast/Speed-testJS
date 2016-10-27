@@ -1,0 +1,68 @@
+<!--
+  ~ /**
+  ~ * Copyright 2014 Comcast Cable Communications Management, LLC
+  ~ *
+  ~ * Licensed under the Apache License, Version 2.0 (the "License");
+  ~ * you may not use this file except in compliance with the License.
+  ~ * You may obtain a copy of the License at
+  ~ *
+  ~ * http://www.apache.org/licenses/LICENSE-2.0
+  ~ *
+  ~ * Unless required by applicable law or agreed to in writing, software
+  ~ * distributed under the License is distributed on an "AS IS" BASIS,
+  ~ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ * See the License for the specific language governing permissions and
+  ~ * limitations under the License.
+  ~ */
+  -->
+
+<html>
+
+<head>
+    <meta charset="utf-8"/>
+    <base href="/"/>
+    <title> Speed-Test: Download</title>
+    <link rel="stylesheet" type="text/css" href="speed-testJS.css">
+</head>
+
+<body>
+<div class="container">
+    <div class="row top">
+        <h1 class="logo"></h1>
+        <div class="speed-gauge">
+        </div>
+    </div>
+    <div class="secondary-results">
+        <div class="latency">
+            <button class="action-start">Start Test</button>
+        </div>
+        <div class="server-location">
+            <p><a href="/examples/download/download.html">RAW Data Example Pages</a></p>
+        </div>
+    </div>
+    <div class="bottom">
+        <div class="results">
+            <div class="download">
+                <p>download</p>
+                <div class="wrapper">
+                    <i class="ip-icon">IPv4</i>
+                    <div class="download-IPv4-result test-result IPv4">
+                    </div>
+                </div>
+                <div class="wrapper IPv6 hide">
+                    <i class="ip-icon">IPv6</i>
+                    <div class="download-IPv6-result test-result IPv6">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="lib/calculateStats.js"></script>
+<script src="lib/xmlhttprequest.js"></script>
+<script src="lib/downloadHttpConcurrent.js"></script>
+<script src="uilib/echarts.min.js"></script>
+<script src="examples/download/downloadApp.js"></script>
+</body>
+
+</html>
