@@ -2,7 +2,7 @@
 
 The essential steps for deploying to the server are:
 
-* Copy the files `package.json`, `index.js`, `modules` and `public/lib` from `Speed-testJS` directory to the test server and put them under one directory, e.g. `/opt/Speed-testJS`
+* Copy the files `package.json`, `index.js`, `config`, `modules` and `public/lib` from `Speed-testJS` directory to the test server and put them under one directory, e.g. `/opt/Speed-testJS`
 
 * Install `node.js`, `npm`
 
@@ -31,6 +31,7 @@ Speed-testJS/
    |-- ansible/
    |      |-- private/
    |
+   |-- config/
    |-- public/
    |-- modules/
    |
@@ -112,7 +113,7 @@ ansible-playbook deploy-servers.yml [-e version=<version_name>,aws_access=<aws a
 Ansible will create a user named `test-user` if not present in the server. If `version_name` is not passed when
 invoking the `ansible-playbook` command, the default `version_name` created will be `YYYYMMDDHHmmSS.<git hash>`. Do not change files 
 or checkout a different git branch while the deployment playbook is executing as this may affect the code that is deployed.
-Ansible will zip `package.json`, `index.js`, `modules` and `public/` and push to the test server, unzipping it under
+Ansible will zip `package.json`, `index.js`, `config`, `modules` and `public/` and push to the test server, unzipping it under
 `/opt/Speed-testJS_<version_name>`. It will then symlink `/opt/Speed-testJS` to that directory. It will install
  `node`, `npm` and perform `npm install` to pull all the modules. It will also install `aws` credentials that
  are used to store test results to DynamoDB.
