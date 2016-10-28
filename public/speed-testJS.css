@@ -8,6 +8,11 @@ body {
     font-size: 16px;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
+
+.flex {
+    flex: 1;
+}
+
 .container {
     width: 500px;
     background-color: #fff;
@@ -31,6 +36,7 @@ body {
 .results {
     color: #fff;
 }
+
 .results,
 .secondary-results {
     display: flex;
@@ -39,10 +45,11 @@ body {
     font-weight: 700;
     align-items: center;
 }
-.latency,
-.download {
-    flex: 1;
+
+.secondary-results{
+    position: relative;
 }
+
 .logo {
     background-image: url("img/icons.png");
     background-position: 0px -897px;
@@ -57,7 +64,6 @@ body {
     padding: 0;
 }
 .action-start{
-    position: relative;
     background-color: #474747;
     color: #fff;
     padding: 5px;
