@@ -234,8 +234,9 @@
         }
 
         function calculateStatsonError(result) {
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
         function uploadHttpOnComplete(result) {
@@ -247,18 +248,36 @@
             myChart.setOption(option, true);
         }
         function uploadHttpOnAbort(result) {
+            if (version === 'IPv6') {
+                testPlan.hasIPv6 = false;
+                uploadTest('IPv4');
+                return;
+            }
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
         function uploadHttpOnTimeout(result) {
+            if (version === 'IPv6') {
+                testPlan.hasIPv6 = false;
+                uploadTest('IPv4');
+                return;
+            }
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
         function uploadHttpOnError(result) {
+            if (version === 'IPv6') {
+                testPlan.hasIPv6 = false;
+                uploadTest('IPv4');
+                return;
+            }
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;

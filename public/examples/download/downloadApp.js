@@ -218,8 +218,9 @@
         }
 
         function calculateStatsonError(result) {
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
 
@@ -235,20 +236,38 @@
         }
 
         function downloadHttpOnAbort(result) {
+            if (version === 'IPv6') {
+                testPlan.hasIPv6 = false;
+                downloadTest('IPv4');
+                return;
+            }
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
 
         function downloadHttpOnTimeout(result) {
+            if (version === 'IPv6') {
+                testPlan.hasIPv6 = false;
+                downloadTest('IPv4');
+                return;
+            }
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
 
         function downloadHttpOnError(result) {
+            if (version === 'IPv6') {
+                testPlan.hasIPv6 = false;
+                downloadTest('IPv4');
+                return;
+            }
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
 

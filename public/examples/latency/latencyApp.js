@@ -229,24 +229,39 @@
         }
 
         function latencyHttpOnAbort(result) {
+            if (version === 'IPv6') {
+                testPlan.hasIPv6 = false;
+                latencyTest('IPv4');
+                return;
+            }
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
 
         function latencyHttpOnTimeout(result) {
             if (version === 'IPv6') {
                 testPlan.hasIPv6 = false;
-                //hide IPv6 related dom elements
                 latencyTest('IPv4');
+                return;
             }
+            //enable start test button
+            startTestButton.disabled = false;
+            //update test button text
+            startTestButton.innerHTML = 'Start Test';
         }
 
         function latencyHttpOnError(result) {
             if (version === 'IPv6') {
                 testPlan.hasIPv6 = false;
                 latencyTest('IPv4');
+                return;
             }
+            //enable start test button
+            startTestButton.disabled = false;
+            //update test button text
+            startTestButton.innerHTML = 'Start Test';
         }
 
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 + '/latency' : 'http://' + testPlan.baseUrlIPv4 + '/latency';
