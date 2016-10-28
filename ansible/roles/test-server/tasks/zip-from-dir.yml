@@ -48,4 +48,4 @@
   sudo: yes
 
 - name: archive files
-  shell: zip -r {{ zip_tmp }}  package.json index.js modules public chdir={{ playbook_dir}}/{{ from_dir }}
+  shell: zip -r {{ zip_tmp }}  package.json index.js config modules public chdir={{ playbook_dir}}/{{ from_dir }}
