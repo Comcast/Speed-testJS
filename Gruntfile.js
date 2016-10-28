@@ -16,14 +16,27 @@ module.exports = function (grunt) {
                 }
 
             },
+                docco: {
+                  debug: {
+                    src: [
+                    'public/speed-testJS.js',
+                    'public/examples/**/*.js',
+                    'lib/**/*.js',
+                    ],
+                    options: {
+                      output: 'public/docs/'
+                    }
+                  }
+                }
         }
     );
 
     //load the copy module
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-tar.gz');
+    grunt.loadNpmTasks('grunt-docco-multi');
     //register the build task
     grunt.registerTask('package', ['copy:html']);
-
+    grunt.registerTask('docs', ['docco']);
 
 };

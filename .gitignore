@@ -13,3 +13,4 @@ private
 target/
 dist.tar.gz
 dist
+public/docs
