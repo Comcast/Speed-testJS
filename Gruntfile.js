@@ -11,6 +11,7 @@ module.exports = function (grunt) {
                         {src: 'index.js', dest: 'dist/'},
                         {src: 'package.json', dest: 'dist/'},
                         {src: 'node_modules/**', dest: 'dist/'},
+                        {src: 'config/**', dest: 'dist/'},
                     ]
                 }
 
