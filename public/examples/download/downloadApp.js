@@ -50,7 +50,7 @@
             option = {
                 series: [
                     {
-                        name: 'Download',
+                        name: '',
                         type: 'gauge',
                         min: 0,
                         max: 1000,
@@ -152,22 +152,6 @@
         xhr.send(null);
     }
 
-    function latencyBasedRoutingOnComplete(result) {
-        //TODO update the base urls for websockets if you want to perform the latency test via websockets
-        testPlan.baseUrlIPv4 = result.IPv4Address;
-        testPlan.baseUrlIPv6 = result.IPv6Address;
-    }
-
-    function latencyBasedRoutingOnError(result) {
-        console.log(result);
-    }
-
-    function latencyBasedRouting() {
-        // pass in the client location instead of the hard coded value
-        var latencyBasedRouting = new window.latencyBasedRouting('NJ', latencyBasedRoutingOnComplete, latencyBasedRoutingOnError);
-        latencyBasedRouting.getNearestServer();
-    }
-
     function startTest() {
         if (firstRun) {
             firstRun = false;
@@ -177,7 +161,7 @@
                 resultsEl[i].innerHTML = '';
             }
         }
-        latencyTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4');
+        downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4');
 
         //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
@@ -192,66 +176,6 @@
         var value = parseFloat(Math.round(value * 100) / 100).toFixed(2);
         value = (value > 1000) ? parseFloat(value / 1000).toFixed(2) + ' Gbps' : value + ' Mbps';
         return value;
-    }
-
-    function latencyTest(version) {
-        var currentTest = 'latency';
-        option.series[0].data[0].value = 0;
-        option.series[0].data[0].name = '';
-        option.series[0].detail.formatter = '{value} ms';
-        option.series[0].detail.show = false;
-        myChart.setOption(option, true);
-
-        function latencyHttpOnComplete(result) {
-            void (version === 'IPv6' && latencyTest('IPv4'));
-            void (!(version === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
-            result = result.sort(function (a, b) {
-                return +a.time - +b.time;
-            });
-            updateValue(currentTest, result[0].time + ' ms');
-        }
-
-        function latencyHttpOnProgress(result) {
-            option.series[0].data[0].value = result.time;
-            myChart.setOption(option, true);
-        }
-
-        function latencyHttpOnAbort(result) {
-            if (version === 'IPv6') {
-                testPlan.hasIPv6 = false;
-                latencyTest('IPv4');
-                return;
-            }
-             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-
-        function latencyHttpOnTimeout(result) {
-            if (version === 'IPv6') {
-                testPlan.hasIPv6 = false;
-                //hide IPv6 related dom elements
-                latencyTest('IPv4');
-                return;
-            }
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-
-        function latencyHttpOnError(result) {
-            if (version === 'IPv6') {
-                testPlan.hasIPv6 = false;
-                latencyTest('IPv4');
-            }
-
-        }
-
-        var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 + '/latency' : 'http://' + testPlan.baseUrlIPv4 + '/latency';
-
-        var latencyHttpTestSuite = new window.latencyHttpTest(baseUrl, 20, 3000, latencyHttpOnComplete, latencyHttpOnProgress,
-            latencyHttpOnAbort, latencyHttpOnTimeout, latencyHttpOnError);
-        latencyHttpTestSuite.initiateTest();
     }
 
     function updateValue(selector, value) {
@@ -269,63 +193,6 @@
         option.series[0].data[0].name = 'Testing Download ...';
         option.series[0].detail.formatter = formatSpeed;
         option.series[0].detail.show = true;
-        myChart.setOption(option, true);
-
-        function calculateStatsonComplete(result) {
-            var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
-            finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
-            void (version === 'IPv6' && downloadTest('IPv4'));
-            void (!(version === 'IPv6') && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'));
-            updateValue([currentTest, '-', version].join(''), finalValue);
-        }
-
-        function calculateStatsonError(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-
-        function downloadHttpOnComplete(result) {
-
-            var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
-            calculateMeanStats.performCalculations();
-        }
-
-        function downloadHttpOnProgress(result) {
-            option.series[0].data[0].value = result;
-            myChart.setOption(option, true);
-        }
-
-        function downloadHttpOnAbort(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-
-        function downloadHttpOnTimeout(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-
-        function downloadHttpOnError(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-
-        var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
-
-        var downloadHttpConcurrent = new window.downloadHttpConcurrent(baseUrl + '/download?bufferSize=1000000', 'GET', 6, 15000, 10000, downloadHttpOnComplete, downloadHttpOnProgress,
-            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
-        downloadHttpConcurrent.initiateTest();
-    }
-
-    function uploadTest(version) {
-        var currentTest = 'upload';
-        option.series[0].data[0].value = 0;
-        option.series[0].data[0].name = 'Testing Upload...';
-        option.series[0].detail.formatter = formatSpeed;
         myChart.setOption(option, true);
 
         function calculateStatsonComplete(result) {
@@ -351,39 +218,64 @@
         }
 
         function calculateStatsonError(result) {
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
-        function uploadHttpOnComplete(result) {
+
+        function downloadHttpOnComplete(result) {
+
             var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
             calculateMeanStats.performCalculations();
         }
-        function uploadHttpOnProgress(result) {
+
+        function downloadHttpOnProgress(result) {
             option.series[0].data[0].value = result;
             myChart.setOption(option, true);
         }
-        function uploadHttpOnAbort(result) {
+
+        function downloadHttpOnAbort(result) {
+            if (version === 'IPv6') {
+                testPlan.hasIPv6 = false;
+                downloadTest('IPv4');
+                return;
+            }
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
-        function uploadHttpOnTimeout(result) {
+
+        function downloadHttpOnTimeout(result) {
+            if (version === 'IPv6') {
+                testPlan.hasIPv6 = false;
+                downloadTest('IPv4');
+                return;
+            }
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
-        function uploadHttpOnError(result) {
+
+        function downloadHttpOnError(result) {
+            if (version === 'IPv6') {
+                testPlan.hasIPv6 = false;
+                downloadTest('IPv4');
+                return;
+            }
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
+
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent(baseUrl + '/upload', 'POST', 2, 15000, 15000, uploadHttpOnComplete, uploadHttpOnProgress,
-            uploadHttpOnError, 500000);
-        uploadHttpConcurrentTestSuite.initiateTest();
-
+        var downloadHttpConcurrent = new window.downloadHttpConcurrent(baseUrl + '/download?bufferSize=1000000', 'GET', 6, 15000, 10000, downloadHttpOnComplete, downloadHttpOnProgress,
+            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
+        downloadHttpConcurrent.initiateTest();
     }
 
 })();

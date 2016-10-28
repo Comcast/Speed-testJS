@@ -21,7 +21,7 @@
 <head>
     <meta charset="utf-8"/>
     <base href="/"/>
-    <title> Speed Test</title>
+    <title> Speed-Test: Latency</title>
     <link rel="stylesheet" type="text/css" href="speed-testJS.css">
 </head>
 
@@ -40,49 +40,16 @@
             <p>ping: <span class="latency-result test-result"></span></p>
         </div>
     </div>
-    <div class="bottom">
-        <div class="results flex">
-            <div class="download flex">
-                <p>download</p>
-                <div class="wrapper">
-                    <i class="ip-icon">IPv4</i>
-                    <div class="download-IPv4-result test-result IPv4">
-                    </div>
-                </div>
-                <div class="wrapper IPv6 hide">
-                    <i class="ip-icon">IPv6</i>
-                    <div class="download-IPv6-result test-result IPv6">
-                    </div>
-                </div>
-            </div>
-            <div class="upload">
-                <p>upload</p>
-                <div class="wrapper">
-                    <i class="ip-icon">IPv4</i>
-                    <div class="upload-IPv4-result test-result IPv4">
-                    </div>
-                </div>
-                <div class="wrapper IPv6 hide">
-                    <i class="ip-icon">IPv6</i>
-                    <div class="upload-IPv6-result test-result IPv6">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+ </div>
 </div>
-
-<script src="lib/latencyBasedRouting.js"></script>
 <script src="lib/calculateStats.js"></script>
 <script src="lib/xmlhttprequest.js"></script>
 <script src="lib/webSocket.js"></script>
+<script src="lib/latencyBasedRouting.js"></script>
 <script src="lib/latencyHttpTest.js"></script>
 <script src="lib/latencyWebSocketTest.js"></script>
-<script src="lib/downloadHttpConcurrent.js"></script>
-<script src="lib/uploadHttpConcurrent.js"></script>
-<script src="lib/uploadHttpConcurrent.js"></script>
-<script src="uilib/echarts.min.js"></script>
-<script src="speed-testJS.js"></script>
+<script src="uilib/echarts.min.js"></script>Ï
+<script src="examples/latency/latencyApp.js"></script>
 </body>
 
 </html>

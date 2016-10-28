@@ -53,7 +53,7 @@
                         name: 'Download',
                         type: 'gauge',
                         min: 0,
-                        max: 1000,
+                        max: 30,
                         precision: 2,
                         axisLine: {
                             show: true,
@@ -199,12 +199,24 @@
         option.series[0].data[0].value = 0;
         option.series[0].data[0].name = '';
         option.series[0].detail.formatter = '{value} ms';
-        option.series[0].detail.show = false;
+        option.series[0].detail.show = true;
         myChart.setOption(option, true);
 
         function latencyHttpOnComplete(result) {
             void (version === 'IPv6' && latencyTest('IPv4'));
-            void (!(version === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+            void (!(version === 'IPv6') && setTimeout(function () { 
+                //update button text to communicate current state of test as In Progress
+                startTestButton.innerHTML = 'Start Test';
+                option.series[0].data[0].value = 0;
+                option.series[0].data[0].name = 'Test Complete';
+                //set accessiblity aria-disabled state. 
+                //This will also effect the visual look by corresponding css
+                startTestButton.setAttribute('aria-disabled', false);
+                startTestButton.disabled = false;
+                option.series[0].detail.show = false;
+                myChart.setOption(option, true);
+
+            }, 500));
             result = result.sort(function (a, b) {
                 return +a.time - +b.time;
             });
@@ -222,20 +234,21 @@
                 latencyTest('IPv4');
                 return;
             }
-             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //enable start test button
+            startTestButton.disabled = false;
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
 
         function latencyHttpOnTimeout(result) {
             if (version === 'IPv6') {
                 testPlan.hasIPv6 = false;
-                //hide IPv6 related dom elements
                 latencyTest('IPv4');
                 return;
             }
+            //enable start test button
             startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
+            //update test button text
             startTestButton.innerHTML = 'Start Test';
         }
 
@@ -243,8 +256,12 @@
             if (version === 'IPv6') {
                 testPlan.hasIPv6 = false;
                 latencyTest('IPv4');
+                return;
             }
-
+            //enable start test button
+            startTestButton.disabled = false;
+            //update test button text
+            startTestButton.innerHTML = 'Start Test';
         }
 
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 + '/latency' : 'http://' + testPlan.baseUrlIPv4 + '/latency';
@@ -263,127 +280,5 @@
         }
     }
 
-    function downloadTest(version) {
-        var currentTest = 'download';
-        option.series[0].data[0].value = 0;
-        option.series[0].data[0].name = 'Testing Download ...';
-        option.series[0].detail.formatter = formatSpeed;
-        option.series[0].detail.show = true;
-        myChart.setOption(option, true);
-
-        function calculateStatsonComplete(result) {
-            var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
-            finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
-            void (version === 'IPv6' && downloadTest('IPv4'));
-            void (!(version === 'IPv6') && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'));
-            updateValue([currentTest, '-', version].join(''), finalValue);
-        }
-
-        function calculateStatsonError(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-
-        function downloadHttpOnComplete(result) {
-
-            var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
-            calculateMeanStats.performCalculations();
-        }
-
-        function downloadHttpOnProgress(result) {
-            option.series[0].data[0].value = result;
-            myChart.setOption(option, true);
-        }
-
-        function downloadHttpOnAbort(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-
-        function downloadHttpOnTimeout(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-
-        function downloadHttpOnError(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-
-        var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
-
-        var downloadHttpConcurrent = new window.downloadHttpConcurrent(baseUrl + '/download?bufferSize=1000000', 'GET', 6, 15000, 10000, downloadHttpOnComplete, downloadHttpOnProgress,
-            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
-        downloadHttpConcurrent.initiateTest();
-    }
-
-    function uploadTest(version) {
-        var currentTest = 'upload';
-        option.series[0].data[0].value = 0;
-        option.series[0].data[0].name = 'Testing Upload...';
-        option.series[0].detail.formatter = formatSpeed;
-        myChart.setOption(option, true);
-
-        function calculateStatsonComplete(result) {
-            var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
-            finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
-            void ((version === 'IPv6') && uploadTest('IPv4'));
-            if (!(version === 'IPv6')) {
-                //update dom with final result
-                startTestButton.disabled = false;
-                //update button text to communicate current state of test as In Progress
-                startTestButton.innerHTML = 'Start Test';
-                option.series[0].data[0].value = 0;
-                option.series[0].data[0].name = 'Test Complete';
-                //set accessiblity aria-disabled state. 
-                //This will also effect the visual look by corresponding css
-                startTestButton.setAttribute('aria-disabled', false);
-                startTestButton.disabled = false;
-                option.series[0].detail.show = false;
-                myChart.setOption(option, true);
-            }
-
-            updateValue([currentTest, '-', version].join(''), finalValue);
-        }
-
-        function calculateStatsonError(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-        function uploadHttpOnComplete(result) {
-            var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
-            calculateMeanStats.performCalculations();
-        }
-        function uploadHttpOnProgress(result) {
-            option.series[0].data[0].value = result;
-            myChart.setOption(option, true);
-        }
-        function uploadHttpOnAbort(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-        function uploadHttpOnTimeout(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-        function uploadHttpOnError(result) {
-            startTestButton.disabled = false;
-            //update button text to communicate current state of test as In Progress
-            startTestButton.innerHTML = 'Start Test';
-        }
-        var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
-
-        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent(baseUrl + '/upload', 'POST', 2, 15000, 15000, uploadHttpOnComplete, uploadHttpOnProgress,
-            uploadHttpOnError, 500000);
-        uploadHttpConcurrentTestSuite.initiateTest();
-
-    }
-
 })();
+
