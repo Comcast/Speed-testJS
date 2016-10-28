@@ -19,9 +19,7 @@ module.exports = function (grunt) {
                 docco: {
                   debug: {
                     src: [
-                    'public/speed-testJS.js',
-                    'public/examples/**/*.js',
-                    'lib/**/*.js',
+                        'lib/**/*.js',
                     ],
                     options: {
                       output: 'public/docs/'
