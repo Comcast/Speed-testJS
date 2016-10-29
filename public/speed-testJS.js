@@ -33,6 +33,7 @@
     var option;
     var startTestButton;
     var firstRun = true;
+    var downloadSize = 1000000;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -203,12 +204,15 @@
         myChart.setOption(option, true);
 
         function latencyHttpOnComplete(result) {
+            downloadProbe();
+            /*
             void (version === 'IPv6' && latencyTest('IPv4'));
             void (!(version === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
             result = result.sort(function (a, b) {
                 return +a.time - +b.time;
             });
             updateValue(currentTest, result[0].time + ' ms');
+            */
         }
 
         function latencyHttpOnProgress(result) {
@@ -299,6 +303,27 @@
         if (dom) {
             dom.innerHTML = value;
         }
+    }
+
+    function downloadProbe() {
+        function downloadProbeTestOnComplete(result) {
+            var downloadSizes = result;
+            if(downloadSizes.length>0) {
+                //downloadSize = downloadSizes[downloadSizes.length-1];
+                downloadSize = downloadSizes[0];
+            }
+            //call downloadTests
+
+            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+        }
+
+        function downloadProbeTestOnError(result) {
+            console.dir(result);
+        }
+        var downloadProbeTestRun = new window.downloadProbeTest('/download?bufferSize='+downloadSize, false, 3000,762939,downloadProbeTestOnComplete,
+            downloadProbeTestOnError);
+        downloadProbeTestRun.start();
+
     }
 
     function downloadTest(version) {
@@ -417,9 +442,9 @@
 
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var downloadHttpConcurrent = new window.downloadHttpConcurrent(baseUrl + '/download?bufferSize=1000000', 'GET', 6, 15000, 10000, downloadHttpOnComplete, downloadHttpOnProgress,
+        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize='+downloadSize, 'GET', 6, 15000, 15000,10,  downloadHttpOnComplete, downloadHttpOnProgress,
             downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
-        downloadHttpConcurrent.initiateTest();
+        downloadHttpConcurrentProgress.initiateTest();
     }
 
     function uploadTest(version) {

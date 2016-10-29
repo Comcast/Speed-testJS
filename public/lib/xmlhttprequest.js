@@ -47,12 +47,14 @@
     this.callbackTimeout = callbackTimeout;
     this.callbackError = callbackError;
     this.requestTimeout;
+    this._request;
   };
   /**
    * Initiate the request
    */
   xmlHttpRequest.prototype._initiateRequest = function(){
-    if (this._request === null ||
+
+      if (this._request === null ||
        typeof this._request === 'undefined') {
        this._request = new XMLHttpRequest();
        // Handle lifecycle events on wrapped request
@@ -86,6 +88,7 @@
       else{
         this._request.send(null);
       }
+
     };
   /**
   * Mark the start time of the request
@@ -191,6 +194,7 @@
     */
    xmlHttpRequest.prototype._handleOnProgressDownload = function (response) {
         //measure bandwidth after one progress event due to rampup
+       //console.log('this.progressCount: ' + this.progressCount + ' ' + this.id);
         if (this.progressCount > 1) {
           var result = {};
           result.id = this.id;
@@ -199,6 +203,7 @@
           var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
           var transferDurationSeconds = result.totalTime/1000;
           result.bandwidth = transferSizeMbs/transferDurationSeconds;
+            //console.log('this.progressCount: ' + this.progressCount + ' ' + this.id + ' ' + result.bandwidth);
           if(isFinite(result.bandwidth)){
             this.callbackProgress(result);
             this.prevTime = this.currentTime;

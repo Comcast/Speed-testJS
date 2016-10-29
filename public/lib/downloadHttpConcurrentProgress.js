@@ -62,6 +62,8 @@
         this._progressResults = {};
         //count of progress events
         this._progressCount = 0;
+        //flag on whether to collect measurements-All request need to be running at the same time
+        this._collectMovingAverages = false;
     }
 
     /**
@@ -79,10 +81,16 @@
      * @return abort object
      */
     downloadHttpConcurrentProgress.prototype.onTestAbort = function (result) {
-        if (this._running) {
-            this.clientCallbackAbort(result);
-            this._running = false;
+
+        if ((Date.now() - this._beginTime) > this.testLength) {
+            console.log(this.finalResults);
+            if (this.finalResults && this.finalResults.length) {
+                this.clientCallbackComplete(this.finalResults);
+            } else {
+                this.clientCallbackError('no measurements obtained');
+            }
         }
+
     };
     /**
      * onTimeout method
@@ -103,39 +111,31 @@
         if (!this._running) {
             return;
         }
+        this._collectMovingAverages = false;
         //pushing results to an array
         this._results.push(result);
-
-        this['arrayResults' + result.id];
-        //remove requests from active test array
-        this._activeTests.pop(result.id, 1);
+        //cancel remaining tests
+        for (var i = 0; i < this._activeTests.length; i++) {
+            if (typeof(this._activeTests[i]) !== 'undefined') {
+                this._activeTests[i].xhr._request.abort();
+            }
+        }
+        //reset Active Tests array
+        this._activeTests.length =0;
         //checking if we can continue with the test
         if ((Date.now() - this._beginTime) < this.testLength) {
-            if (this._activeTests.length === 0 && this._running) {
-                var singleMovingAverage = 0;
-                for (var j = 1; j <= this.concurrentRuns; j++) {
-                    singleMovingAverage += this._results[(this._results.length - j)].bandwidth;
-                }
-                this.finalResults.push(singleMovingAverage);
-                this.clientCallbackProgress(singleMovingAverage);
-                this.start();
-            }
+            //this.calculateStats();
+            this.start();
         }
         else {
             var total = 0;
             this._running = false;
-            console.log('sendResults: ' + this.finalResults.length);
+
             if (this.finalResults && this.finalResults.length) {
                 this.clientCallbackComplete(this.finalResults);
             } else {
                 this.clientCallbackError('no measurements obtained');
             }
-            for (var i = 0; i < this._activeTests.length; i++) {
-                if (typeof(this._activeTests[i]) !== 'undefined') {
-                    this._activeTests[i].xhr._request.abort();
-                }
-            }
-
         }
     };
 
@@ -147,44 +147,47 @@
         if (!this._running) {
             return;
         }
+        if(!this._collectMovingAverages){
+            return;
+        }
         //update progress count
         this._progressCount++;
         //populate array
-        //console.log(result.id);
-        //console.log(this._progressResults['arrayProgressResults' + result.id]);
+
 
         this._progressResults['arrayProgressResults' + result.id].push(result.bandwidth);
         //calculate moving average
         if (this._progressCount % this.movingAverage === 0) {
-            //check if all test still running
-            if (this._activeTests.length === this.concurrentRuns) {
-                //loop thru active tests to calculate totalMovingAverage
-                var totalMovingAverage = 0;
-                for (var i = 0; i < this._activeTests.length; i++) {
+            this.calculateStats();
 
-                    if (typeof(this._activeTests[i]) !== 'undefined') {
-                        // get array size and loop thru size of moving average series or array length
-                        var lastElem = Math.min(this._progressResults['arrayProgressResults' + this._activeTests[i].testRun].length, this.movingAverage);
-                        if (lastElem > 0) {
-                            var singleMovingAverage = 0;
-                            for (var j = 1; j <= lastElem; j++) {
-                                if (isFinite(this._progressResults['arrayProgressResults' + this._activeTests[i].testRun][this._progressResults['arrayProgressResults' + this._activeTests[i].testRun].length - j])) {
-                                    singleMovingAverage = singleMovingAverage + this._progressResults['arrayProgressResults' + this._activeTests[i].testRun][this._progressResults['arrayProgressResults' + this._activeTests[i].testRun].length - j];
-
-                                }
-                            }
-                            singleMovingAverage = singleMovingAverage / lastElem;
-                            totalMovingAverage = totalMovingAverage + singleMovingAverage;
-
-                        }
-                    }
-
-                }
-                this.clientCallbackProgress(totalMovingAverage);
-                this.finalResults.push(totalMovingAverage);
-            }
         }
     };
+
+    downloadHttpConcurrentProgress.prototype.calculateStats = function () {
+        //loop thru active tests to calculate totalMovingAverage
+        var totalMovingAverage = 0;
+        for (var i = 0; i < this.concurrentRuns; i++) {
+            // get array size and loop thru size of moving average series or array length
+            var id = this._testIndex -1;
+            var arrayData = 'arrayProgressResults' + id;
+            var lastElem = Math.min(this._progressResults[arrayData].length, this.movingAverage);
+            if (lastElem > 0) {
+                var singleMovingAverage = 0;
+                for (var j = 1; j <= lastElem; j++) {
+                    if (isFinite(this._progressResults[arrayData][this._progressResults[arrayData].length - j])) {
+                        singleMovingAverage = singleMovingAverage + this._progressResults[arrayData][this._progressResults[arrayData].length - j];
+                    }
+                }
+                singleMovingAverage = singleMovingAverage / lastElem;
+            }
+            totalMovingAverage = totalMovingAverage + singleMovingAverage;
+        }
+        this.clientCallbackProgress(totalMovingAverage);
+        this.finalResults.push(totalMovingAverage);
+
+    }
+
+
     /**
      * Start the test
      */
@@ -197,15 +200,15 @@
                 this._testIndex++;
                 this['arrayResults' + this._testIndex] = [];
                 this._progressResults['arrayProgressResults' + this._testIndex] = new Array();
-                var request = new window.xmlHttpRequest('GET', [this.url, '?', Date.now()].join(''), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
+                var request = new window.xmlHttpRequest('GET', this.url+ '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
                     this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
                 this._activeTests.push({
                     xhr: request,
                     testRun: this._testIndex
                 });
-
                 request.start(0, this._testIndex);
             }
+            this._collectMovingAverages = true;
         }
         else {
             for (var p = 1; p <= this.concurrentRuns; p++) {

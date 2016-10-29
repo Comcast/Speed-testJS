@@ -77,10 +77,14 @@
      * @return abort object
      */
     downloadHttpConcurrent.prototype.onTestAbort = function (result) {
-        if (this._running) {
-            this.clientCallbackAbort(result);
-            this._running = false;
+        var total = 0;
+        this._running = false;
+        if (this.finalResults && this.finalResults.length) {
+            this.clientCallbackComplete(this.finalResults);
+        } else {
+            this.clientCallbackError('no measurements obtained');
         }
+
     };
     /**
      * onTimeout method
@@ -88,7 +92,8 @@
      */
     downloadHttpConcurrent.prototype.onTestTimeout = function (result) {
         if (this._running) {
-            this.clientCallbackTimeout(result);
+            console.log('onTestAbortCalled');
+            this.clientCallbackTimeout(onTestTimeout);
             this._running = false;
         }
     };
