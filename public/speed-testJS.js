@@ -144,6 +144,7 @@
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
                 testPlan.hasIPv6=false;
+                testPlan.baseUrlIPv4='69.252.86.194';
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }

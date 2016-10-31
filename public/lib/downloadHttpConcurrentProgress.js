@@ -81,9 +81,7 @@
      */
     downloadHttpConcurrentProgress.prototype.onTestAbort = function (result) {
         if(this._running) {
-            console.log('onTestAbort: ' + this._running);
             if ((Date.now() - this._beginTime) > this.testLength) {
-                console.log('onTestAbort send Results: ' + this.finalResults.length);
                 if (this.finalResults && this.finalResults.length) {
                     this.clientCallbackComplete(this.finalResults);
                 } else {
@@ -101,9 +99,7 @@
      */
     downloadHttpConcurrentProgress.prototype.onTestTimeout = function (result) {
         if(this._running) {
-            console.log('onTestAbort: ' + this._running);
             if ((Date.now() - this._beginTime) > this.testLength) {
-                console.log('onTestAbort send Results: ' + this.finalResults.length);
                 if (this.finalResults && this.finalResults.length) {
                     this.clientCallbackComplete(this.finalResults);
                 } else {
