@@ -234,10 +234,21 @@
         }
 
         function calculateStatsonError(result) {
-            //enable start test button
-            startTestButton.disabled = false;
-            //update test button text
-            startTestButton.innerHTML = 'Start Test';
+                //set test value to 0
+                option.series[0].data[0].value = 0;
+                //updat test status to complete
+                option.series[0].data[0].name = 'Test Failed';
+                //set accessiblity aria-disabled state. 
+                //This will also effect the visual look by corresponding css
+                startTestButton.setAttribute('aria-disabled', false);
+               //update button text to communicate current state of test as In Progress
+                startTestButton.innerHTML = 'Start Test';
+                //enable start button
+                startTestButton.disabled = false;
+                //hide current test value in chart 
+                option.series[0].detail.show = false;
+                //update gauge
+                myChart.setOption(option, true);
         }
         function uploadHttpOnComplete(result) {
             var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
@@ -253,10 +264,21 @@
                 uploadTest('IPv4');
                 return;
             }
-            //enable start test button
-            startTestButton.disabled = false;
-            //update test button text
-            startTestButton.innerHTML = 'Start Test';
+                //set test value to 0
+                option.series[0].data[0].value = 0;
+                //updat test status to complete
+                option.series[0].data[0].name = 'Test Failed';
+                //set accessiblity aria-disabled state. 
+                //This will also effect the visual look by corresponding css
+                startTestButton.setAttribute('aria-disabled', false);
+               //update button text to communicate current state of test as In Progress
+                startTestButton.innerHTML = 'Start Test';
+                //enable start button
+                startTestButton.disabled = false;
+                //hide current test value in chart 
+                option.series[0].detail.show = false;
+                //update gauge
+                myChart.setOption(option, true);
         }
         function uploadHttpOnTimeout(result) {
             if (version === 'IPv6') {
@@ -264,10 +286,21 @@
                 uploadTest('IPv4');
                 return;
             }
-            //enable start test button
-            startTestButton.disabled = false;
-            //update test button text
-            startTestButton.innerHTML = 'Start Test';
+                //set test value to 0
+                option.series[0].data[0].value = 0;
+                //updat test status to complete
+                option.series[0].data[0].name = 'Test Failed';
+                //set accessiblity aria-disabled state. 
+                //This will also effect the visual look by corresponding css
+                startTestButton.setAttribute('aria-disabled', false);
+               //update button text to communicate current state of test as In Progress
+                startTestButton.innerHTML = 'Start Test';
+                //enable start button
+                startTestButton.disabled = false;
+                //hide current test value in chart 
+                option.series[0].detail.show = false;
+                //update gauge
+                myChart.setOption(option, true);
         }
         function uploadHttpOnError(result) {
             if (version === 'IPv6') {
@@ -275,10 +308,21 @@
                 uploadTest('IPv4');
                 return;
             }
-            //enable start test button
-            startTestButton.disabled = false;
-            //update test button text
-            startTestButton.innerHTML = 'Start Test';
+                //set test value to 0
+                option.series[0].data[0].value = 0;
+                //updat test status to complete
+                option.series[0].data[0].name = 'Test Failed';
+                //set accessiblity aria-disabled state. 
+                //This will also effect the visual look by corresponding css
+                startTestButton.setAttribute('aria-disabled', false);
+               //update button text to communicate current state of test as In Progress
+                startTestButton.innerHTML = 'Start Test';
+                //enable start button
+                startTestButton.disabled = false;
+                //hide current test value in chart 
+                option.series[0].detail.show = false;
+                //update gauge
+                myChart.setOption(option, true);
         }
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
