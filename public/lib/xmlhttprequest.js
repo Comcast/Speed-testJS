@@ -194,7 +194,6 @@
     */
    xmlHttpRequest.prototype._handleOnProgressDownload = function (response) {
         //measure bandwidth after one progress event due to rampup
-       //console.log('this.progressCount: ' + this.progressCount + ' ' + this.id);
         if (this.progressCount > 1) {
           var result = {};
           result.id = this.id;
@@ -203,7 +202,6 @@
           var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
           var transferDurationSeconds = result.totalTime/1000;
           result.bandwidth = transferSizeMbs/transferDurationSeconds;
-            //console.log('this.progressCount: ' + this.progressCount + ' ' + this.id + ' ' + result.bandwidth);
           if(isFinite(result.bandwidth)){
             this.callbackProgress(result);
             this.prevTime = this.currentTime;
