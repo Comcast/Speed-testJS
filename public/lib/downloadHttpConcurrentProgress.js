@@ -122,7 +122,6 @@
         this._activeTests.length =0;
         //checking if we can continue with the test
         if ((Date.now() - this._beginTime) < this.testLength) {
-            //this.calculateStats();
             this.start();
         }
         else {
@@ -154,10 +153,12 @@
         //calculate moving average
         if (this._progressCount % this.movingAverage === 0) {
             this.calculateStats();
-
         }
     };
 
+    /**
+     * calculateStats method
+     */
     downloadHttpConcurrentProgress.prototype.calculateStats = function () {
         //loop thru active tests to calculate totalMovingAverage
         var totalMovingAverage = 0;
@@ -181,7 +182,6 @@
         this.finalResults.push(totalMovingAverage);
 
     }
-
 
     /**
      * Start the test
