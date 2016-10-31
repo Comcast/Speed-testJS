@@ -208,11 +208,12 @@
 
         function latencyHttpOnComplete(result) {
             if(version === 'IPv6'){
-                latencyTest('IPv4')
+                setTimeout(latencyTest('IPv4'),500);
             }
             else{
                 updateValue(currentTest, result[0].time + ' ms');
-                downloadProbe();
+                setTimeout(downloadProbe(),500);
+                
             }
             /*
             void (version === 'IPv6' && latencyTest('IPv4'));
