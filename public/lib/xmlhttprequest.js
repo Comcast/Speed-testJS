@@ -48,7 +48,8 @@
     this.callbackError = callbackError;
     this.requestTimeout;
     this._request;
-  };
+  }
+
   /**
    * Initiate the request
    */
@@ -241,7 +242,7 @@
       var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
         result = '';
       for (var index = 0; index < size; index++) {
-        var randomChars = Math.floor(Math.random() * chars.length)
+        var randomChars = Math.floor(Math.random() * chars.length);
         result += chars.charAt(randomChars);
       }
       return result;
