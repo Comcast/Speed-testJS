@@ -80,13 +80,15 @@
      * @return abort object
      */
     downloadHttpConcurrentProgress.prototype.onTestAbort = function (result) {
-
-        if ((Date.now() - this._beginTime) > this.testLength) {
-            if (this.finalResults && this.finalResults.length) {
-                this.clientCallbackComplete(this.finalResults);
-            } else {
-                this.clientCallbackError('no measurements obtained');
+        if(this._running) {
+            if ((Date.now() - this._beginTime) > this.testLength) {
+                if (this.finalResults && this.finalResults.length) {
+                    this.clientCallbackComplete(this.finalResults);
+                } else {
+                    this.clientCallbackError('no measurements obtained');
+                }
             }
+            this._running=false;
         }
 
     };
