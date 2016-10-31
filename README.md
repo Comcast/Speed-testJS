@@ -74,6 +74,7 @@ The steps are listed below:
 
 #Running the application
 To run the application locally
+
 1. Clone repo
 2. run npm install from root folder
 3. run node index.js
