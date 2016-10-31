@@ -55,6 +55,8 @@ the folder structure of the client application:
 
 * lib: The lib folder contains javascript files used to measure bandwidth and related measurements. 
 * example: The example folder contains html files used to test the measurement javascript files in the lib folder
+    1. Base xmlhttprequest and websocket objects
+    2. Different test suites using the base Base xmlhttprequest and websocket objects
 * test: test folder contains unit tests
 * uilib: javascript files specific to UI.
 * img: images for testing or ui
@@ -68,3 +70,11 @@ The steps are listed below:
 2. tar, zip or compress the resulting dist folder
 3. deploy and uncompress on your server
 4. execute node index.js from the console.
+
+
+#Running the application
+To run the application locally
+1. Clone repo
+2. run npm install from root folder
+3. run node index.js
+4. browse to the ipaddress:port number (ie. locally it will be http://localhost:port
