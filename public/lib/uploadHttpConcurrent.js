@@ -114,19 +114,7 @@
         this._activeTests.pop(result.id, 1);
         if ((Date.now() - this._beginTime) < this.testLength) {
             if (!this._activeTests.length && this._running) {
-                /*
-                 var movingAverage = 0;
-                 for (var z=1;z<=this.concurrentRuns;z++){
-                 movingAverage += this._results[(this._results.length-z)].bandwidth;
-                 }
-                 this.clientCallbackProgress(movingAverage);
-                 this._finalResults.push(movingAverage);
-                 */
-
-                this.calculateStats();
-                //this.uploadSize = this.uploadSize *2;
-                //this.concurrentRuns = 4;
-
+                    this.calculateStats();
             }
         }
         else {
