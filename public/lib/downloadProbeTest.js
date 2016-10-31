@@ -48,6 +48,7 @@
      this._test = new window.xmlHttpRequest('GET', [this.url, '&', cachebuster].join(''), this.timeout, this.onTestComplete.bind(this),
      this.onTestProgress.bind(this),this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
      this._testIndex++;
+     this._running=true;
      this._test.start(0, this._testIndex);
      this._activeTests.push({
        xhr: this._test,
@@ -68,7 +69,7 @@
    * @param abort object
    */
    downloadProbeTest.prototype.onTestAbort = function (result) {
-     this.clientCallbackError(result);
+
    };
 
    /**
@@ -91,6 +92,7 @@
             var data = JSON.parse(xhr.responseText);
             //console.dir(data);
             self.clientCallbackComplete(data);
+
           }
       }
       xhr.open('GET', '/downloadProbe?bufferSize='+this.size+'&time='+result.time+'&lowLatency=true', true);

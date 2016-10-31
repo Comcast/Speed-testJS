@@ -152,7 +152,7 @@ app.get('/downloadProbe', function (req, res) {
      res.header('Expires', '-1');
      res.header('Pragma', 'no-cache');
      var downloadTestSizes = downloadData.GetDownloadSize(req.query.bufferSize, req.query.time, req.query.lowLatency);
-     res.json({bufferSizes: downloadTestSizes});
+     res.json(downloadTestSizes);
 });
 
 /**

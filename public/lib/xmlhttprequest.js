@@ -47,12 +47,14 @@
     this.callbackTimeout = callbackTimeout;
     this.callbackError = callbackError;
     this.requestTimeout;
+    this._request;
   };
   /**
    * Initiate the request
    */
   xmlHttpRequest.prototype._initiateRequest = function(){
-    if (this._request === null ||
+
+      if (this._request === null ||
        typeof this._request === 'undefined') {
        this._request = new XMLHttpRequest();
        // Handle lifecycle events on wrapped request
@@ -86,6 +88,7 @@
       else{
         this._request.send(null);
       }
+
     };
   /**
   * Mark the start time of the request
