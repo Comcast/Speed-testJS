@@ -78,8 +78,13 @@
       */
       uploadHttpConcurrent.prototype.onTestAbort = function(error){
         if(this._running){
-          this.clientCallbackError(error);
-          this._running = false;
+            if ((Date.now() - this._beginTime) > this.testLength) {
+                if (this.finalResults && this.finalResults.length) {
+                    this.clientCallbackComplete(this.finalResults);
+                } else {
+                    this.clientCallbackError('no measurements obtained');
+                }
+            }
         }
       };
 

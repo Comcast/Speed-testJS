@@ -143,6 +143,7 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
+                testPlan.hasIPv6=false;
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
@@ -170,6 +171,7 @@
     }
 
     function startTest() {
+
         if (firstRun) {
             firstRun = false;
         } else {
@@ -178,6 +180,7 @@
                 resultsEl[i].innerHTML = '';
             }
         }
+
         latencyTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4');
 
         //update button text to communicate current state of test as In Progress
@@ -204,14 +207,20 @@
         myChart.setOption(option, true);
 
         function latencyHttpOnComplete(result) {
-            downloadProbe();
+            if(version === 'IPv6'){
+                latencyTest('IPv4')
+            }
+            else{
+                updateValue(currentTest, result[0].time + ' ms');
+                downloadProbe();
+            }
             /*
             void (version === 'IPv6' && latencyTest('IPv4'));
             void (!(version === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
             result = result.sort(function (a, b) {
                 return +a.time - +b.time;
             });
-            updateValue(currentTest, result[0].time + ' ms');
+
             */
         }
 
@@ -442,7 +451,7 @@
 
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize='+downloadSize, 'GET', 6, 15000, 15000,10,  downloadHttpOnComplete, downloadHttpOnProgress,
+        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize='+downloadSize, 'GET', 6, 15000, 15000,10, downloadHttpOnComplete, downloadHttpOnProgress,
             downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
         downloadHttpConcurrentProgress.initiateTest();
     }

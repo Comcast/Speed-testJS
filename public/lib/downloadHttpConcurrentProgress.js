@@ -46,7 +46,6 @@
         this._results = [];
         //array holding active tests
         this._activeTests = [];
-        this._resultsHolder = {};
         this.clientCallbackComplete = callbackComplete;
         this.clientCallbackProgress = callbackProgress;
         this.clientCallbackAbort = callbackAbort;
@@ -83,7 +82,6 @@
     downloadHttpConcurrentProgress.prototype.onTestAbort = function (result) {
 
         if ((Date.now() - this._beginTime) > this.testLength) {
-            console.log(this.finalResults);
             if (this.finalResults && this.finalResults.length) {
                 this.clientCallbackComplete(this.finalResults);
             } else {
@@ -143,7 +141,6 @@
      * onProgress method
      */
     downloadHttpConcurrentProgress.prototype.onTestProgress = function (result) {
-        //console.log('onProgress: ' + result.id + ' ' + this._running);
         if (!this._running) {
             return;
         }
@@ -153,8 +150,6 @@
         //update progress count
         this._progressCount++;
         //populate array
-
-
         this._progressResults['arrayProgressResults' + result.id].push(result.bandwidth);
         //calculate moving average
         if (this._progressCount % this.movingAverage === 0) {
@@ -168,7 +163,7 @@
         var totalMovingAverage = 0;
         for (var i = 0; i < this.concurrentRuns; i++) {
             // get array size and loop thru size of moving average series or array length
-            var id = this._testIndex -1;
+            var id = this._testIndex -i;
             var arrayData = 'arrayProgressResults' + id;
             var lastElem = Math.min(this._progressResults[arrayData].length, this.movingAverage);
             if (lastElem > 0) {
