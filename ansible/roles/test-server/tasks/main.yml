@@ -79,7 +79,7 @@
   become_user: "{{ test_user }}"
 
 - name: start service via pm2
-  shell: 'env PATH=/usr/local/bin:$PATH:/usr/bin pm2 start --node-args="--max-old-space-size={{ nodejs_mem }}" "{{ project_dir }}/index.js" --name speed-test --user {{ test_user }} --watch --merge-logs --output {{ log_path }} --error {{ log_path }} --log-date-format "YYYY-MM-DD HH:mm:ss,SSS "'
+  shell: 'env WEB_PORT={{ web_port }} PATH=/usr/local/bin:$PATH:/usr/bin pm2 start --node-args="--max-old-space-size={{ nodejs_mem }}" "{{ project_dir }}/index.js" --name speed-test --user {{ test_user }} --watch --merge-logs --output {{ log_path }} --error {{ log_path }} --log-date-format "YYYY-MM-DD HH:mm:ss,SSS "'
   become: yes
   become_user: "{{ test_user }}"
 

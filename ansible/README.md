@@ -107,14 +107,15 @@ The above removes ssh host checking, so follow them at your own risk!
 We can now issue the command to install
 
 ```
-ansible-playbook deploy-servers.yml [-e version=<version_name>,aws_access=<aws access key>,aws_secret=<aws secret key>,aws_endpoint=<aws endpoint>]
+ansible-playbook deploy-servers.yml [-e version=<version_name> speed_user=<test_user> speed_port=<server_port> aws_access=<aws access key> aws_secret=<aws secret key> aws_endpoint=<aws endpoint>]
 ```
 
-Ansible will create a user named `test-user` if not present in the server. If `version_name` is not passed when
-invoking the `ansible-playbook` command, the default `version_name` created will be `YYYYMMDDHHmmSS.<git hash>`. Do not change files 
+Ansible will create a user named `test-user` if not present in the server. It will start the test server process on port `server_port`. 
+If `version_name` is not passed when invoking the `ansible-playbook` command, the default `version_name` created will be `YYYYMMDDHHmmSS.<git hash>`. 
+Do not change files 
 or checkout a different git branch while the deployment playbook is executing as this may affect the code that is deployed.
 Ansible will zip `package.json`, `index.js`, `config`, `modules` and `public/` and push to the test server, unzipping it under
-`/opt/Speed-testJS_<version_name>`. It will then symlink `/opt/Speed-testJS` to that directory. It will install
+`/opt/test-user/Speed-testJS_<version_name>`. It will then symlink `/opt/Speed-testJS` to that directory. It will install
  `node`, `npm` and perform `npm install` to pull all the modules. It will also install `aws` credentials that
  are used to store test results to DynamoDB.
 
@@ -127,15 +128,19 @@ of the process, you can ssh into the server
 ```
 ~/Speed-testJS/ansible$ ssh -i private/hackathon.pem clduser@<my-test-server>
 
-[clduser@my-test-server ~]$ sudo su test-server
+[clduser@my-test-server ~]$ sudo su test-user
 [test-user@my-test-server ~]$ pm2 status
 [test-user@my-test-server ~]$ pm2 logs # for checking logs
 ```
 
-The log file is under `/var/logs/speed-test/speed-test.log`. Logrotate is configured to keep
+The log file is under `/var/logs/test-user/speed-test/speed-test.log`. Logrotate is configured to keep
 it under 100 MB, and keep 3 most recent log files.
 
 Ansible will keep 5 versions of the software before starting to remove older deployments.
+
+To have multiple users deploying to the same server just pass different names and ports for `speed_user` and `speed_port`. The test
+server process will take the `speed_port` passed and the one immediately following it, thus the ports should be spaced by at least 2, i.e.,
+if passing port 8080 to one user, the next available port will be 8082.
 
 ## Configuring via jumphost
 
