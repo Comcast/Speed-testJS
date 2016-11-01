@@ -105,6 +105,9 @@
                     removeClass(resultsEl[i], 'hide');
                 }
             }
+
+            latencyTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4');
+
         });
     }
 
@@ -224,9 +227,7 @@
             */
         }
 
-        function latencyHttpOnProgress(result) {
-            option.series[0].data[0].value = result.time;
-            myChart.setOption(option, true);
+        function latencyHttpOnProgress() {
         }
 
         function latencyHttpOnAbort(result) {
@@ -323,7 +324,7 @@
             }
             //call downloadTests
 
-            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
 
         function downloadProbeTestOnError(result) {

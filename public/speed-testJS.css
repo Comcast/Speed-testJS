@@ -74,6 +74,10 @@ body {
 
 }
 
+.speed-test .action-start{
+    margin-left: 200px;
+}
+
 .action-start:hover{
     background-color: #a3a3a3;
     color: #474747;
