@@ -75,8 +75,7 @@ body {
 }
 
 .speed-test .action-start{
-    margin-left: 50%;
-    margin-right: 50%;
+    margin-left: 200px;
 }
 
 .action-start:hover{
