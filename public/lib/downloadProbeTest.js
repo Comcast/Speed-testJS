@@ -69,7 +69,9 @@
    * @param abort object
    */
    downloadProbeTest.prototype.onTestAbort = function (result) {
-
+        if(this._running){
+            this.clientCallbackError(result);
+        }
    };
 
    /**
@@ -90,8 +92,8 @@
       xhr.onreadystatechange = function() {
           if (xhr.readyState == XMLHttpRequest.DONE) {
             var data = JSON.parse(xhr.responseText);
-            //console.dir(data);
             self.clientCallbackComplete(data);
+              this._running=false;
 
           }
       }
