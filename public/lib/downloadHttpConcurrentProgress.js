@@ -134,13 +134,14 @@
             this.start();
         }
         else {
-            var total = 0;
-            this._running = false;
-
-            if (this.finalResults && this.finalResults.length) {
-                this.clientCallbackComplete(this.finalResults);
-            } else {
-                this.clientCallbackError('no measurements obtained');
+            //check this._running flag again since it may have been reset in abort
+            if (this._running) {
+                this._running = false;
+                if (this.finalResults && this.finalResults.length) {
+                    this.clientCallbackComplete(this.finalResults);
+                } else {
+                    this.clientCallbackError('no measurements obtained');
+                }
             }
         }
     };

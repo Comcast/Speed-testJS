@@ -36,6 +36,8 @@
      this._testIndex = 0;
      //array holding active tests
      this._activeTests = [];
+      //boolean on whether test  suite is running or not
+     this._running = true;
      this.clientCallbackComplete = callbackComplete;
      this.clientCallbackError = callbackError;
    }
@@ -69,7 +71,8 @@
    * @param abort object
    */
    downloadProbeTest.prototype.onTestAbort = function (result) {
-        if(this._running){
+       console.log('onTestAbort: ' + this._running);
+       if(this._running){
             this.clientCallbackError(result);
         }
    };
@@ -91,9 +94,10 @@
       var xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function() {
           if (xhr.readyState == XMLHttpRequest.DONE) {
+            self._running=false;
             var data = JSON.parse(xhr.responseText);
             self.clientCallbackComplete(data);
-              this._running=false;
+
 
           }
       }

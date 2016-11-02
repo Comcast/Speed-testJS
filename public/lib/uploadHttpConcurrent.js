@@ -88,6 +88,7 @@
                     this.clientCallbackError('no measurements obtained');
                 }
             }
+            this._running=false;
         }
     };
 
