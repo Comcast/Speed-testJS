@@ -114,6 +114,8 @@
         //populate array
         this._progressResults['arrayProgressResults' + result.id].push(result.bandwidth);
         this._activeTests.pop(result.id, 1);
+        //checking if we have reached the overall testLength(i.e duration of upload test) which
+        //is a configurable parameter. If we reach the testLength then we stop collecting stats
         if ((Date.now() - this._beginTime) < this.testLength) {
             if (!this._activeTests.length && this._running) {
                 this.calculateStats();
