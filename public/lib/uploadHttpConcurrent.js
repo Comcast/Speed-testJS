@@ -85,7 +85,6 @@
                 if (this._finalResults && this._finalResults.length) {
                     this.clientCallbackComplete(this._finalResults);
                 } else {
-                    console.log('onTestAbort');
                     this.clientCallbackError('no measurements obtained');
                 }
             }
@@ -100,7 +99,6 @@
      */
     uploadHttpConcurrent.prototype.onTestError = function (error) {
         if (this._running) {
-            console.log('onTestError');
             this.clientCallbackError(error);
             this._running = false;
         }

@@ -96,8 +96,6 @@
             self._running=false;
             var data = JSON.parse(xhr.responseText);
             self.clientCallbackComplete(data);
-
-
           }
       }
       xhr.open('GET', '/downloadProbe?bufferSize='+this.size+'&time='+result.time+'&lowLatency=true', true);
