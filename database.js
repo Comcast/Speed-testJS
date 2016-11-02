@@ -23,6 +23,7 @@ AWS = require('aws-sdk');
 //default is the local profile
 AWS.config.credentials = new AWS.SharedIniFileCredentials({profile: 'default'});
 //change the end point and region of your own if you want to work with your dynamo account
+//change the table name in createTableParams and also while inserting the data
 AWS.config.update({
     region: 'us-east-1',
     endpoint: 'http://localhost:8000'
@@ -101,6 +102,8 @@ var createTableparams = {
             "AttributeType": "S"
         }
     ],
+    //change the table name to use your own
+    //if you use your table name, change the table name in index.js in testServer endpoint or use (SpeedTestServerInfo) this table name
     "TableName": "TableName",
     "KeySchema": [
         {
@@ -162,6 +165,7 @@ var callback = function (data) {
     console.log(data);
     for (var i = 0; i < serverInfo.length; i++) {
         var updateParams = {
+            //change the table name to match the above
             TableName: 'TableName',
             Item: {
                 Hostname: {'S': serverInfo[i].Hostname},
