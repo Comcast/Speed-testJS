@@ -59,7 +59,8 @@
         this._progressResults = {};
         //count of progress events
         this._progressCount = 0;
-
+        //maximum upload size
+        this._maxUploadSize = 500000 * 15;
     }
 
     /**
@@ -109,12 +110,23 @@
         if (!this._running) {
             return;
         }
+        this._progressCount++;
         //populate array
         this._progressResults['arrayProgressResults' + result.id].push(result.bandwidth);
         this._activeTests.pop(result.id, 1);
+        //checking if we have reached the overall testLength(i.e duration of upload test) which
+        //is a configurable parameter. If we reach the testLength then we stop collecting stats
         if ((Date.now() - this._beginTime) < this.testLength) {
             if (!this._activeTests.length && this._running) {
-                    this.calculateStats();
+                this.calculateStats();
+                //check to whether increase file size
+                //we are increasing the upload size once it reaches 20 request with the initial size
+                if (this._progressCount > 10) {
+                    //file size can be increased to only certain value as browser is going to crash
+                    if (this.uploadSize < this._maxUploadSize)
+                    this.uploadSize += this.uploadSize;
+                }
+                this.start();
             }
         }
         else {
@@ -152,9 +164,7 @@
         }
         this.clientCallbackProgress(totalMovingAverage);
         this._finalResults.push(totalMovingAverage);
-        this.start();
-
-    }
+    };
 
     /**
      * onProgress method
@@ -168,9 +178,11 @@
      * Start the test
      */
     uploadHttpConcurrent.prototype.start = function () {
+
         if (!this._running) {
             return;
         }
+
         if (this.type === 'GET') {
             for (var g = 1; g <= this.concurrentRuns; g++) {
                 this._testIndex++;
@@ -201,7 +213,7 @@
                 request.start(this.uploadSize, this._testIndex);
             }
         }
-    }
+    };
 
     /**
      * Cancel the test
@@ -213,7 +225,7 @@
                 this._activeTests[i].xhr._request.abort();
             }
         }
-    }
+    };
 
     /**
      * init test suite
