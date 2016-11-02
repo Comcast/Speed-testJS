@@ -182,9 +182,8 @@
                 resultsEl[i].innerHTML = '';
             }
         }
-
-        latencyTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4');
-
+        
+        setTimeout(downloadProbe(),500);
         //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
         //disable button
@@ -214,7 +213,7 @@
             }
             else{
                 updateValue(currentTest, result[0].time + ' ms');
-                setTimeout(downloadProbe(),500);
+
                 
             }
             /*
@@ -323,7 +322,6 @@
                 downloadSize = downloadSizes[0];
             }
             //call downloadTests
-
             void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
 
