@@ -185,13 +185,12 @@
                     }
                 }
                 singleMovingAverage = singleMovingAverage / lastElem;
+                totalMovingAverage = totalMovingAverage + singleMovingAverage;
             }
-            totalMovingAverage = totalMovingAverage + singleMovingAverage;
+
         }
-        if(!isNaN(totalMovingAverage)) {
             this.clientCallbackProgress(totalMovingAverage);
             this.finalResults.push(totalMovingAverage);
-        }
     }
 
     /**
