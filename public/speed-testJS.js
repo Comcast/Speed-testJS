@@ -323,13 +323,11 @@
                 downloadSize = downloadSizes[0];
             }
             //call downloadTests
-            console.log('probeCompleteCalled');
             void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
 
         function downloadProbeTestOnError(result) {
             //use default value for download testing
-            console.log('probeAbortCalled');
             void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
         var downloadProbeTestRun = new window.downloadProbeTest('/download?bufferSize='+downloadSize, false, 3000,762939,downloadProbeTestOnComplete,

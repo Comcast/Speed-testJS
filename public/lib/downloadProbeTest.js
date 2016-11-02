@@ -71,7 +71,6 @@
    * @param abort object
    */
    downloadProbeTest.prototype.onTestAbort = function (result) {
-       console.log('onTestAbort: ' + this._running);
        if(this._running){
             this.clientCallbackError(result);
         }
