@@ -182,8 +182,7 @@
                 resultsEl[i].innerHTML = '';
             }
         }
-
-        //latencyTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4');
+        
         setTimeout(downloadProbe(),500);
         //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
