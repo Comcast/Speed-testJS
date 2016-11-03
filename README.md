@@ -79,3 +79,11 @@ To run the application locally
 2. run npm install from root folder
 3. run node index.js
 4. browse to the ipaddress:port number (ie. locally it will be http://localhost:port
+
+#Database
+To set dynamodb locally
+
+1. Follow the instructions in the link to download and run dynamodb locally http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html
+2. Set up AWS credentially locally http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/setup-credentials.html
+3. Once dynamodb is set up locally. Use the following to script to create a table and insert the data into the dynamodb (execute node database.js from terminal)
+4. While executing the script change table name and server information
