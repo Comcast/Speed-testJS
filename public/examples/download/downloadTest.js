@@ -23,8 +23,9 @@
     var oldOnload = window.onload;
     window.onload = function () {
         void (oldOnload instanceof Function && oldOnload());
-        //init for test
-        initTest();
+        //probe for test size
+        downloadProbe();
+
     };
 
     //test button node will be made available through this variable
@@ -72,13 +73,11 @@
                 //downloadSize = downloadSizes[downloadSizes.length-1];
                 downloadSize = downloadSizes[0];
             }
-            //call downloadTests
-            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+               initTest();
         }
 
         function downloadProbeTestOnError(result) {
-            //use default value for download testing
-            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+             initTest();
         }
         var downloadProbeTestRun = new window.downloadProbeTest('/download?bufferSize='+downloadSize, false, 3000,762939,downloadProbeTestOnComplete,
             downloadProbeTestOnError);
@@ -255,8 +254,8 @@
                         }
                         testVersion = testVersions[i].value;
                         if (testPlan && testPlan['baseUrl' + testVersion]) {
-                            baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/download?bufferSize=10000000'].join('');
-                            testRunner.push(new window.downloadHttpConcurrent(baseUrl, 'GET', 4, 15000, 10000,
+                            baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/download?bufferSize='+downloadSize].join('');
+                            testRunner.push(new window.downloadHttpConcurrentProgress(baseUrl, 'GET', 6, 15000, 15000,10,
                                 callback(testVersion, onComplete), callback(testVersion, onProgress), callback(testVersion, onAbort),
                                 callback(testVersion, onTimeout), callback(testVersion, onError)));
                         }
