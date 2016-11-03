@@ -41,6 +41,8 @@
     var testRunner = [];
     //the type of test. options are upload, download, latency
     var testType = 'download';
+    //default download size
+    var downloadSize = 1000000;
     //event binding method for buttons
     function addEvent(el, ev, fn) {
         void (el.addEventListener && el.addEventListener(ev, fn, false));
@@ -62,6 +64,28 @@
         xhr.open('GET', '/testplan', true);
         xhr.send(null);
     }
+
+    function downloadProbe() {
+        function downloadProbeTestOnComplete(result) {
+            var downloadSizes = result;
+            if(downloadSizes.length>0) {
+                //downloadSize = downloadSizes[downloadSizes.length-1];
+                downloadSize = downloadSizes[0];
+            }
+            //call downloadTests
+            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+        }
+
+        function downloadProbeTestOnError(result) {
+            //use default value for download testing
+            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+        }
+        var downloadProbeTestRun = new window.downloadProbeTest('/download?bufferSize='+downloadSize, false, 3000,762939,downloadProbeTestOnComplete,
+            downloadProbeTestOnError);
+        downloadProbeTestRun.start();
+
+    }
+
 
     //callback for xmlHttp complete event
     function genericEventHandler(testName, version, results) {
