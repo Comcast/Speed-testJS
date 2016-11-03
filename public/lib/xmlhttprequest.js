@@ -158,7 +158,9 @@
                 var transferSizeMbs = (this.transferSize * 8) / 1000000;
                 var transferDurationSeconds = result.totalTime/1000;
                 result.bandwidth = transferSizeMbs/transferDurationSeconds;
-                this.callbackComplete(result);
+                if(isFinite(result.bandwidth)) {
+                    this.callbackComplete(result);
+                }
                 return;
               }
 
@@ -185,8 +187,10 @@
       var transferDurationSeconds = this.totalTime/1000;
       result.bandwidth = transferSizeMbs / transferDurationSeconds;
       result.id = this.id;
-      if(this.method === 'GET'){
-        this.callbackComplete(result);
+      if(isFinite(result.bandwidth)) {
+          if (this.method === 'GET') {
+              this.callbackComplete(result);
+          }
       }
   };
 

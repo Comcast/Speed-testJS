@@ -121,7 +121,6 @@
             if (!this._activeTests.length && this._running) {
                 this.calculateStats();
                 //check to whether increase file size
-                //we are increasing the upload size once it reaches 20 request with the initial size
                 if (this._progressCount > 10) {
                     //file size can be increased to only certain value as browser is going to crash
                     if (this.uploadSize < this._maxUploadSize)

@@ -185,12 +185,12 @@
                     }
                 }
                 singleMovingAverage = singleMovingAverage / lastElem;
+                totalMovingAverage = totalMovingAverage + singleMovingAverage;
             }
-            totalMovingAverage = totalMovingAverage + singleMovingAverage;
-        }
-        this.clientCallbackProgress(totalMovingAverage);
-        this.finalResults.push(totalMovingAverage);
 
+        }
+            this.clientCallbackProgress(totalMovingAverage);
+            this.finalResults.push(totalMovingAverage);
     }
 
     /**

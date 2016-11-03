@@ -118,8 +118,10 @@
                 for (var j = 1; j <= this.concurrentRuns; j++) {
                     singleMovingAverage += this._results[(this._results.length - j)].bandwidth;
                 }
-                this.finalResults.push(singleMovingAverage);
-                this.clientCallbackProgress(singleMovingAverage);
+                if(!isNaN(singleMovingAverage)) {
+                    this.finalResults.push(singleMovingAverage);
+                    this.clientCallbackProgress(singleMovingAverage);
+                }
                 this.start();
             }
         }
