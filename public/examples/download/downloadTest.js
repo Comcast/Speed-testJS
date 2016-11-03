@@ -23,8 +23,9 @@
     var oldOnload = window.onload;
     window.onload = function () {
         void (oldOnload instanceof Function && oldOnload());
-        //init for test
-        initTest();
+        //probe for test size
+        downloadProbe();
+
     };
 
     //test button node will be made available through this variable
@@ -41,6 +42,8 @@
     var testRunner = [];
     //the type of test. options are upload, download, latency
     var testType = 'download';
+    //default download size
+    var downloadSize = 1000000;
     //event binding method for buttons
     function addEvent(el, ev, fn) {
         void (el.addEventListener && el.addEventListener(ev, fn, false));
@@ -62,6 +65,26 @@
         xhr.open('GET', '/testplan', true);
         xhr.send(null);
     }
+    //Download probe tests a small download sample and returns the download file size to be used in download bandwith testing
+    function downloadProbe() {
+        function downloadProbeTestOnComplete(result) {
+            var downloadSizes = result;
+            if(downloadSizes.length>0) {
+                //downloadSize = downloadSizes[downloadSizes.length-1];
+                downloadSize = downloadSizes[0];
+            }
+               initTest();
+        }
+
+        function downloadProbeTestOnError(result) {
+             initTest();
+        }
+        var downloadProbeTestRun = new window.downloadProbeTest('/download?bufferSize='+downloadSize, false, 3000,762939,downloadProbeTestOnComplete,
+            downloadProbeTestOnError);
+        downloadProbeTestRun.start();
+
+    }
+
 
     //callback for xmlHttp complete event
     function genericEventHandler(testName, version, results) {
@@ -231,8 +254,8 @@
                         }
                         testVersion = testVersions[i].value;
                         if (testPlan && testPlan['baseUrl' + testVersion]) {
-                            baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/download?bufferSize=10000000'].join('');
-                            testRunner.push(new window.downloadHttpConcurrent(baseUrl, 'GET', 4, 15000, 10000,
+                            baseUrl = ['http://', testPlan['baseUrl' + testVersion], '/download?bufferSize='+downloadSize].join('');
+                            testRunner.push(new window.downloadHttpConcurrentProgress(baseUrl, 'GET', 6, 15000, 15000,10,
                                 callback(testVersion, onComplete), callback(testVersion, onProgress), callback(testVersion, onAbort),
                                 callback(testVersion, onTimeout), callback(testVersion, onError)));
                         }
