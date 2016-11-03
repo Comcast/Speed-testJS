@@ -65,7 +65,7 @@
         xhr.open('GET', '/testplan', true);
         xhr.send(null);
     }
-
+    //Download probe tests a small download sample and returns the download file size to be used in download bandwith testing
     function downloadProbe() {
         function downloadProbeTestOnComplete(result) {
             var downloadSizes = result;
