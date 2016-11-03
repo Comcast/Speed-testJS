@@ -3,7 +3,8 @@
 #
 # optional parameters:
 # from_dir: a path to the directory containing index.js, package.json and public/ (defaults to '..')
-#
+# speed_user: the user under which the software will be deployed
+# speed_port: the port speed test server will be listening 
 # version: the version set for the code base
 #
 
@@ -25,7 +26,8 @@
   environment:
     PATH: "/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin"
   vars:
-  - test_user: 'test-user'
+  - test_user: "{{ speed_user | default('test-user') }}"
+  - web_port: "{{ speed_port | default(8080) }}"
   - from_dir: '..'
 
   pre_tasks:

@@ -31,8 +31,8 @@ var downloadData = require('./modules/downloadData');
 var dynamo = require('./modules/dynamo');
 
 //variables
-var webPort = 3000;
-var webSocketPort = 3001;
+var webPort = +process.env.WEB_PORT || 8080;
+var webSocketPort = webPort + 1;
 
 //used to read post data
 app.use(bodyParser.urlencoded({ extended: false }));
