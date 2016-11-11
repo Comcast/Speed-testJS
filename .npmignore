@@ -1,6 +1,5 @@
 .idea
 ansible
-config
 .travis.yml
 CONTRIBUTING.md
 CONTRIBUTORS.md
