@@ -1,0 +1,14 @@
+.idea
+ansible
+config
+.travis.yml
+CONTRIBUTING.md
+CONTRIBUTORS.md
+database.js
+Gruntfile.js
+LICENSE
+NOTICE
+package.json
+README.md
+Speed-testJS.iml
+Vagrantfile
