@@ -25,215 +25,97 @@ var WebSocketServer = require('ws').Server;
 var domain = require('./modules/domain');
 var validateIP = require('validate-ip-node');
 var os = require('os');
-var statisticalCalculator = require('./modules/statisticalCalculator');
+var apiRouter = express.Router();
 //module provides download test sizes based off of probe data
 var downloadData = require('./modules/downloadData');
-var dynamo = require('./modules/dynamo');
+
+//set global ipv4 and ipv6 server address
+domain.setIpAddresses();
 
 //variables
-var webPort = +process.env.WEB_PORT || 8080;
-var webSocketPort = webPort + 1;
+global.webPort = +process.env.WEB_PORT || 8080;
+global.webSocketPort = global.webPort + 1;
+
+//export modules
+module.exports.statisticalCalculator = require('./modules/statisticalCalculator');
+module.exports.downloadData = require('./modules/downloadData');
+module.exports.dynamo = require('./modules/dynamo');
+module.exports.domain = require('./modules/domain');
 
 //used to read post data
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json({limit: '75mb'}));
 
 //Allow cross domain requests
-app.use(function(req, res, next) {
-res.header('Access-Control-Allow-Credentials', true);
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'X-CSRF-Token, X-XSRF-TOKEN, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
-next();
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Credentials', true);
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'X-CSRF-Token, X-XSRF-TOKEN, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+    next();
 });
 
-/**
- * Latency test endpoint
- */
-app.get('/latency', function (req, res) {
-    res.send('pong');
-});
-/**
-* upload endpoint
-*/
-app.post('/upload', function(req, res){
-  var response = {
-           result: 'success',
-           message: Date.now()
-       };
-       res.status(200).json(response);
-});
-/**
- * Download test endpoint
- */
-app.get('/download', function (req, res) {
-     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-     res.header('Expires', '-1');
-     res.header('Pragma', 'no-cache');
-     var bufferStream = new stream.PassThrough();
-     bufferStream.pipe(res);
-     var responseBuffer = new Buffer(parseInt(req.query.bufferSize));
-     responseBuffer.fill(0x1020304);
-     bufferStream.write(responseBuffer);
-     bufferStream.end();
-});
+//init router
+app.use('/', apiRouter);
 
-/**
- * TestPlan endpoint
- */
-app.get('/testplan', function (req, res) {
-    var testPlan = {};
-    //to get the hostname of the operating system
-    testPlan.osHostName = os.hostname();
-    //flag to turn on/off the latency based routing the test
-    testPlan.performLatencyRouting = false;
-    //get client ip address
-    var ipaddress = req.connection.remoteAddress;
-    if (validateIP(ipaddress)) {
-        //running locally return machine ipv4 address
-        if (req.headers.host.indexOf("localhost") > -1) {
-            testPlan.clientIPAddress = global.AddressIpv4;
-        }
-        else {
-            //format ip address it is normal remove ff ie...  ::ffff:10.36.107.238
-            if (ipaddress.indexOf("ff") > -1) {
-                var ipAddressArray = ipaddress.split(':');
-                for (var i = 0; i < ipAddressArray.length; i++) {
-                    if (ipAddressArray[i].indexOf('.') > -1) {
-                        testPlan.clientIPAddress = ipAddressArray[i];
-                    }
-                }
-            } else {
-                testPlan.clientIPAddress = ipaddress;
-            }
-        }
-    }
-    else {
-        testPlan.clientIPAddress = 'na';
-    }
-    //set server base url
-    testPlan.webSocketUrlIPv4 = 'ws://' + global.AddressIpv4 + ':' + webSocketPort;
-    testPlan.webSocketPort = webSocketPort;
-    if (global.hasAddressIpv6) {
-        testPlan.hasIPv6 = true;
-        testPlan.baseUrlIPv6 = '[' + global.AddressIpv6 + ']:' + webPort;
-        //TODO to investigate ipv6 address for localhost web sockets
-        testPlan.webSocketUrlIPv6 = 'ws://v6-' + testPlan.osHostName + ':' + webSocketPort;
-    } else {
-        testPlan.hasIPv6 = false;
-    }
-    testPlan.baseUrlIPv4 = global.AddressIpv4 + ':' + webPort;
-    testPlan.port = webPort;
-    res.json(testPlan);
-});
+//get controllers
+var TestPlanController = require('./controllers/TestPlanController');
+var LatencyController = require('./controllers/LatencyController');
+var DownloadProbeController = require('./controllers/DownloadProbeController');
+var DownloadController = require('./controllers/DownloadController');
+var UploadController = require('./controllers/UploadController.js');
+var CalculatorController = require('./controllers/CalculatorController.js');
+var TestServerController = require('./controllers/TestServerController.js');
 
-/**
- * calculator end point to measure the calculations
- */
-app.post('/calculator', function (req, res) {
-  try {
-    if (typeof req.body === 'undefined' && (!(req.body).length > 0) ) {
-      throw('cannot perform calculations');
-    }
-    var results = new statisticalCalculator.getResults(req.body, false);
-    res.send(results);
-  }
-  catch (error) {
-    res.status(400).json({'errorMessage': error});
-  }
-});
+var testPlanController = new TestPlanController(apiRouter, global.AddressIpv4, global.AddressIpv6);
+var latencyController = new LatencyController(apiRouter);
+var downloadProbeController = new DownloadProbeController(apiRouter);
+var downloadController = new DownloadController(apiRouter);
+var uploadController = new UploadController(apiRouter);
+var calculatorController = new CalculatorController(apiRouter);
+var testServerController = new TestServerController(apiRouter);
 
-/**
- * downloadProbe endpoint
- */
-app.get('/downloadProbe', function (req, res) {
-     //set no-cache headers
-     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-     res.header('Expires', '-1');
-     res.header('Pragma', 'no-cache');
-     var downloadTestSizes = downloadData.GetDownloadSize(req.query.bufferSize, req.query.time, req.query.lowLatency);
-     res.json(downloadTestSizes);
-});
-
-/**
- * testServer endpoint
- */
-app.get('/testServer', function (req, res) {
-    try {
-
-        //validate query parameters
-        if (!(req.query.location).match(/^[a-zA-Z ]+$/)) {
-            throw('error');
-        }
-
-        var queryParams = {
-            TableName: 'SpeedTestServerInfo',
-            IndexName: 'SitenameIndex',
-            KeyConditionExpression: 'Sitename = :id',
-            ExpressionAttributeValues: {':id': {'S': req.query.location}}
-        };
-
-        var testServer = [];
-
-        var queryCallback = function (data) {
-            if (data) {
-                data.Items.map(function (val) {
-                    testServer.push({
-                        IPv4Address: val.IPv4Address.S +':8080',
-                        IPv6Address: '[' + val.IPv6Address.S + ']:' + '8080',
-                        Location: val.Location.S,
-                        Sitename: val.Sitename.S,
-                        Fqdn: val.Hostname.S
-                    });
-
-                });
-            }
-            res.json(testServer);
-        };
-
-        dynamo.query(queryParams, queryCallback);
-    }
-    catch (err) {
-        res.status(422).end('You must specify location.');
-    }
-});
-
+module.exports.TestPlanController = require('./controllers/TestPlanController');
+module.exports.LatencyController = require('./controllers/LatencyController');
+module.exports.DownloadProbeController = require('./controllers/DownloadProbeController');
+module.exports.DownloadController = require('./controllers/DownloadController');
+module.exports.UploadController = require('./controllers/UploadController');
+module.exports.CalculatorController = require('./controllers/CalculatorController.js');
+module.exports.TestServerController = require('./controllers/TestServerController.js');
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.listen(webPort,'::');
+app.listen(webPort, '::');
 
-var wss = new WebSocketServer({port: webSocketPort });
+var wss = new WebSocketServer({port: webSocketPort});
 wss.on('connection', function connection(ws) {
-  console.log('client connected');
+    console.log('client connected');
 
-  ws.on('message', function incoming(messageObj) {
-    var message = JSON.parse(messageObj);
-/*
-    if (message.flag === 'download'){
-      var img = images[message.data];
-      console.log(img);
-      var request_obj = {
-        JSONimg : {
-          'type' : 'img',
-          'data' : img,
-        },
-        startTIME : new Date().getTime()
-      }
-      console.log("Trying to send using websockets")
-      ws.send(JSON.stringify(request_obj));
-    } else if (message.flag === 'latency'){
-      */
-if (message.flag === 'latency'){
-      console.log('received: %s', new Date().getTime());
-      ws.send(message.data);
-    } else if (message.flag === 'upload') {
-      var uploadtime = {'data':Date.now().toString()};
-      ws.send(JSON.stringify(uploadtime.data));
-    } else {
-      console.log("error message");
-    }
+    ws.on('message', function incoming(messageObj) {
+        var message = JSON.parse(messageObj);
+        /*
+         if (message.flag === 'download'){
+         var img = images[message.data];
+         console.log(img);
+         var request_obj = {
+         JSONimg : {
+         'type' : 'img',
+         'data' : img,
+         },
+         startTIME : new Date().getTime()
+         }
+         console.log("Trying to send using websockets")
+         ws.send(JSON.stringify(request_obj));
+         } else if (message.flag === 'latency'){
+         */
+        if (message.flag === 'latency') {
+            console.log('received: %s', new Date().getTime());
+            ws.send(message.data);
+        } else if (message.flag === 'upload') {
+            var uploadtime = {'data': Date.now().toString()};
+            ws.send(JSON.stringify(uploadtime.data));
+        } else {
+            console.log("error message");
+        }
 
-  });
+    });
 });
-//set global ipv4 and ipv6 server address
-domain.setIpAddresses();
