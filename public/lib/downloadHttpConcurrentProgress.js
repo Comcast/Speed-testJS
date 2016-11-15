@@ -79,7 +79,7 @@
      * onAbort method
      * @return abort object
      */
-    downloadHttpConcurrentProgress.prototype.onTestAbort = function (result) {
+    downloadHttpConcurrentProgress.prototype.onTestAbort = function () {
         if(this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
                 if (this.finalResults && this.finalResults.length) {
@@ -97,7 +97,7 @@
      * onTimeout method
      * @return timeout object
      */
-    downloadHttpConcurrentProgress.prototype.onTestTimeout = function (result) {
+    downloadHttpConcurrentProgress.prototype.onTestTimeout = function () {
         if(this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
                 if (this.finalResults && this.finalResults.length) {
@@ -191,7 +191,7 @@
         }
             this.clientCallbackProgress(totalMovingAverage);
             this.finalResults.push(totalMovingAverage);
-    }
+    };
 
     /**
      * Start the test
@@ -204,7 +204,7 @@
             for (var g = 1; g <= this.concurrentRuns; g++) {
                 this._testIndex++;
                 this['arrayResults' + this._testIndex] = [];
-                this._progressResults['arrayProgressResults' + this._testIndex] = new Array();
+                this._progressResults['arrayProgressResults' + this._testIndex] = [];
                 var request = new window.xmlHttpRequest('GET', this.url+ '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
                     this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
                 this._activeTests.push({

@@ -34,7 +34,7 @@
     this.clientCallbackProgress = callbackProgress;
     this.clientCallbackError = callbackError;
 
-  };
+  }
 
   /**
    * Execute the request

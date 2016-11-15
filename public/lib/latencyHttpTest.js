@@ -39,7 +39,7 @@
     this.clientCallbackTimeout = callbackTimeout;
     this.clientCallbackError = callbackError;
 
-  };
+  }
 
   /**
    * Execute the request
@@ -89,7 +89,8 @@
   /**
    * onProgress method
    */
-  latencyHttpTest.prototype.onTestProgress = function(result){
+  latencyHttpTest.prototype.onTestProgress = function(result){ // jshint ignore:line
+    //process result if you want to use this function
     //latency does not report onProgressEvents
   };
   /**
@@ -122,7 +123,7 @@
         this._activeTests[i].xhr._request.abort();
       }
     }
-  }
+  };
 
 
   /**
@@ -139,4 +140,3 @@
 
   window.latencyHttpTest = latencyHttpTest;
 })();
-
