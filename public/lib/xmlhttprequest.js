@@ -46,8 +46,8 @@
     this.callbackAbort = callbackAbort;
     this.callbackTimeout = callbackTimeout;
     this.callbackError = callbackError;
-    this.requestTimeout;
-    this._request;
+    this.requestTimeout = null;
+    this._request = null;
   }
 
   /**
@@ -114,7 +114,7 @@
      xmlHttpRequest.prototype._handleTimeout = function(response) {
        this.totalTime = this.endTime - this.startTime;
        var transferSizeMbs = (response.loaded * 8) / 1000000;
-       var transferDurationSeconds = result.totalTime/1000;
+       var transferDurationSeconds = this.totalTime/1000;
        //package results
        var result = {};
        result.latency = this.totalTime;

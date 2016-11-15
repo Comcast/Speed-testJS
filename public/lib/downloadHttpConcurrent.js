@@ -76,8 +76,7 @@
      * onAbort method
      * @return abort object
      */
-    downloadHttpConcurrent.prototype.onTestAbort = function (result) {
-        var total = 0;
+    downloadHttpConcurrent.prototype.onTestAbort = function () {
         this._running = false;
         if (this.finalResults && this.finalResults.length) {
             this.clientCallbackComplete(this.finalResults);
@@ -90,11 +89,16 @@
      * onTimeout method
      * @return timeout object
      */
-    downloadHttpConcurrent.prototype.onTestTimeout = function (result) {
+    downloadHttpConcurrent.prototype.onTestTimeout = function () {
         if (this._running) {
-            console.log('onTestAbortCalled');
-            this.clientCallbackTimeout(onTestTimeout);
-            this._running = false;
+            if ((Date.now() - this._beginTime) > this.testLength) {
+                if (this.finalResults && this.finalResults.length) {
+                    this.clientCallbackComplete(this.finalResults);
+                } else {
+                    this.clientCallbackError('no measurements obtained');
+                }
+            }
+            this._running=false;
         }
     };
 
@@ -108,7 +112,7 @@
         }
         //pushing results to an array
         this._results.push(result);
-        this['arrayResults' + result.id];
+        this['arrayResults' + result.id] = [];
         //remove requests from active test array
         this._activeTests.pop(result.id, 1);
         //checking if we can continue with the test
@@ -126,7 +130,6 @@
             }
         }
         else {
-            var total = 0;
             this._running = false;
             if (this.finalResults && this.finalResults.length) {
                 this.clientCallbackComplete(this.finalResults);
@@ -160,7 +163,7 @@
           for (var g = 1; g <= this.concurrentRuns; g++) {
             this._testIndex++;
             this['arrayResults'+this._testIndex] = [];
-            this._progressResults['arrayProgressResults'+this._testIndex] = new Array();
+            this._progressResults['arrayProgressResults'+this._testIndex] = [];
             var request = new window.xmlHttpRequest('GET',[this.url, '&', Date.now()].join(''),this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
             this.onTestAbort.bind(this),this.onTestTimeout.bind(this),this.onTestError.bind(this));
             this._activeTests.push({

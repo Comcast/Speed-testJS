@@ -92,12 +92,12 @@
       var self =this;
       var xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function() {
-          if (xhr.readyState == XMLHttpRequest.DONE) {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
             self._running=false;
             var data = JSON.parse(xhr.responseText);
             self.clientCallbackComplete(data);
           }
-      }
+      };
       xhr.open('GET', '/downloadProbe?bufferSize='+this.size+'&time='+result.time+'&lowLatency=true', true);
       xhr.send(null);
    };
@@ -106,10 +106,8 @@
    * onProgress method
    * @param  result
    */
-   downloadProbeTest.prototype.onTestProgress = function(result){
-
-     //console.log(this._progressResults['arrayProgressResults'+result.id].toString());
-     //todo add moving average counter and formulate results and return to client
+   downloadProbeTest.prototype.onTestProgress = function(result){ // jshint ignore:line
+     //process result if you want to use this function
    };
 
    /**
@@ -122,7 +120,7 @@
            this._activeTests[i].xhr._request.abort();
          }
        }
-     }
+     };
 
 
    window.downloadProbeTest = downloadProbeTest;

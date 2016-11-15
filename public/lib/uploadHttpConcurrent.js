@@ -80,7 +80,7 @@
      * @param object error object
      * @return error object
      */
-    uploadHttpConcurrent.prototype.onTestAbort = function (error) {
+    uploadHttpConcurrent.prototype.onTestAbort = function () {
         if (this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
                 if (this._finalResults && this._finalResults.length) {
@@ -123,8 +123,9 @@
                 //check to whether increase file size
                 if (this._progressCount > 10) {
                     //file size can be increased to only certain value as browser is going to crash
-                    if (this.uploadSize < this._maxUploadSize)
-                    this.uploadSize += this.uploadSize;
+                    if (this.uploadSize < this._maxUploadSize) {
+                        this.uploadSize += this.uploadSize;
+                    }
                 }
                 this.start();
             }
@@ -159,8 +160,8 @@
                     }
                 }
                 singleMovingAverage = singleMovingAverage / lastElem;
+                totalMovingAverage = totalMovingAverage + singleMovingAverage;
             }
-            totalMovingAverage = totalMovingAverage + singleMovingAverage;
         }
         this.clientCallbackProgress(totalMovingAverage);
         this._finalResults.push(totalMovingAverage);
@@ -169,15 +170,16 @@
     /**
      * onProgress method
      */
-    uploadHttpConcurrent.prototype.onTestProgress = function (result) {
+    uploadHttpConcurrent.prototype.onTestProgress = function (result) { // jshint ignore:line
+        //process result if you want to use this function
         //this._progressResults['arrayProgressResults'+result.id].push(result.bandwidth);
-        //todo add moving average counter and formulate results and return to client
     };
 
     /**
      * Start the test
      */
     uploadHttpConcurrent.prototype.start = function () {
+        var request;
 
         if (!this._running) {
             return;
@@ -188,8 +190,8 @@
                 this._testIndex++;
 
                 this['arrayResults' + this._testIndex] = [];
-                this._progressResults['arrayProgressResults' + this._testIndex] = new Array();
-                var request = new window.xmlHttpRequest('POST', this.url, this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
+                this._progressResults['arrayProgressResults' + this._testIndex] = [];
+                request = new window.xmlHttpRequest('POST', this.url, this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
                     this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
                 this._activeTests.push({
                     xhr: request,
@@ -203,8 +205,8 @@
             for (var p = 1; p <= this.concurrentRuns; p++) {
                 this._testIndex++;
                 this['arrayResults' + this._testIndex] = [];
-                this._progressResults['arrayProgressResults' + this._testIndex] = new Array();
-                var request = new window.xmlHttpRequest('POST', this.url, this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
+                this._progressResults['arrayProgressResults' + this._testIndex] = [];
+                request = new window.xmlHttpRequest('POST', this.url, this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
                     this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
                 this._activeTests.push({
                     xhr: request,
