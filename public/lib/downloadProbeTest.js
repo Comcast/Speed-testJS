@@ -27,8 +27,9 @@
    * @param function callback function for test suite complete event
    * @param function callback function for test suite error event
    **/
-   function downloadProbeTest(url, lowLatency, timeout,size, callbackComplete,callbackError) {
-     this.url = url;
+   function downloadProbeTest(url, dataUrl,lowLatency, timeout,size, callbackComplete,callbackError) {
+     this.dataUrl = dataUrl;
+     this.probeTestUrl = url+ '?bufferSize=' + size + '&time=0&sendBinary=true&lowLatency=' + lowLatency;
      this.lowLatency = lowLatency;
      this.timeout = timeout;
      this.size = size;
@@ -46,8 +47,7 @@
    * Execute the request
    */
    downloadProbeTest.prototype.start = function () {
-     var cachebuster = Date.now();
-     this._test = new window.xmlHttpRequest('GET', [this.url, '&', cachebuster].join(''), this.timeout, this.onTestComplete.bind(this),
+     this._test = new window.xmlHttpRequest('GET', this.probeTestUrl+ '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this),
      this.onTestProgress.bind(this),this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
      this._testIndex++;
      this._running=true;
@@ -98,8 +98,9 @@
             self.clientCallbackComplete(data);
           }
       };
-      xhr.open('GET', '/downloadProbe?bufferSize='+this.size+'&time='+result.time+'&lowLatency=true', true);
-      xhr.send(null);
+
+       xhr.open('GET', this.dataUrl+ '?bufferSize=' + this.size + '&time='+result.time+'&sendBinary=false&lowLatency=' + this.lowLatency, true);
+       xhr.send(null);
    };
 
    /**
@@ -107,7 +108,7 @@
    * @param  result
    */
    downloadProbeTest.prototype.onTestProgress = function(result){ // jshint ignore:line
-     //process result if you want to use this function
+        //process result if you want to use this function
    };
 
    /**
