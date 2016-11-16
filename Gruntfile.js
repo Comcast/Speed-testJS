@@ -12,6 +12,7 @@ module.exports = function (grunt) {
                     { src: 'package.json', dest: 'dist/' },
                     { src: 'node_modules/**', dest: 'dist/' },
                     { src: 'config/**', dest: 'dist/' },
+                    { src: 'controllers/**', dest: 'dist/' },
                 ]
             }
 
