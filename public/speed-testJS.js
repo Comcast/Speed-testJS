@@ -208,22 +208,18 @@
         myChart.setOption(option, true);
 
         function latencyHttpOnComplete(result) {
+
+            result = result.sort(function (a, b) {
+                return +a.time - +b.time;
+            });
+
             if(version === 'IPv6'){
                 setTimeout(latencyTest('IPv4'),500);
             }
             else{
                 updateValue(currentTest, result[0].time + ' ms');
-
-                
             }
-            /*
-            void (version === 'IPv6' && latencyTest('IPv4'));
-            void (!(version === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
-            result = result.sort(function (a, b) {
-                return +a.time - +b.time;
-            });
 
-            */
         }
 
         function latencyHttpOnProgress() {
@@ -300,7 +296,7 @@
 
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 + '/latency' : 'http://' + testPlan.baseUrlIPv4 + '/latency';
 
-        var latencyHttpTestSuite = new window.latencyHttpTest(baseUrl, 20, 3000, latencyHttpOnComplete, latencyHttpOnProgress,
+        var latencyHttpTestSuite = new window.latencyHttpTest(baseUrl, 10, 3000, latencyHttpOnComplete, latencyHttpOnProgress,
             latencyHttpOnAbort, latencyHttpOnTimeout, latencyHttpOnError);
         latencyHttpTestSuite.initiateTest();
     }
