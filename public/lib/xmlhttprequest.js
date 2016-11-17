@@ -84,7 +84,7 @@
       this._request.open(this.method, this.url, true);
       this._request.timeout = this.timeout;
       if(this.method==='POST') {
-        this._request.send(getRandomString(this.transferSize));
+        this._request.send(getRandomData(this.transferSize));
       }
       else{
         this._request.send(null);
@@ -250,6 +250,27 @@
         result += chars.charAt(randomChars);
       }
       return result;
+    }
+
+    function getRandomData (size) {
+        for (var result = "", remaining = size; remaining > 0;) {
+            var part = Math.random(36).toString();
+            if (!(part.length <= remaining)) {
+                result += part.substring(0, remaining);
+                break
+            }
+            result += part;
+            remaining -= part.length;
+        }
+        var blob;
+        try {
+            blob = new Blob([result], {type: "application/octet-stream"})
+        } catch (e) {
+            var bb = new BlobBuilder;
+            bb.append(result);
+            blob = bb.getBlob("application/octet-stream");
+        }
+        return blob
     }
 
 

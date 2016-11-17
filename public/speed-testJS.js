@@ -452,6 +452,19 @@
         downloadHttpConcurrentProgress.initiateTest();
     }
 
+    function uploadProbe() {
+        function uploadProbeTestOnComplete(result) {
+            console.log(result);
+        }
+
+        function uploadProbeTestOnError(result) {
+            console.log(result);
+        }
+
+        var uploadProbeTestRun = new window.uploadProbeTest('/upload', '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
+        uploadProbeTestRun.start();
+    }
+
     function uploadTest(version) {
         var currentTest = 'upload';
         option.series[0].data[0].value = 0;

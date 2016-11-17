@@ -121,12 +121,12 @@
             if (!this._activeTests.length && this._running) {
                 this.calculateStats();
                 //check to whether increase file size
-                if (this._progressCount > 10) {
-                    //file size can be increased to only certain value as browser is going to crash
-                    if (this.uploadSize < this._maxUploadSize) {
-                        this.uploadSize += this.uploadSize;
-                    }
-                }
+                //if (this._progressCount > 10) {
+                //    //file size can be increased to only certain value as browser is going to crash
+                //    if (this.uploadSize < this._maxUploadSize) {
+                //        this.uploadSize += this.uploadSize;
+                //    }
+                //}
                 this.start();
             }
         }
@@ -212,6 +212,7 @@
                     xhr: request,
                     testRun: this._testIndex
                 });
+                console.log(this.uploadSize);
                 request.start(this.uploadSize, this._testIndex);
             }
         }
