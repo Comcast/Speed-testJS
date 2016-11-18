@@ -212,7 +212,6 @@
                     xhr: request,
                     testRun: this._testIndex
                 });
-                console.log(this.uploadSize);
                 request.start(this.uploadSize, this._testIndex);
             }
         }

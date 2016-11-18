@@ -63,8 +63,6 @@
      * @param probe object
      */
     uploadProbeTest.prototype.onTestComplete = function (result) {
-        console.log(result);
-        console.log(this.dataUrl);
         var self = this;
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {

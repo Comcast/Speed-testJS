@@ -179,7 +179,6 @@
             }
         }
         uploadProbe();
-        //uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4');
 
         //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
@@ -207,15 +206,18 @@
 
     function uploadProbe() {
         function uploadProbeTestOnComplete(result) {
-            uploadSize = result;
+            if (result) {
+                uploadSize = result;
+            }
+
             void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
-            console.log(result);
         }
 
         function uploadProbeTestOnError(result) {
-            console.log(result);
+
+            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
-debugger;
+
         var uploadProbeTestRun = new window.uploadProbeTest('/upload', '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
         uploadProbeTestRun.start();
     }

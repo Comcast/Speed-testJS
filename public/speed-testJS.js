@@ -34,6 +34,7 @@
     var startTestButton;
     var firstRun = true;
     var downloadSize = 1000000;
+    var uploadSize;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -343,7 +344,8 @@
             var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
             finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
             void (version === 'IPv6' && downloadTest('IPv4'));
-            void (!(version === 'IPv6') && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'));
+            uploadProbe();
+            //void (!(version === 'IPv6') && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'));
             updateValue([currentTest, '-', version].join(''), finalValue);
         }
 
@@ -454,11 +456,16 @@
 
     function uploadProbe() {
         function uploadProbeTestOnComplete(result) {
-            console.log(result);
+            if (result) {
+                uploadSize = result;
+            }
+
+            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
 
         function uploadProbeTestOnError(result) {
-            console.log(result);
+
+            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
 
         var uploadProbeTestRun = new window.uploadProbeTest('/upload', '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
@@ -578,8 +585,8 @@
         }
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent(baseUrl + '/upload', 'POST', 2, 15000, 15000, uploadHttpOnComplete, uploadHttpOnProgress,
-            uploadHttpOnError, 500000);
+        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent(baseUrl + '/upload', 'POST', 1, 15000, 15000, uploadHttpOnComplete, uploadHttpOnProgress,
+            uploadHttpOnError, uploadSize);
         uploadHttpConcurrentTestSuite.initiateTest();
 
     }
