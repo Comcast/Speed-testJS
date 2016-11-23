@@ -20,9 +20,10 @@
   'use strict';
   /**
    * DownloadProbe test to get sizes for download testing
-   * @param string server endpoint for upload testing
+   * @param string server endpoint for download bandwidth testing
+   * @param string server endpoint for download testing sizes
    * @param boolean whether  latency conditions
-   * @param integer length of the testLength
+   * @param integer request timeout for download probe
    * @param integer size of the download request
    * @param function callback function for test suite complete event
    * @param function callback function for test suite error event
