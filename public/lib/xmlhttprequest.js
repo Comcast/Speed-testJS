@@ -84,7 +84,8 @@
       this._request.open(this.method, this.url, true);
       this._request.timeout = this.timeout;
       if(this.method==='POST') {
-        this._request.send(getRandomString(this.transferSize));
+          var data = getRandomString(this.transferSize);
+        this._request.send(data);
       }
       else{
         this._request.send(null);
@@ -220,36 +221,44 @@
    /**
      * Handle onProgress
      */
-    xmlHttpRequest.prototype._handleOnProgressUpload = function (response) {
-        //measure bandwidth after one progress event due to rampup
-        if (this.progressCount > 1) {
-          var result = {};
-          result.id = this.id;
-          this.currentTime = Date.now();
-          result.totalTime = this.currentTime - this.prevTime;
-          var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
-          var transferDurationSeconds = result.totalTime/1000;
-          result.bandwidth = transferSizeMbs/transferDurationSeconds;
-          if(isFinite(result.bandwidth)){
-            this.callbackProgress(result);
-            this.prevTime = this.currentTime;
-            this.prevLoad = response.loaded;
-          }
+   xmlHttpRequest.prototype._handleOnProgressUpload = function (response) {
+       //measure bandwidth after one progress event due to rampup
+       if (this.progressCount > 1 && response.lengthComputable) {
+           var result = {};
+           result.id = this.id;
+           this.currentTime = Date.now();
+           result.totalTime = this.currentTime - this.prevTime;
+           var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
+           var transferDurationSeconds = result.totalTime / 1000;
+           result.bandwidth = transferSizeMbs / transferDurationSeconds;
+           if (isFinite(result.bandwidth)) {
+               this.callbackProgress(result);
+               this.prevTime = this.currentTime;
+               this.prevLoad = response.loaded;
+           }
+       }
+       //increment onProgressEvent
+       this.progressCount++;
+
+
+   };
+
+    function getRandomString(size) {
+        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
+            result = '';
+        for (var index = 0; index < size; index++) {
+            var randomChars = Math.floor(Math.random() * chars.length);
+            result += chars.charAt(randomChars);
         }
-        //increment onProgressEvent
-        this.progressCount++;
-
-
-    };
-
-    function getRandomString (size) {
-      var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
-        result = '';
-      for (var index = 0; index < size; index++) {
-        var randomChars = Math.floor(Math.random() * chars.length);
-        result += chars.charAt(randomChars);
-      }
-      return result;
+        var blob;
+        try {
+            blob = new Blob([result], {type: "application/octet-stream"});
+        } catch (e) {
+            var bb = new BlobBuilder;
+            bb.append(result);
+            blob = bb.getBlob("application/octet-stream");
+        }
+        return blob;
     }
 
 window.xmlHttpRequest = xmlHttpRequest;

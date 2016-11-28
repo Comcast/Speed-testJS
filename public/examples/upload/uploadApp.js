@@ -218,7 +218,7 @@
             void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
 
-        var uploadProbeTestRun = new window.uploadProbeTest('/upload', '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
+        var uploadProbeTestRun = new window.uploadProbeTest('http://' +testPlan.baseUrlIPv4 + '/upload', '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
         uploadProbeTestRun.start();
     }
 
@@ -345,7 +345,7 @@
         }
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent(baseUrl + '/upload', 'POST', 1, 15000, 15000, uploadHttpOnComplete, uploadHttpOnProgress,
+        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrentProgress(baseUrl + '/upload', 'POST', 1, 15000, 15000, uploadHttpOnComplete, uploadHttpOnProgress,
             uploadHttpOnError, uploadSize);
         uploadHttpConcurrentTestSuite.initiateTest();
 
