@@ -1077,6 +1077,14 @@ var data = [
 var bandwidthResults = [];
 
 module.exports = {
+
+    /**
+     * Function gets the uploadsize with which the client has to perform the test
+     * @param bufferSize
+     * @param time
+     * @returns {*}
+     * @constructor
+     */
     GetUploadSize: function (bufferSize, time) {
 
         if (bufferSize && time) {
