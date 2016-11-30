@@ -34,7 +34,7 @@
     var startTestButton;
     var firstRun = true;
     var downloadSize = 1000000;
-    var uploadSize;
+    var uploadSize = 50000;
 
     function initTest() {
         function addEvent(el, ev, fn) {

@@ -61,7 +61,9 @@
         this._progressResults = {};
         //count of progress events
         this._progressCount = 0;
+        //flag on whether to collect measurements-All request need to be running at the same time
         this._collectMovingAverages = false;
+        //initializing the random data used for testing upload
         this._payload = null;
     }
 
@@ -174,7 +176,7 @@
     /**
      * onProgress method
      */
-    uploadHttpConcurrentProgress.prototype.onTestProgress = function (result) { // jshint ignore:line
+    uploadHttpConcurrentProgress.prototype.onTestProgress = function (result) {
 
         if (!this._running) {
             return;
@@ -272,6 +274,11 @@
         this.start();
     };
 
+    /**
+     * getRandomString creates a random data used for testing the upload bandwidth.
+     * @param size - creates a blob of the given size.
+     * @returns {*}
+     */
     function getRandomString(size) {
         var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
             result = '';
