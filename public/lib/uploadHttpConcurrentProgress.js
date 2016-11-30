@@ -33,7 +33,7 @@
      * @param integer uploadSize of the request
      */
     function uploadHttpConcurrentProgress(url, type, concurrentRuns, timeout, testLength, callbackComplete, callbackProgress,
-                                  callbackError, uploadSize) {
+                                          callbackError, uploadSize) {
         this.url = url;
         this.type = type;
         this.uploadSize = uploadSize;
@@ -91,8 +91,8 @@
                 } else {
                     this.clientCallbackError('no measurements obtained');
                 }
+                this._running = false;
             }
-            this._running=false;
         }
     };
 
@@ -124,7 +124,7 @@
             }
         }
         //reset Active Tests array
-        this._activeTests.length =0;
+        this._activeTests.length = 0;
         //checking if we can continue with the test
         if ((Date.now() - this._beginTime) < this.testLength) {
             this._progressCount = 0;
@@ -151,7 +151,7 @@
         var totalMovingAverage = 0;
         for (var i = 0; i < this.concurrentRuns; i++) {
             // get array size and loop thru size of moving average series or array length
-            var id = this._testIndex -i;
+            var id = this._testIndex - i;
             var arrayData = 'arrayProgressResults' + id;
             var lastElem = Math.min(this._progressResults[arrayData].length, this.movingAverage);
             if (lastElem > 0) {
@@ -181,7 +181,7 @@
             return;
         }
 
-        if(!this._collectMovingAverages){
+        if (!this._collectMovingAverages) {
             return;
         }
 
@@ -235,7 +235,7 @@
                     testRun: this._testIndex
                 });
 
-                if(this._payload === null) {
+                if (this._payload === null) {
                     this._payload = getRandomString(this.uploadSize);
                 }
 
