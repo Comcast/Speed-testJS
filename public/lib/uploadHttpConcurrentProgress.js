@@ -61,7 +61,6 @@
         this._progressResults = {};
         //count of progress events
         this._progressCount = 0;
-        this.testResults = [];
         this._collectMovingAverages = false;
         this._payload = null;
     }
@@ -188,7 +187,6 @@
         //update progress count
         this._progressCount++;
 
-        this.testResults.push(result.bandwidth);
         //populate array
         this._progressResults['arrayProgressResults' + result.id].push(result.bandwidth);
         //calculate moving average
@@ -268,6 +266,8 @@
         this._progressResults = {};
         this._progressCount = 0;
         this._running = true;
+        this._collectMovingAverages = false;
+        this._payload = null;
         this._beginTime = Date.now();
         this.start();
     };
