@@ -33,6 +33,7 @@
     var option;
     var startTestButton;
     var firstRun = true;
+    var uploadSize = 50000;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -177,7 +178,7 @@
                 resultsEl[i].innerHTML = '';
             }
         }
-        uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4');
+        uploadProbe();
 
         //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
@@ -201,6 +202,24 @@
         if (dom) {
             dom.innerHTML = value;
         }
+    }
+
+    function uploadProbe() {
+        function uploadProbeTestOnComplete(result) {
+            if (result) {
+                uploadSize = result;
+            }
+
+            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+        }
+
+        function uploadProbeTestOnError(result) {
+
+            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+        }
+
+        var uploadProbeTestRun = new window.uploadProbeTest('http://' +testPlan.baseUrlIPv4 + '/upload', '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
+        uploadProbeTestRun.start();
     }
 
     function uploadTest(version) {
@@ -326,8 +345,8 @@
         }
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrent(baseUrl + '/upload', 'POST', 2, 15000, 15000, uploadHttpOnComplete, uploadHttpOnProgress,
-            uploadHttpOnError, 500000);
+        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrentProgress(baseUrl + '/upload', 'POST', 1, 15000, 15000, uploadHttpOnComplete, uploadHttpOnProgress,
+            uploadHttpOnError, uploadSize);
         uploadHttpConcurrentTestSuite.initiateTest();
 
     }
