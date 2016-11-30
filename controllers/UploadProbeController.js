@@ -46,7 +46,6 @@ class UploadProbeController {
      * @param {response} res - http response.
      */
     getUPloadProbe(req, res) {
-        console.log(req.query.bufferSize);
         var uploadTestSizes = uploadData.GetUploadSize(req.query.bufferSize, req.query.time, req.query.lowLatency);
         res.json(uploadTestSizes);
     }
