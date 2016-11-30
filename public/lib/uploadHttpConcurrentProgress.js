@@ -62,6 +62,7 @@
         //count of progress events
         this._progressCount = 0;
         this.testResults = [];
+        this._collectMovingAverages = false;
     }
 
     /**
@@ -112,20 +113,20 @@
         if (!this._running) {
             return;
         }
-
+        this._collectMovingAverages = false;
         //pushing results to an array
         this._results.push(result);
         //cancel remaining tests
-        //for (var i = 0; i < this._activeTests.length; i++) {
-        //    if (typeof(this._activeTests[i]) !== 'undefined') {
-        //        this._activeTests[i].xhr._request.abort();
-        //    }
-        //}
+        for (var i = 0; i < this._activeTests.length; i++) {
+            if (typeof(this._activeTests[i]) !== 'undefined') {
+                this._activeTests[i].xhr._request.abort();
+            }
+        }
         //reset Active Tests array
         this._activeTests.length =0;
         //checking if we can continue with the test
         if ((Date.now() - this._beginTime) < this.testLength) {
-            //this._progressCount = 0;
+            this._progressCount = 0;
             this.start();
         }
         else {
@@ -179,6 +180,10 @@
             return;
         }
 
+        if(!this._collectMovingAverages){
+            return;
+        }
+
         //update progress count
         this._progressCount++;
 
@@ -187,19 +192,7 @@
         this._progressResults['arrayProgressResults' + result.id].push(result.bandwidth);
         //calculate moving average
         if (this._progressCount % this.movingAverage === 0) {
-            var example = this.testResults.splice(0, 11);
-
-            var singleMovingAverage = 0;
-            for (var i = 0; i < this.movingAverage; i++) {
-                singleMovingAverage += example[i];
-            }
-
-            if (isFinite(singleMovingAverage)) {
-                var totalMovingAverage = singleMovingAverage/this.movingAverage;
-                this.clientCallbackProgress(totalMovingAverage);
-                this._finalResults.push(totalMovingAverage);
-            }
-
+            this.calculateStats();
         }
     };
 
@@ -243,6 +236,7 @@
 
                 request.start(this.uploadSize, this._testIndex);
             }
+            this._collectMovingAverages = true;
         }
     };
 

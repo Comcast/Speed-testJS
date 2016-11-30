@@ -33,7 +33,7 @@
     var option;
     var startTestButton;
     var firstRun = true;
-    var uploadSize;
+    var uploadSize = 50000;
 
     function initTest() {
         function addEvent(el, ev, fn) {
