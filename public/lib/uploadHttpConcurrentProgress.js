@@ -63,6 +63,7 @@
         this._progressCount = 0;
         this.testResults = [];
         this._collectMovingAverages = false;
+        this._payload = null;
     }
 
     /**
@@ -234,7 +235,11 @@
                     testRun: this._testIndex
                 });
 
-                request.start(this.uploadSize, this._testIndex);
+                if(this._payload === null) {
+                    this._payload = getRandomString(this.uploadSize);
+                }
+
+                request.start(this.uploadSize, this._testIndex, this._payload);
             }
             this._collectMovingAverages = true;
         }
@@ -266,6 +271,24 @@
         this._beginTime = Date.now();
         this.start();
     };
+
+    function getRandomString(size) {
+        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
+            result = '';
+        for (var index = 0; index < size; index++) {
+            var randomChars = Math.floor(Math.random() * chars.length);
+            result += chars.charAt(randomChars);
+        }
+        var blob;
+        try {
+            blob = new Blob([result], {type: "application/octet-stream"});
+        } catch (e) {
+            var bb = new BlobBuilder;
+            bb.append(result);
+            blob = bb.getBlob("application/octet-stream");
+        }
+        return blob;
+    }
 
     window.uploadHttpConcurrentProgress = uploadHttpConcurrentProgress;
 })();

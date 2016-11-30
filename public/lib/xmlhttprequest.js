@@ -77,15 +77,14 @@
   /**
   * Execute the request
   */
-    xmlHttpRequest.prototype.start = function(size, id) {
+    xmlHttpRequest.prototype.start = function(size, id, payload) {
       this._initiateRequest();
       this.id = id;
       this.transferSize = size;
       this._request.open(this.method, this.url, true);
       this._request.timeout = this.timeout;
       if(this.method==='POST') {
-          var data = getRandomString(this.transferSize);
-        this._request.send(data);
+        this._request.send(payload);
       }
       else{
         this._request.send(null);
