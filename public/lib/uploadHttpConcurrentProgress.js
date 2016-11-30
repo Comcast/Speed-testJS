@@ -290,7 +290,7 @@
         try {
             blob = new Blob([result], {type: "application/octet-stream"});
         } catch (e) {
-            var bb = new BlobBuilder;
+            var bb = new BlobBuilder; // jshint ignore:line
             bb.append(result);
             blob = bb.getBlob("application/octet-stream");
         }
