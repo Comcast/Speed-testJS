@@ -77,7 +77,7 @@ webSocket.prototype._handleOnMessage = function(event){
 };
 
 webSocket.prototype._handleOnError = function(event){
-  this.callbackOnMessage(event);
+  this.callbackOnError(event);
 };
 
 /**
