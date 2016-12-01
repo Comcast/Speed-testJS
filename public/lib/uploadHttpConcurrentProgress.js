@@ -44,7 +44,7 @@
         this.clientCallbackProgress = callbackProgress;
         this.clientCallbackError = callbackError;
 
-        this.movingAverage = 10;
+        this.movingAverage = 2;
         //unique id or test
         this._testIndex = 0;
         //array holding all results
