@@ -48,11 +48,25 @@ webSocket.prototype.start = function(){
    }
 };
 
-webSocket.prototype._handleOnOpen = function(){
+/**
+ * webSocket onOpen Event
+ */
+  webSocket.prototype._handleOnOpen = function(){
       var obj = { 'data': Date.now().toString(), 'flag': 'latency' };
       this._request.send(JSON.stringify(obj), { mask: true });
 };
 
+/**
+ * send message for current webSocket
+ */
+webSocket.prototype.sendMessage =function() {
+    var obj = { 'data': Date.now().toString(), 'flag': 'latency' };
+    this._request.send(JSON.stringify(obj), { mask: true });
+};
+
+/**
+ * webSocket onMessage received Event
+ */
 webSocket.prototype._handleOnMessage = function(event){
   var finaltime = Date.now() - parseInt(event.data);
   var result={};
@@ -61,12 +75,15 @@ webSocket.prototype._handleOnMessage = function(event){
   this.callbackOnMessage(result);
 
 };
+
 webSocket.prototype._handleOnError = function(event){
   this.callbackOnMessage(event);
 };
 
+/**
+ * close webSocket connection
+ */
 webSocket.prototype._handleOnClose = function(){
-
   this._request.close();
 };
 
