@@ -153,6 +153,18 @@
         if (!this._running) {
             return;
         }
+
+        if ((Date.now() - this._beginTime) > this.testLength) {
+          if (this.finalResults && this.finalResults.length) {
+            this.abortAll();
+            this.clientCallbackComplete(this.finalResults);
+          } else {
+            this.abortAll();
+            this.clientCallbackError('no measurements obtained');
+          }
+          this._running=false;
+        }
+
         if(!this._collectMovingAverages){
             return;
         }
