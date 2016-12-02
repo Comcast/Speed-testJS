@@ -182,6 +182,18 @@
             return;
         }
 
+        if ((Date.now() - this._beginTime) > this.testLength) {
+          if (this._finalResults && this._finalResults.length) {
+            this.abortAll();
+            this.clientCallbackComplete(this._finalResults);
+          } else {
+            this.abortAll();
+            this.clientCallbackError('no measurements obtained');
+          }
+          this._running = false;
+        }
+
+
         if (!this._collectMovingAverages) {
             return;
         }
