@@ -24,7 +24,7 @@
   * @param stirng url address for request
   * @param integer timeout timeout for request
   * @param function callback for onloaded function
-  * @param function callback for onprogress function
+  * @param function callback for onerror function
   */
   function webSocket(url, type, transferSize, callbackOnMessage, callbackOnError){
   this.url = url;
@@ -76,6 +76,9 @@ webSocket.prototype._handleOnMessage = function(event){
 
 };
 
+/**
+ * webSocket onMessage error Event
+*/
 webSocket.prototype._handleOnError = function(event){
   this.callbackOnError(event);
 };
