@@ -61,7 +61,8 @@
     this._results.push(result);
     this.clientCallbackProgress(result);
     if (this._testIndex < this.iterations) {
-      this.start();
+      this._testIndex++;
+      this._test.sendMessage();
     }
     else {
       this.clientCallbackComplete(this._results);
