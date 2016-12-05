@@ -41,7 +41,7 @@
     this.progressCount = 0;
     this.totalBytes = 0;
     this.currentTime = 0;
-    this.progressInterval = 0;
+    this.progressInterval = 50;
     this.callbackComplete = callbackComplete;
     this.callbackProgress = callbackProgress;
     this.callbackAbort = callbackAbort;
