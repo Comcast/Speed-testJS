@@ -60,7 +60,7 @@
         //object holding all test progress measurements
         this._progressResults = {};
         //count of progress events
-        this._progressCount = 0;
+        this._progressCount = 50;
         //flag on whether to collect measurements-All request need to be running at the same time
         this._collectMovingAverages = false;
         //initializing the random data used for testing upload
