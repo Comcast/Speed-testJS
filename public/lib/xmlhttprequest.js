@@ -41,6 +41,7 @@
     this.progressCount = 0;
     this.totalBytes = 0;
     this.currentTime = 0;
+    this.progressInterval = 50;
     this.callbackComplete = callbackComplete;
     this.callbackProgress = callbackProgress;
     this.callbackAbort = callbackAbort;
@@ -227,7 +228,7 @@
            result.id = this.id;
            this.currentTime = Date.now();
            result.totalTime = this.currentTime - this.prevTime;
-           if (result.totalTime > 50) {
+           if (result.totalTime > this.progressInterval) {
                var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
                var transferDurationSeconds = result.totalTime / 1000;
                result.bandwidth = transferSizeMbs / transferDurationSeconds;
