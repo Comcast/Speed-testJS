@@ -66,7 +66,7 @@
     }
     else {
       this.clientCallbackComplete(this._results);
-      this._test._handleOnClose();
+      this._test.close();
     }
   };
 
