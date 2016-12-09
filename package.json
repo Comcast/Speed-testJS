@@ -1,6 +1,6 @@
 {
   "name": "speed-testjs",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "measure internet bandwidth",
   "main": "index.js",
   "author": "Maulan Byron",
@@ -9,7 +9,7 @@
     "aws-sdk": "^2.6.12",
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
-    "ip-address": "^5.8.2",
+    "ip-address": "5.8.0",
     "karma-jasmine-ajax": "^0.1.13",
     "karma-phantomjs-launcher": "^1.0.2",
     "os": "^0.1.1",
