@@ -84,11 +84,20 @@ webSocket.prototype._handleOnError = function(event){
 };
 
 /**
- * close webSocket connection
+ * webSocket close Event
  */
 webSocket.prototype._handleOnClose = function(){
-  this._request.close();
+  if((event!==null)&&(event.code == 1006)){
+    this.callbackOnError('connection error');
+  }
 };
+
+/**
+ * close webSocket
+ */
+webSocket.prototype.close = function(){
+  this._request.close();
+  };
 
 
 window.webSocket = webSocket;
