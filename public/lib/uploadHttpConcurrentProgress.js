@@ -309,6 +309,7 @@
         this._activeTests.length = 0;
         this._progressResults = {};
         this._progressCount = 0;
+        this.uiProgressCount = 0;
         this._running = true;
         this._collectMovingAverages = false;
         this._payload = null;
