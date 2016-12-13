@@ -41,6 +41,8 @@
      this._running = true;
      this.clientCallbackComplete = callbackComplete;
      this.clientCallbackError = callbackError;
+     //probe timeout call
+     this.probeTimeout = 1000;
    }
 
    /**
@@ -98,7 +100,12 @@
             self.clientCallbackComplete(data);
           }
       };
-
+      var requestTimeout;
+      requestTimeout = setTimeout(xhr.abort.bind(xhr), this.probeTimeout);
+      xhr.abort = function(){
+       self.clientCallbackError(result);
+       clearTimeout(requestTimeout);
+      };
        xhr.open('GET', this.dataUrl+ '?bufferSize=' + this.size + '&time='+result.time+'&sendBinary=false&lowLatency=' + this.lowLatency, true);
        xhr.send(null);
    };

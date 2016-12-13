@@ -117,9 +117,11 @@
         }
         this._collectMovingAverages = false;
 
-        //if request complete and no progress events then lower movingAverage
-        if(this._progressCount < this.movingAverage){
-          this.movingAverage =1;
+
+        //if request complete and no progress events then report bandwidth to ui and store results
+        if((this.concurrentRuns===1)&&(this._progressCount === 0)) {
+          this.clientCallbackProgress(result.bandwidth);
+          this._finalResults.push(result.bandwidth);
         }
         //cancel remaining tests
         for (var i = 0; i < this._activeTests.length; i++) {
