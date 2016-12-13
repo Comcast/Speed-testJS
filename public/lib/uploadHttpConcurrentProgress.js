@@ -45,6 +45,8 @@
         this.clientCallbackError = callbackError;
 
         this.movingAverage = movingAverage;
+        //movingAverage to display the values in the UI
+        this.uiMovingAverage = 10;
         //unique id or test
         this._testIndex = 0;
         //array holding all results
@@ -61,6 +63,8 @@
         this._progressResults = {};
         //count of progress events
         this._progressCount = 0;
+        //progressCount for tracking for UI
+        this.uiProgressCount = 0;
         //flag on whether to collect measurements-All request need to be running at the same time
         this._collectMovingAverages = false;
         //initializing the random data used for testing upload
@@ -116,8 +120,13 @@
             return;
         }
         this._collectMovingAverages = false;
-        //pushing results to an array
-        this._results.push(result);
+
+        //if request complete and no progress events then report bandwidth to ui and store results
+        if((this.concurrentRuns===1)&&(this._progressCount === 0)) {
+          this.clientCallbackProgress(result.bandwidth);
+          this._finalResults.push(result.bandwidth);
+        }
+
         //cancel remaining tests
         for (var i = 0; i < this._activeTests.length; i++) {
             if (typeof(this._activeTests[i]) !== 'undefined') {
@@ -169,8 +178,29 @@
             }
 
         }
-        this.clientCallbackProgress(totalMovingAverage);
+
+        if (this.uiProgressCount % this.uiMovingAverage === 0) {
+            this.updateUi();
+        }
+
         this._finalResults.push(totalMovingAverage);
+    };
+
+    /**
+     * updateUI method
+     */
+    uploadHttpConcurrentProgress.prototype.updateUi = function () {
+        var lastElem = Math.min(this._finalResults.length, this.movingAverage);
+        if (lastElem > 0) {
+            var singleMovingAverage = 0;
+            for (var j = 1; j <= lastElem; j++) {
+                //console.log(this._finalResults[this._finalResults.length - j]);
+                singleMovingAverage = singleMovingAverage + this._finalResults[this._finalResults.length - j];
+
+            }
+            singleMovingAverage = singleMovingAverage / lastElem;
+            this.clientCallbackProgress(singleMovingAverage);
+        }
     };
 
     /**
@@ -183,14 +213,14 @@
         }
 
         if ((Date.now() - this._beginTime) > this.testLength) {
-          if (this._finalResults && this._finalResults.length) {
-            this.abortAll();
-            this.clientCallbackComplete(this._finalResults);
-          } else {
-            this.abortAll();
-            this.clientCallbackError('no measurements obtained');
-          }
-          this._running = false;
+            if (this._finalResults && this._finalResults.length) {
+                this.abortAll();
+                this.clientCallbackComplete(this._finalResults);
+            } else {
+                this.abortAll();
+                this.clientCallbackError('no measurements obtained');
+            }
+            this._running = false;
         }
 
 
@@ -200,7 +230,7 @@
 
         //update progress count
         this._progressCount++;
-
+        this.uiProgressCount++;
         //populate array
         this._progressResults['arrayProgressResults' + result.id].push(result.bandwidth);
         //calculate moving average
@@ -279,6 +309,7 @@
         this._activeTests.length = 0;
         this._progressResults = {};
         this._progressCount = 0;
+        this.uiProgressCount = 0;
         this._running = true;
         this._collectMovingAverages = false;
         this._payload = null;

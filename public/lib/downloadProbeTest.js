@@ -41,6 +41,8 @@
      this._running = true;
      this.clientCallbackComplete = callbackComplete;
      this.clientCallbackError = callbackError;
+     //probe timeout call
+     this.probeTimeout = 1000;
    }
 
    /**
@@ -98,8 +100,13 @@
             self.clientCallbackComplete(data);
           }
       };
-
-       xhr.open('GET', this.dataUrl+ '?bufferSize=' + this.size + '&time='+result.time+'&sendBinary=false&lowLatency=' + this.lowLatency, true);
+      var requestTimeout;
+      requestTimeout = setTimeout(xhr.abort.bind(xhr), this.probeTimeout);
+      xhr.abort = function(){
+       self.clientCallbackError(result);
+       clearTimeout(requestTimeout);
+      };
+       xhr.open('GET', this.dataUrl+ '?bufferSize=' + this.size + '&time='+result.time+'&sendBinary=false&lowLatency=' + this.lowLatency+'&r=' + Math.random(), true);
        xhr.send(null);
    };
 
@@ -127,17 +134,4 @@
    window.downloadProbeTest = downloadProbeTest;
 
  })();
-//Example on how to call
-/*
- function downloadProbeTestOnComplete(result){
-   console.dir(result);
- }
- function downloadProbeTestOnError(result){
-   console.dir(result);
- }
 
- var downloadProbeTestRun = new window.downloadProbeTest('/download?bufferSize=762939', false, 3000,762939,downloadProbeTestOnComplete,
- downloadProbeTestOnError);
- downloadProbeTestRun.start();
- setTimeout(downloadProbeTestRun.abortAll().bind(downloadProbeTestRun),10);
-*/
