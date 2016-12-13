@@ -34,6 +34,10 @@
     var startTestButton;
     var firstRun = true;
     var uploadSize = 50000;
+    var uploadConcurrentRuns = 1;
+    var uploadTimeout = 20000;
+    var uploadTestLength = 20000;
+    var uploadMovingAverage = 10;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -345,11 +349,7 @@
         }
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var concurrentRuns = 1;
-        if(uploadSize>= 10671896){
-          concurrentRuns=6
-        }
-        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrentProgress(baseUrl + '/upload', 'POST', concurrentRuns, 20000, 20000, 10, uploadHttpOnComplete, uploadHttpOnProgress,
+        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrentProgress(baseUrl + '/upload', 'POST', concurrentRuns, uploadTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
             uploadHttpOnError, uploadSize);
         uploadHttpConcurrentTestSuite.initiateTest();
 

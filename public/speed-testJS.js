@@ -35,6 +35,10 @@
     var firstRun = true;
     var downloadSize = 1000000;
     var uploadSize = 50000;
+    var uploadConcurrentRuns = 1;
+    var uploadTimeout = 20000;
+    var uploadTestLength = 20000;
+    var uploadMovingAverage = 10;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -344,7 +348,9 @@
             var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
             finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
             void (version === 'IPv6' && downloadTest('IPv4'));
-            uploadProbe();
+            if(version==='IPv4'){
+              uploadProbe();
+            }
             //void (!(version === 'IPv6') && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'));
             updateValue([currentTest, '-', version].join(''), finalValue);
         }
@@ -473,6 +479,7 @@
     }
 
     function uploadTest(version) {
+      console.log('uploadTest: ' + version);
         var currentTest = 'upload';
         option.series[0].data[0].value = 0;
         option.series[0].data[0].name = 'Testing Upload...';
@@ -584,11 +591,8 @@
                 myChart.setOption(option, true);
         }
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
-        var concurrentRuns = 1;
-        if(uploadSize>= 10671896){
-            concurrentRuns=6
-        }
-        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrentProgress(baseUrl + '/upload', 'POST', concurrentRuns, 20000, 20000, 10, uploadHttpOnComplete, uploadHttpOnProgress,
+
+        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrentProgress(baseUrl + '/upload', 'POST', uploadConcurrentRuns, uploadTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
             uploadHttpOnError, uploadSize);
         uploadHttpConcurrentTestSuite.initiateTest();
 

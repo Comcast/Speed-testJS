@@ -106,7 +106,7 @@
        self.clientCallbackError(result);
        clearTimeout(requestTimeout);
       };
-       xhr.open('GET', this.dataUrl+ '?bufferSize=' + this.size + '&time='+result.time+'&sendBinary=false&lowLatency=' + this.lowLatency, true);
+       xhr.open('GET', this.dataUrl+ '?bufferSize=' + this.size + '&time='+result.time+'&sendBinary=false&lowLatency=' + this.lowLatency+'&r=' + Math.random(), true);
        xhr.send(null);
    };
 
