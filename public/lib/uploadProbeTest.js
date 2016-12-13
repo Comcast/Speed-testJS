@@ -22,14 +22,15 @@
      */
     uploadProbeTest.prototype.start = function () {
         this._test = new window.xmlHttpRequest('POST', this.probeTestUrl, this.timeout, this.onTestComplete.bind(this),
-            this.onTestProgress.bind(this), this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
+          this.onTestProgress.bind(this), this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
         this._testIndex++;
         this._running = true;
         this._activeTests.push({
             xhr: this._test,
             testRun: this._testIndex
         });
-        this._test.start(this.size, this._testIndex);
+        this._test.start(this.size, this._testIndex, getRandomString(this.size));
+
     };
 
     /**
@@ -97,6 +98,28 @@
         }
     };
 
+    /**
+     * getRandomString creates a random data used for testing the upload bandwidth.
+     * @param size - creates a blob of the given size.
+     * @returns {*}
+     */
+    function getRandomString(size) {
+        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
+          result = '';
+        for (var index = 0; index < size; index++) {
+            var randomChars = Math.floor(Math.random() * chars.length);
+            result += chars.charAt(randomChars);
+        }
+        var blob;
+        try {
+            blob = new Blob([result], {type: "application/octet-stream"});
+        } catch (e) {
+            var bb = new BlobBuilder; // jshint ignore:line
+            bb.append(result);
+            blob = bb.getBlob("application/octet-stream");
+        }
+        return blob;
+    }
 
     window.uploadProbeTest = uploadProbeTest;
 

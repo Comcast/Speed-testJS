@@ -116,8 +116,11 @@
             return;
         }
         this._collectMovingAverages = false;
-        //pushing results to an array
-        this._results.push(result);
+        //save results and report to client if 1 concurent run
+        if((this.concurrentRuns===1)&&(this._progressCount === 0)) {
+          this.clientCallbackProgress(result.bandwidth);
+          this._finalResults.push(result.bandwidth);
+        }
         //cancel remaining tests
         for (var i = 0; i < this._activeTests.length; i++) {
             if (typeof(this._activeTests[i]) !== 'undefined') {
