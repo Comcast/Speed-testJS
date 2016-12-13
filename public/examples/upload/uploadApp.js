@@ -345,7 +345,11 @@
         }
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrentProgress(baseUrl + '/upload', 'POST', 1, 20000, 20000, 10, uploadHttpOnComplete, uploadHttpOnProgress,
+        var concurrentRuns = 1;
+        if(uploadSize>= 10671896){
+          concurrentRuns=6
+        }
+        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrentProgress(baseUrl + '/upload', 'POST', concurrentRuns, 20000, 20000, 10, uploadHttpOnComplete, uploadHttpOnProgress,
             uploadHttpOnError, uploadSize);
         uploadHttpConcurrentTestSuite.initiateTest();
 
