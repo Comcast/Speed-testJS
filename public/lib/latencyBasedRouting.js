@@ -73,7 +73,9 @@
                 'IPv4Address': serverInfo.IPv4Address,
                 'IPv6Address': serverInfo.IPv6Address,
                 'Fqdn': serverInfo.Fqdn,
-                'latencyResult': []
+                'Location': serverInfo.Location,
+                'Sitename': serverInfo.Sitename,
+                'latencyResult': 0
             };
             var url = 'http://' + serverInfo.IPv4Address + '/latency';
             this.selectServer(url, serverData);
@@ -92,18 +94,23 @@
         //latencyHttpOnComplete
         var latencyHttpOnComplete = function (result) {
             var latencySum = result.reduce(function (a,b) {
-               return a.time + b.time;
+                return a.time + b.time;
             });
-            data.latencyResult.push(latencySum);
+            data.latencyResult = latencySum;
             self.trackingServerInfo.push(data);
             self.numServersResponded++;
             if (self.numServersResponded === 3) {
-                self.clientCallbackComplete(self.trackingServerInfo[0]);
                 // once we get the response from at least three server we abort all
                 // other latency request for rest of the servers
                 for (var i = 0; i < self.latencyHttpTestRequest.length; i++) {
                     self.latencyHttpTestRequest[i].abortAll();
                 }
+
+                self.trackingServerInfo = self.trackingServerInfo.sort(function (a, b) {
+                    return +a.latencyResult - +b.latencyResult;
+                });
+
+                self.clientCallbackComplete(self.trackingServerInfo[0]);
             }
 
         };
@@ -115,8 +122,7 @@
         self.latencyHttpTestRequest.push(latencyHttpTestSuite);
     };
 
-    function latencyHttpOnProgress(result) {
-        console.log(result);
+    function latencyHttpOnProgress() {
     }
 
     function latencyHttpOnAbort(result) {
