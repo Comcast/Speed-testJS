@@ -56,7 +56,7 @@
                 self.performLatencyBasedRouting(JSON.parse(request.responseText));
             }
         };
-        request.open('POST', dataUrl, true);
+        request.open('GET', dataUrl, true);
         request.send(null);
     };
 

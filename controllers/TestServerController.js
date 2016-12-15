@@ -38,7 +38,7 @@ class TestServerController {
      * Register the route for Express.
      */
     registerRoutes() {
-        this.router.post('/testServer', this.getServerInfo.bind(this));
+        this.router.get('/testServer', this.getServerInfo.bind(this));
     }
 
     /**
