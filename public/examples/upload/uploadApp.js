@@ -38,7 +38,7 @@
     var uploadTimeout = 20000;
     var uploadTestLength = 20000;
     var uploadMovingAverage = 10;
-    var uiUploadMovingAverage = 10;
+    var uiUploadMovingAverage = 1;
     var defaultUploadSize = 25526506;
     var microsoftUploadConcurrentRuns=2;
     var microsoftUploadSize = 1000000;
