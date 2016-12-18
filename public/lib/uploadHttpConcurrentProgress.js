@@ -70,7 +70,7 @@
         //initializing the random data used for testing upload
         this._payload = null;
         //monitor interval
-        this.interval;
+        this.interval=null;
         //count of monitor events
         this._monitorCount = 0;
         //monitorMovingAverage

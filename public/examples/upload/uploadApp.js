@@ -358,8 +358,7 @@
         if (!isMobile()) {
             uploadSize = defaultUploadSize;
         }
-//detect ie and reset parameters due to microsoft ie browser specs
-      console.log(navigator.appVersion);
+      //detect ie and reset parameters due to microsoft ie browser specs
       if(navigator.appVersion.indexOf("MSIE") != -1 || navigator.appVersion.indexOf("Trident") != -1 || navigator.appVersion.indexOf("Edge") != -1){
         uploadConcurrentRuns=microsoftUploadConcurrentRuns;
         uploadSize = microsoftUploadSize;
