@@ -153,7 +153,6 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
-              testPlan.baseUrlIPv4='69.252.70.100';
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
