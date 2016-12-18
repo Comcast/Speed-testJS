@@ -32,6 +32,14 @@
         this.transferSize = transferSize;
         this.callbackOnMessage = callbackOnMessage;
         this.callbackOnError = callbackOnError;
+        //monitor interval
+        this.interval;
+        //start test time
+        this._beginTime
+        //requestCount
+        this._requestCount =0;
+        //testTimeout
+        this._testTimeout = 1000;
     }
 
     /**
@@ -45,7 +53,31 @@
             this._request.onmessage = this._handleOnMessage.bind(this);
             this._request.onclose = this._handleOnClose.bind(this);
             this._request.onerror = this._handleOnError.bind(this);
+            this._beginTime = Date.now();
+            this._requestCount =0;
+            var self = this;
+            this.interval = setInterval(function () {
+              self._monitor();
+            }, 100);
         }
+    };
+
+    /**
+     * Monitor testSeries
+     */
+    webSocket.prototype._monitor = function () {
+      if ((Date.now() - this._beginTime) > this._testTimeout ) {
+        if(this._requestCount ===0) {
+          //webSocket timeout end test
+          this.callbackOnError('webSocket Timeout');
+          clearInterval(this.interval);
+        }
+        else{
+          //webSocket has connected cancel interval
+          clearInterval(this.interval);
+        }
+      }
+
     };
 
     /**
@@ -68,6 +100,7 @@
      * webSocket onMessage received Event
      */
     webSocket.prototype._handleOnMessage = function (event) {
+        this._requestCount++;
         var finaltime = Date.now() - parseInt(event.data);
         var result = {};
         result.time = finaltime;
