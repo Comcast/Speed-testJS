@@ -39,6 +39,9 @@
     var uploadTestLength = 20000;
     var uploadMovingAverage = 1;
     var defaultUploadSize = 25526506;
+    var uiMovingAverage = 10;
+    var microsoftUploadSize = 17526506;
+    var microsoftUiUploadMovingAverage = 2;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -211,7 +214,9 @@
 
     function uploadProbe() {
         function uploadProbeTestOnComplete(result) {
-            if (result) {
+            uploadSize = defaultUploadSize;
+
+            if (result && isMobile()) {
                 uploadSize = result;
             }
 
@@ -350,12 +355,13 @@
         }
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        if (!isMobile()) {
-            uploadSize = defaultUploadSize;
+        if(navigator.appVersion.indexOf("MSIE") != -1 || navigator.appVersion.indexOf("Trident") != -1 || navigator.appVersion.indexOf("Edge") != -1){
+            uploadSize = microsoftUploadSize;
+            uiMovingAverage = microsoftUiUploadMovingAverage;
         }
 
         var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrentProgress(baseUrl + '/upload', 'POST', uploadConcurrentRuns, uploadTimeout, uploadTestLength,
-            uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress, uploadHttpOnError, uploadSize);
+            uploadMovingAverage, uiMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress, uploadHttpOnError, uploadSize);
         uploadHttpConcurrentTestSuite.initiateTest();
 
     }

@@ -32,7 +32,7 @@
      * @param function callback function for test suite error event
      * @param integer uploadSize of the request
      */
-    function uploadHttpConcurrentProgress(url, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress,
+    function uploadHttpConcurrentProgress(url, type, concurrentRuns, timeout, testLength, movingAverage, uiMovingAverage, callbackComplete, callbackProgress,
                                           callbackError, uploadSize) {
         this.url = url;
         this.type = type;
@@ -46,7 +46,7 @@
 
         this.movingAverage = movingAverage;
         //movingAverage to display the values in the UI
-        this.uiMovingAverage = 10;
+        this.uiMovingAverage = uiMovingAverage;
         //unique id or test
         this._testIndex = 0;
         //array holding all results
