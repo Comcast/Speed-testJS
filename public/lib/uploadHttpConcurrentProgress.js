@@ -69,6 +69,8 @@
         this._collectMovingAverages = false;
         //initializing the random data used for testing upload
         this._payload = null;
+        //monitor interval
+        this.interval=null;
     }
 
     /**
@@ -300,6 +302,26 @@
     };
 
     /**
+     * Monitor testSeries
+     */
+    uploadHttpConcurrentProgress.prototype._monitor = function () {
+      if ((Date.now() - this._beginTime) > (this.testLength)) {
+        clearInterval(this.interval);
+        this._running = false;
+        this._collectMovingAverages = false;
+        clearInterval(this.interval);
+        if (this._finalResults && this._finalResults.length) {
+          this.clientCallbackComplete(this._finalResults);
+          this.abortAll();
+        } else {
+          this.clientCallbackError('no measurements obtained');
+          this.abortAll();
+        }
+
+      }
+    };
+
+    /**
      * init test suite
      */
     uploadHttpConcurrentProgress.prototype.initiateTest = function () {
@@ -323,22 +345,27 @@
      * @returns {*}
      */
     function getRandomString(size) {
-        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
-            result = '';
-        for (var index = 0; index < size; index++) {
-            var randomChars = Math.floor(Math.random() * chars.length);
-            result += chars.charAt(randomChars);
+      console.log(size);
+      for (var result = "", remaining = size; remaining > 0;) {
+        var part = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?';
+        if (!(part.length <= remaining)) { // jshint ignore:line
+          result += part.substring(0, remaining);
+          break; // jshint ignore:line
         }
-        var blob;
-        try {
-            blob = new Blob([result], {type: "application/octet-stream"});
-        } catch (e) {
-            var bb = new BlobBuilder; // jshint ignore:line
-            bb.append(result);
-            blob = bb.getBlob("application/octet-stream");
-        }
-        return blob;
-    }
+        result += part;
+        remaining -= part.length;
+      }
+
+      var blob;
+      try {
+        blob = new Blob([result], {type: "application/octet-stream"});
+      } catch (e) {
+        var bb = new BlobBuilder; // jshint ignore:line
+        bb.append(result);
+        blob = bb.getBlob("application/octet-stream");
+      }
+      return blob;
+    };
 
     window.uploadHttpConcurrentProgress = uploadHttpConcurrentProgress;
 })();

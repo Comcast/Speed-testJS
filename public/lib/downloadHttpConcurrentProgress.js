@@ -63,6 +63,8 @@
         this._progressCount = 0;
         //flag on whether to collect measurements-All request need to be running at the same time
         this._collectMovingAverages = false;
+        //monitor interval
+        this.interval=null;
     }
 
     /**
@@ -72,6 +74,7 @@
     downloadHttpConcurrentProgress.prototype.onTestError = function (result) {
         if (this._running) {
             this.clientCallbackError(result);
+            clearInterval(this.interval);
             this._running = false;
         }
     };
@@ -82,6 +85,7 @@
     downloadHttpConcurrentProgress.prototype.onTestAbort = function () {
         if(this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
+              clearInterval(this.interval);
                 if (this.finalResults && this.finalResults.length) {
                     this.clientCallbackComplete(this.finalResults);
                 } else {
@@ -100,13 +104,15 @@
     downloadHttpConcurrentProgress.prototype.onTestTimeout = function () {
         if(this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
+                clearInterval(this.interval);
                 if (this.finalResults && this.finalResults.length) {
                     this.clientCallbackComplete(this.finalResults);
                 } else {
                     this.clientCallbackError('no measurements obtained');
                 }
+                this._running=false;
             }
-            this._running=false;
+
         }
     };
 
@@ -136,6 +142,7 @@
         else {
             //check this._running flag again since it may have been reset in abort
             if (this._running) {
+                clearInterval(this.interval);
                 this._running = false;
                 if (this.finalResults && this.finalResults.length) {
                     this.clientCallbackComplete(this.finalResults);
@@ -156,9 +163,11 @@
 
         if ((Date.now() - this._beginTime) > this.testLength) {
           if (this.finalResults && this.finalResults.length) {
+            clearInterval(this.interval);
             this.abortAll();
             this.clientCallbackComplete(this.finalResults);
           } else {
+            clearInterval(this.interval);
             this.abortAll();
             this.clientCallbackError('no measurements obtained');
           }
@@ -250,6 +259,25 @@
     };
 
     /**
+     * Monitor testSeries
+     */
+    downloadHttpConcurrentProgress.prototype._monitor = function () {
+      if ((Date.now() - this._beginTime) > (this.testLength)) {
+        this._running = false;
+        this._collectMovingAverages = false;
+        clearInterval(this.interval);
+        if (this.finalResults && this.finalResults.length) {
+          this.clientCallbackComplete(this.finalResults);
+          this.abortAll();
+        } else {
+          this.clientCallbackError('no measurements obtained');
+          this.abortAll();
+        }
+
+      }
+    };
+
+    /**
      * reset test variables
      */
     downloadHttpConcurrentProgress.prototype.initiateTest = function(){
@@ -261,6 +289,10 @@
         this._progressCount = 0;
         this._running = true;
         this.start();
+        var self = this;
+        this.interval = setInterval(function () {
+          self._monitor();
+        }, 100);
     };
 
     window.downloadHttpConcurrentProgress = downloadHttpConcurrentProgress;
