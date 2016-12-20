@@ -43,6 +43,10 @@
      this.clientCallbackError = callbackError;
      //probe timeout call
      this.probeTimeout = 1000;
+     //monitor interval
+     this.interval=null;
+     // probeCompleted
+     this.probeCompleted = false;
    }
 
    /**
@@ -58,6 +62,10 @@
        xhr: this._test,
        testRun: this._testIndex
      });
+     var self = this;
+     this.interval = setInterval(function () {
+       self._monitor();
+     }, 100);
    };
 
    /**
@@ -65,6 +73,7 @@
    * @param error object
    */
    downloadProbeTest.prototype.onTestError = function (result) {
+     clearInterval(this.interval);
      this.clientCallbackError(result);
    };
 
@@ -73,6 +82,7 @@
    * @param abort object
    */
    downloadProbeTest.prototype.onTestAbort = function (result) {
+     clearInterval(this.interval);
        if(this._running){
             this.clientCallbackError(result);
         }
@@ -83,6 +93,7 @@
    * @param timeout object
    */
    downloadProbeTest.prototype.onTestTimeout = function (result) {
+     clearInterval(this.interval);
      this.clientCallbackError(result);
    };
 
@@ -91,6 +102,8 @@
    * @param probe object
    */
    downloadProbeTest.prototype.onTestComplete = function (result) {
+      this.probeCompleted =true;
+      clearInterval(this.interval);
       var self =this;
       var xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function() {
@@ -130,6 +143,16 @@
        }
      };
 
+    /**
+     * Monitor testSeries
+     */
+    downloadProbeTest.prototype._monitor = function () {
+      if ((Date.now() - this._beginTime) > (this.timeout)) {
+        this.clientCallbackError(result);
+        clearInterval(this.interval);
+        this.abortAll();
+      }
+    };
 
    window.downloadProbeTest = downloadProbeTest;
 

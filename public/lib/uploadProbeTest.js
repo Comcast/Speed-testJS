@@ -17,6 +17,10 @@
         this.clientCallbackError = callbackError;
         //probe timeout call
         this.probeTimeout = 1000;
+        //monitor interval
+        this.interval=null;
+        // probeCompleted
+        this.probeCompleted = false;
     }
 
     /**
@@ -32,6 +36,10 @@
             testRun: this._testIndex
         });
         this._test.start(this.size, this._testIndex, getRandomString(this.size));
+        var self = this;
+        this.interval = setInterval(function () {
+          self._monitor();
+        }, 100);
 
     };
 
@@ -41,6 +49,7 @@
      */
     uploadProbeTest.prototype.onTestError = function (result) {
         this.clientCallbackError(result);
+        clearInterval(this.interval);
     };
 
     /**
@@ -48,6 +57,7 @@
      * @param abort object
      */
     uploadProbeTest.prototype.onTestAbort = function (result) {
+        clearInterval(this.interval);
         if (this._running) {
             this.clientCallbackError(result);
         }
@@ -58,6 +68,7 @@
      * @param timeout object
      */
     uploadProbeTest.prototype.onTestTimeout = function (result) {
+        clearInterval(this.interval);
         this.clientCallbackError(result);
     };
 
@@ -66,6 +77,8 @@
      * @param probe object
      */
     uploadProbeTest.prototype.onTestComplete = function (result) {
+        this.probeCompleted =true;
+        clearInterval(this.interval);
         var self = this;
         var xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function () {
@@ -111,12 +124,17 @@
      * @returns {*}
      */
     function getRandomString(size) {
-        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
-          result = '';
-        for (var index = 0; index < size; index++) {
-            var randomChars = Math.floor(Math.random() * chars.length);
-            result += chars.charAt(randomChars);
+        console.log(size);
+        for (var result = "", remaining = size; remaining > 0;) {
+            var part = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?';
+            if (!(part.length <= remaining)) { // jshint ignore:line
+                result += part.substring(0, remaining);
+                break; // jshint ignore:line
+            }
+            result += part;
+            remaining -= part.length;
         }
+
         var blob;
         try {
             blob = new Blob([result], {type: "application/octet-stream"});
@@ -126,7 +144,20 @@
             blob = bb.getBlob("application/octet-stream");
         }
         return blob;
+    };
+
+  /**
+   * Monitor testSeries
+   */
+  uploadProbeTest.prototype._monitor = function () {
+    if ((Date.now() - this._beginTime) > (this.timeout)) {
+      this.clientCallbackError(result);
+      clearInterval(this.interval);
+      this.abortAll();
     }
+  };
+
+
 
     window.uploadProbeTest = uploadProbeTest;
 

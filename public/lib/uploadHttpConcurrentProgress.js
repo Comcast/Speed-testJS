@@ -336,7 +336,12 @@
         this._collectMovingAverages = false;
         this._payload = null;
         this._beginTime = Date.now();
+        this.interval=null;
         this.start();
+        var self = this;
+        this.interval = setInterval(function () {
+          self._monitor();
+        }, 100);
     };
 
     /**

@@ -288,6 +288,7 @@
         this._progressResults = {};
         this._progressCount = 0;
         this._running = true;
+        this.interval=null;
         this.start();
         var self = this;
         this.interval = setInterval(function () {
