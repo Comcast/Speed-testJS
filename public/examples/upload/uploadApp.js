@@ -358,10 +358,11 @@
         if(navigator.appVersion.indexOf("MSIE") != -1 || navigator.appVersion.indexOf("Trident") != -1 || navigator.appVersion.indexOf("Edge") != -1){
             uploadSize = microsoftUploadSize;
             uiMovingAverage = microsoftUiUploadMovingAverage;
+            var isIE = true;
         }
 
         var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrentProgress(baseUrl + '/upload', 'POST', uploadConcurrentRuns, uploadTimeout, uploadTestLength,
-            uploadMovingAverage, uiMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress, uploadHttpOnError, uploadSize);
+            uploadMovingAverage, uiMovingAverage, isIE, uploadHttpOnComplete, uploadHttpOnProgress, uploadHttpOnError, uploadSize);
         uploadHttpConcurrentTestSuite.initiateTest();
 
     }
