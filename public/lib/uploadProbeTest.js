@@ -144,14 +144,14 @@
             blob = bb.getBlob("application/octet-stream");
         }
         return blob;
-    };
+    }
 
   /**
    * Monitor testSeries
    */
   uploadProbeTest.prototype._monitor = function () {
     if ((Date.now() - this._beginTime) > (this.timeout)) {
-      this.clientCallbackError(result);
+      this.clientCallbackError('probe timed out.');
       clearInterval(this.interval);
       this.abortAll();
     }
