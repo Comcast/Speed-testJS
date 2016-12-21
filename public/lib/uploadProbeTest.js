@@ -77,7 +77,7 @@
      * @param probe object
      */
     uploadProbeTest.prototype.onTestComplete = function (result) {
-        this.probeCompleted =true;
+        this.probeCompleted = true;
         clearInterval(this.interval);
         var self = this;
         var xhr = new XMLHttpRequest();
@@ -124,17 +124,12 @@
      * @returns {*}
      */
     function getRandomString(size) {
-        console.log(size);
-        for (var result = "", remaining = size; remaining > 0;) {
-            var part = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?';
-            if (!(part.length <= remaining)) { // jshint ignore:line
-                result += part.substring(0, remaining);
-                break; // jshint ignore:line
-            }
-            result += part;
-            remaining -= part.length;
+        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
+            result = '';
+        for (var index = 0; index < size; index++) {
+            var randomChars = Math.floor(Math.random() * chars.length);
+            result += chars.charAt(randomChars);
         }
-
         var blob;
         try {
             blob = new Blob([result], {type: "application/octet-stream"});
