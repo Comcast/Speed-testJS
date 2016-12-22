@@ -64,7 +64,7 @@
         //flag on whether to collect measurements-All request need to be running at the same time
         this._collectMovingAverages = false;
         //monitor interval
-        this.interval=null;
+        this.interval = null;
     }
 
     /**
@@ -91,7 +91,7 @@
                 } else {
                     this.clientCallbackError('no measurements obtained');
                 }
-                this._running=false;
+                this._running = false;
             }
 
         }
@@ -110,7 +110,7 @@
                 } else {
                     this.clientCallbackError('no measurements obtained');
                 }
-                this._running=false;
+                this._running = false;
             }
 
         }
@@ -162,16 +162,14 @@
         }
 
         if ((Date.now() - this._beginTime) > this.testLength) {
-          if (this.finalResults && this.finalResults.length) {
             clearInterval(this.interval);
             this.abortAll();
-            this.clientCallbackComplete(this.finalResults);
-          } else {
-            clearInterval(this.interval);
-            this.abortAll();
-            this.clientCallbackError('no measurements obtained');
-          }
-          this._running=false;
+            if (this.finalResults && this.finalResults.length) {
+                this.clientCallbackComplete(this.finalResults);
+            } else {
+                this.clientCallbackError('no measurements obtained');
+            }
+            this._running = false;
         }
 
         if(!this._collectMovingAverages){
@@ -286,7 +284,7 @@
         this._progressResults = {};
         this._progressCount = 0;
         this._running = true;
-        this.interval=null;
+        this.interval = null;
         this.start();
         var self = this;
         this.interval = setInterval(function () {

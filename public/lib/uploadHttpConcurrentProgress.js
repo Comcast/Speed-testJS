@@ -70,7 +70,7 @@
         //initializing the random data used for testing upload
         this._payload = null;
         //monitor interval
-        this.interval=null;
+        this.interval = null;
         //flag to check IE
         this.isIE = isIE;
     }
@@ -217,11 +217,11 @@
         }
 
         if ((Date.now() - this._beginTime) > this.testLength) {
+            clearInterval(this.interval);
+            this.abortAll();
             if (this._finalResults && this._finalResults.length) {
-                this.abortAll();
                 this.clientCallbackComplete(this._finalResults);
             } else {
-                this.abortAll();
                 this.clientCallbackError('no measurements obtained');
             }
             this._running = false;
@@ -336,7 +336,7 @@
         this._collectMovingAverages = false;
         this._payload = null;
         this._beginTime = Date.now();
-        this.interval=null;
+        this.interval = null;
         this.start();
         var self = this;
         this.interval = setInterval(function () {

@@ -18,7 +18,7 @@
         //probe timeout call
         this.probeTimeout = 1000;
         //monitor interval
-        this.interval=null;
+        this.interval = null;
     }
 
     /**
