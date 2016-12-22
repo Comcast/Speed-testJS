@@ -32,7 +32,7 @@
      * @param function callback function for test suite error event
      * @param integer uploadSize of the request
      */
-    function uploadHttpConcurrentProgress(url, type, concurrentRuns, timeout, testLength, movingAverage, uiMovingAverage, callbackComplete, callbackProgress,
+    function uploadHttpConcurrentProgress(url, type, concurrentRuns, timeout, testLength, movingAverage, uiMovingAverage, isIE, callbackComplete, callbackProgress,
                                           callbackError, uploadSize) {
         this.url = url;
         this.type = type;
@@ -69,6 +69,10 @@
         this._collectMovingAverages = false;
         //initializing the random data used for testing upload
         this._payload = null;
+        //monitor interval
+        this.interval = null;
+        //flag to check IE
+        this.isIE = isIE;
     }
 
     /**
@@ -213,11 +217,11 @@
         }
 
         if ((Date.now() - this._beginTime) > this.testLength) {
+            clearInterval(this.interval);
+            this.abortAll();
             if (this._finalResults && this._finalResults.length) {
-                this.abortAll();
                 this.clientCallbackComplete(this._finalResults);
             } else {
-                this.abortAll();
                 this.clientCallbackError('no measurements obtained');
             }
             this._running = false;
@@ -278,7 +282,7 @@
                 });
 
                 if (this._payload === null) {
-                    this._payload = getRandomString(this.uploadSize);
+                    this._payload = (this.isIE) ? getRandomData(this.uploadSize) : getRandomString(this.uploadSize);
                 }
 
                 request.start(this.uploadSize, this._testIndex, this._payload);
@@ -300,6 +304,24 @@
     };
 
     /**
+     * Monitor testSeries
+     */
+    uploadHttpConcurrentProgress.prototype._monitor = function () {
+      if ((Date.now() - this._beginTime) > (this.testLength)) {
+        clearInterval(this.interval);
+        this._running = false;
+        this._collectMovingAverages = false;
+        clearInterval(this.interval);
+        if (this._finalResults && this._finalResults.length) {
+          this.clientCallbackComplete(this._finalResults);
+        } else {
+          this.clientCallbackError('no measurements obtained');
+        }
+      this.abortAll();
+      }
+    };
+
+    /**
      * init test suite
      */
     uploadHttpConcurrentProgress.prototype.initiateTest = function () {
@@ -314,7 +336,12 @@
         this._collectMovingAverages = false;
         this._payload = null;
         this._beginTime = Date.now();
+        this.interval = null;
         this.start();
+        var self = this;
+        this.interval = setInterval(function () {
+          self._monitor();
+        }, 100);
     };
 
     /**
@@ -339,6 +366,36 @@
         }
         return blob;
     }
+
+    /**
+     * getRandomData creates a random data used for testing the upload bandwidth only of IE.
+     * @param size - creates a blob of the given size.
+     * @returns {*}
+     */
+    function getRandomData(size) {
+        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?';
+
+        var count = size / 2;
+        var result = chars;
+
+        while (result.length <= count) {
+            result += result;
+        }
+
+        result = result + result.substring(0, size - result.length);
+        var blob;
+        try {
+            blob = new Blob([result], {type: "application/octet-stream"});
+        } catch (e) {
+            var bb = new BlobBuilder; // jshint ignore:line
+            bb.append(result);
+            blob = bb.getBlob("application/octet-stream");
+        }
+        return blob;
+    }
+
+
+
 
     window.uploadHttpConcurrentProgress = uploadHttpConcurrentProgress;
 })();
