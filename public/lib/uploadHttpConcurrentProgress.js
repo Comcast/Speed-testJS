@@ -314,12 +314,10 @@
         clearInterval(this.interval);
         if (this._finalResults && this._finalResults.length) {
           this.clientCallbackComplete(this._finalResults);
-          this.abortAll();
         } else {
           this.clientCallbackError('no measurements obtained');
-          this.abortAll();
         }
-
+      this.abortAll();
       }
     };
 
