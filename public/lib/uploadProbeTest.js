@@ -19,8 +19,6 @@
         this.probeTimeout = 1000;
         //monitor interval
         this.interval=null;
-        // probeCompleted
-        this.probeCompleted = false;
     }
 
     /**
@@ -77,7 +75,6 @@
      * @param probe object
      */
     uploadProbeTest.prototype.onTestComplete = function (result) {
-        this.probeCompleted = true;
         clearInterval(this.interval);
         var self = this;
         var xhr = new XMLHttpRequest();
