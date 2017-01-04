@@ -49,11 +49,15 @@
      */
     latencyBasedRouting.prototype.getNearestServer = function () {
         var self = this;
-        var dataUrl = this.url + '?location=' + this.location;
+        var dataUrl = this.url + '?location=' + this.location + '&r=' + Math.random();
         var request = new XMLHttpRequest();
         request.onreadystatechange = function () {
             if (request.readyState === XMLHttpRequest.DONE) {
-                self.performLatencyBasedRouting(JSON.parse(request.responseText));
+                if (request.responseText !== '[]') {
+                    self.performLatencyBasedRouting(JSON.parse(request.responseText));
+                } else {
+                    self.clientCallbackError('no server information');
+                }
             }
         };
         request.open('GET', dataUrl, true);
