@@ -25,12 +25,14 @@
      * @param callbackComplete - callback function for test suite complete event
      * @param callbackError - callback function for test suite error event
      */
-    function latencyBasedRouting(location, callbackComplete, callbackError) {
+    function latencyBasedRouting(location, url, callbackComplete, callbackError) {
         this.location = location;
+        this.url = url;
         this.clientCallbackComplete = callbackComplete;
         this.clientCallbackError = callbackError;
         this.latencyHttpTestRequest = [];
         this.numServersResponded = 0;
+        this.trackingServerInfo = [];
     }
 
     /**
@@ -47,14 +49,18 @@
      */
     latencyBasedRouting.prototype.getNearestServer = function () {
         var self = this;
-        var url = '/testServer?location=' + this.location;
+        var dataUrl = this.url + '?location=' + this.location + '&r=' + Math.random();
         var request = new XMLHttpRequest();
         request.onreadystatechange = function () {
             if (request.readyState === XMLHttpRequest.DONE) {
-                self.performLatencyBasedRouting(JSON.parse(request.responseText));
+                if (request.responseText !== '[]') {
+                    self.performLatencyBasedRouting(JSON.parse(request.responseText));
+                } else {
+                    self.clientCallbackError('no server information');
+                }
             }
         };
-        request.open('GET', url, true);
+        request.open('GET', dataUrl, true);
         request.send(null);
     };
 
@@ -64,7 +70,6 @@
      * @param data object contains server the information
      */
     latencyBasedRouting.prototype.performLatencyBasedRouting = function (data) {
-        console.log(data);
         var serverInfo;
         for (var i = 0; i < data.length; i++) {
             serverInfo = data[i];
@@ -72,7 +77,9 @@
                 'IPv4Address': serverInfo.IPv4Address,
                 'IPv6Address': serverInfo.IPv6Address,
                 'Fqdn': serverInfo.Fqdn,
-                'latencyResult': []
+                'Location': serverInfo.Location,
+                'Sitename': serverInfo.Sitename,
+                'latencyResult': 0
             };
             var url = 'http://' + serverInfo.IPv4Address + '/latency';
             this.selectServer(url, serverData);
@@ -90,28 +97,36 @@
         var self = this;
         //latencyHttpOnComplete
         var latencyHttpOnComplete = function (result) {
+            var latencySum = result.reduce(function (a,b) {
+                return a.time + b.time;
+            });
+            data.latencyResult = latencySum;
+            self.trackingServerInfo.push(data);
             self.numServersResponded++;
-            if (self.numServersResponded === 1) {
-                data.latencyResult.push(result[0].time);
-                self.clientCallbackComplete(data);
-                // once we get the response from at least one server we abort all
+            if (self.numServersResponded === 3) {
+                // once we get the response from at least three server we abort all
                 // other latency request for rest of the servers
                 for (var i = 0; i < self.latencyHttpTestRequest.length; i++) {
                     self.latencyHttpTestRequest[i].abortAll();
                 }
+
+                self.trackingServerInfo = self.trackingServerInfo.sort(function (a, b) {
+                    return +a.latencyResult - +b.latencyResult;
+                });
+
+                self.clientCallbackComplete(self.trackingServerInfo[0]);
             }
 
         };
         // creating latencyHttpTestSuite object for each server
-        var latencyHttpTestSuite = new window.latencyHttpTest(url, 1, 10000, latencyHttpOnComplete, latencyHttpOnProgress,
+        var latencyHttpTestSuite = new window.latencyHttpTest(url, 2, 3000, latencyHttpOnComplete, latencyHttpOnProgress,
             latencyHttpOnAbort, latencyHttpOnTimeout, latencyHttpOnError);
         latencyHttpTestSuite.start();
         // pushing latencyHttpTestSuite for each server into an array
         self.latencyHttpTestRequest.push(latencyHttpTestSuite);
     };
 
-    function latencyHttpOnProgress(result) {
-        console.log(result);
+    function latencyHttpOnProgress() {
     }
 
     function latencyHttpOnAbort(result) {
