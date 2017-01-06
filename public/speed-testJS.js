@@ -177,7 +177,7 @@
 
     function latencyBasedRouting() {
         // pass in the client location instead of the hard coded value
-        var latencyBasedRouting = new window.latencyBasedRouting('NJ', '/testServer', latencyBasedRoutingOnComplete, latencyBasedRoutingOnError);
+        var latencyBasedRouting = new window.latencyBasedRouting('NJ', '/testServer', 2000, latencyBasedRoutingOnComplete, latencyBasedRoutingOnError);
         latencyBasedRouting.getNearestServer();
     }
 

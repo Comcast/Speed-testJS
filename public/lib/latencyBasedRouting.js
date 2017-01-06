@@ -25,7 +25,7 @@
      * @param callbackComplete - callback function for test suite complete event
      * @param callbackError - callback function for test suite error event
      */
-    function latencyBasedRouting(location, url, callbackComplete, callbackError) {
+    function latencyBasedRouting(location, url, timeout, callbackComplete, callbackError) {
         this.location = location;
         this.url = url;
         this.clientCallbackComplete = callbackComplete;
@@ -33,7 +33,7 @@
         this.latencyHttpTestRequest = [];
         this.numServersResponded = 0;
         this.trackingServerInfo = [];
-        this.latencyTimeout = 2000;
+        this.latencyTimeout = timeout;
     }
 
     /**
@@ -54,7 +54,7 @@
         var request = new XMLHttpRequest();
         request.onreadystatechange = function () {
             if (request.readyState === XMLHttpRequest.DONE) {
-                if (request.responseText !== '[]') {
+                if (request.responseText !== '[]' && request.responseText !== '') {
                     self.performLatencyBasedRouting(JSON.parse(request.responseText));
                 } else {
                     self.clientCallbackError('no server information');
