@@ -33,6 +33,7 @@
         this.latencyHttpTestRequest = [];
         this.numServersResponded = 0;
         this.trackingServerInfo = [];
+        this.latencyTimeout = 2000;
     }
 
     /**
@@ -59,6 +60,12 @@
                     self.clientCallbackError('no server information');
                 }
             }
+        };
+        var requestTimeout;
+        requestTimeout = setTimeout(request.abort.bind(request), this.latencyTimeout);
+        request.abort = function(){
+            self.clientCallbackError('no server information');
+            clearTimeout(requestTimeout);
         };
         request.open('GET', dataUrl, true);
         request.send(null);
