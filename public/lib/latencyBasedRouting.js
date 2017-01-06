@@ -20,10 +20,12 @@
     'use strict';
 
     /**
-     * latencyBasedRouting
-     * @param location - pass the location to get the list available servers
-     * @param callbackComplete - callback function for test suite complete event
-     * @param callbackError - callback function for test suite error event
+     *
+     * @param location - pass the location to get the list available servers.
+     * @param url - end point for getting the server information.
+     * @param timeout - timeout for the request.
+     * @param callbackComplete - callback function for test suite complete event.
+     * @param callbackError - callback function for test suite error event.
      */
     function latencyBasedRouting(location, url, timeout, callbackComplete, callbackError) {
         this.location = location;
@@ -54,7 +56,15 @@
         var request = new XMLHttpRequest();
         request.onreadystatechange = function () {
             if (request.readyState === XMLHttpRequest.DONE) {
-                if (request.responseText !== '[]' && request.responseText !== '') {
+                var data;
+                try {
+                    data = JSON.parse(request.responseText);
+                }
+                catch (err) {
+                    self.clientCallbackError('no server information');
+                    return;
+                }
+                if (data instanceof Array && data.length > 0) {
                     self.performLatencyBasedRouting(JSON.parse(request.responseText));
                 } else {
                     self.clientCallbackError('no server information');
@@ -63,7 +73,7 @@
         };
         var requestTimeout;
         requestTimeout = setTimeout(request.abort.bind(request), this.latencyTimeout);
-        request.abort = function(){
+        request.abort = function () {
             self.clientCallbackError('no server information');
             clearTimeout(requestTimeout);
         };
@@ -104,7 +114,7 @@
         var self = this;
         //latencyHttpOnComplete
         var latencyHttpOnComplete = function (result) {
-            var latencySum = result.reduce(function (a,b) {
+            var latencySum = result.reduce(function (a, b) {
                 return a.time + b.time;
             });
             data.latencyResult = latencySum;

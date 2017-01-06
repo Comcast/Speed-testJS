@@ -43,6 +43,7 @@
     var uiMovingAverage = 10;
     var microsoftUploadSize = 17526506;
     var microsoftUiUploadMovingAverage = 2;
+    var testServerTimeout = 2000;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -177,7 +178,7 @@
 
     function latencyBasedRouting() {
         // pass in the client location instead of the hard coded value
-        var latencyBasedRouting = new window.latencyBasedRouting('NJ', '/testServer', 2000, latencyBasedRoutingOnComplete, latencyBasedRoutingOnError);
+        var latencyBasedRouting = new window.latencyBasedRouting('NJ', '/testServer', testServerTimeout, latencyBasedRoutingOnComplete, latencyBasedRoutingOnError);
         latencyBasedRouting.getNearestServer();
     }
 
