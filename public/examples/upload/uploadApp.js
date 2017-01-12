@@ -229,7 +229,7 @@
             void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
 
-        var uploadProbeTestRun = new window.uploadProbeTest('/upload', '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
+        var uploadProbeTestRun = new window.uploadProbeTest('http://' + testPlan.baseUrlIPv4 + '/upload', 'http://'  + testPlan.baseUrlIPv4 + '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
         uploadProbeTestRun.start();
     }
 
@@ -281,7 +281,7 @@
                 myChart.setOption(option, true);
         }
         function uploadHttpOnComplete(result) {
-            var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
+            var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', result, calculateStatsonComplete, calculateStatsonError);
             calculateMeanStats.performCalculations();
         }
         function uploadHttpOnProgress(result) {
