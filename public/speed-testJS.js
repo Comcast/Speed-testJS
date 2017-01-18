@@ -335,7 +335,7 @@
             //use default value for download testing
             void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
-        var downloadProbeTestRun = new window.downloadProbeTest('/download?bufferSize='+downloadSize, '/downloadProbe', false, 3000,762939,downloadProbeTestOnComplete,
+        var downloadProbeTestRun = new window.downloadProbeTest('http://' + testPlan.baseUrlIPv4 + '/download?bufferSize='+downloadSize, 'http://' + testPlan.baseUrlIPv4 + '/downloadProbe', false, 3000,762939,downloadProbeTestOnComplete,
             downloadProbeTestOnError);
         downloadProbeTestRun.start();
 
@@ -380,7 +380,7 @@
 
         function downloadHttpOnComplete(result) {
 
-            var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
+            var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', result, calculateStatsonComplete, calculateStatsonError);
             calculateMeanStats.performCalculations();
         }
 
@@ -481,7 +481,7 @@
             void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
 
-        var uploadProbeTestRun = new window.uploadProbeTest('/upload', '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
+        var uploadProbeTestRun = new window.uploadProbeTest('http://' + testPlan.baseUrlIPv4 + '/upload', 'http://' + testPlan.baseUrlIPv4 + '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
         uploadProbeTestRun.start();
     }
 
@@ -524,7 +524,7 @@
             startTestButton.innerHTML = 'Start Test';
         }
         function uploadHttpOnComplete(result) {
-            var calculateMeanStats = new window.calculateStats(result, calculateStatsonComplete, calculateStatsonError);
+            var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', result, calculateStatsonComplete, calculateStatsonError);
             calculateMeanStats.performCalculations();
         }
         function uploadHttpOnProgress(result) {

@@ -25,7 +25,8 @@
      * @param callbackResults - function callback for sending the results to the client
      * @param callbackError - function callback for error event
      */
-    function calculateStats(data, callbackResults, callbackError) {
+    function calculateStats(url, data, callbackResults, callbackError) {
+        this.url = url;
         this.data = data;
         this.clientCallbackResults = callbackResults;
         this.clientCallbackError = callbackError;
@@ -45,10 +46,9 @@
      * @return result back to the client
      */
     calculateStats.prototype.performCalculations = function () {
-        var url = '/calculator';
         var request = new XMLHttpRequest();
         var self = this;
-        request.open('POST', url, true);
+        request.open('POST', this.url, true);
         request.setRequestHeader('Content-Type', 'application/json');
         request.onreadystatechange = function () {
             if (request.readyState === 4 && request.status === 200) {
