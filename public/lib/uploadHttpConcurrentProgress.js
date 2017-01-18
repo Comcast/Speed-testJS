@@ -32,7 +32,7 @@
      * @param function callback function for test suite error event
      * @param integer uploadSize of the request
      */
-    function uploadHttpConcurrentProgress(url, type, concurrentRuns, timeout, testLength, movingAverage, uiMovingAverage, isIE, callbackComplete, callbackProgress,
+    function uploadHttpConcurrentProgress(url, type, concurrentRuns, timeout, testLength, movingAverage, uiMovingAverage, callbackComplete, callbackProgress,
                                           callbackError, uploadSize) {
         this.url = url;
         this.type = type;
@@ -71,8 +71,6 @@
         this._payload = null;
         //monitor interval
         this.interval = null;
-        //flag to check IE
-        this.isIE = isIE;
     }
 
     /**
@@ -282,7 +280,7 @@
                 });
 
                 if (this._payload === null) {
-                    this._payload = (this.isIE) ? getRandomData(this.uploadSize) : getRandomString(this.uploadSize);
+                    this._payload = getRandomData(this.uploadSize);
                 }
 
                 request.start(this.uploadSize, this._testIndex, this._payload);
@@ -345,41 +343,21 @@
     };
 
     /**
-     * getRandomString creates a random data used for testing the upload bandwidth.
-     * @param size - creates a blob of the given size.
-     * @returns {*}
-     */
-    function getRandomString(size) {
-        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
-            result = '';
-        for (var index = 0; index < size; index++) {
-            var randomChars = Math.floor(Math.random() * chars.length);
-            result += chars.charAt(randomChars);
-        }
-        var blob;
-        try {
-            blob = new Blob([result], {type: "application/octet-stream"});
-        } catch (e) {
-            var bb = new BlobBuilder; // jshint ignore:line
-            bb.append(result);
-            blob = bb.getBlob("application/octet-stream");
-        }
-        return blob;
-    }
-
-    /**
-     * getRandomData creates a random data used for testing the upload bandwidth only of IE.
+     * getRandomData creates a random data used for testing the upload bandwidth.
      * @param size - creates a blob of the given size.
      * @returns {*}
      */
     function getRandomData(size) {
-        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?';
+
+        function getData() {
+            return Math.random().toString();
+        }
 
         var count = size / 2;
-        var result = chars;
+        var result = getData();
 
         while (result.length <= count) {
-            result += result;
+            result += getData();
         }
 
         result = result + result.substring(0, size - result.length);
@@ -393,9 +371,6 @@
         }
         return blob;
     }
-
-
-
 
     window.uploadHttpConcurrentProgress = uploadHttpConcurrentProgress;
 })();
