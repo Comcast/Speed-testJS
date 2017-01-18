@@ -33,8 +33,6 @@
     this._activeTests = [];
     //boolean on whether test  suite is running or not
     this._running = true;
-    this._beginTime=null;
-    this.interval = null;
     this.clientCallbackComplete = callbackComplete;
     this.clientCallbackProgress = callbackProgress;
     this.clientCallbackAbort = callbackAbort;
@@ -65,7 +63,6 @@
   latencyHttpTest.prototype.onTestError = function (result) {
     if(this._running){
       this.clientCallbackError(result);
-      clearInterval(this.interval);
     }
   };
 
@@ -76,7 +73,6 @@
   latencyHttpTest.prototype.onTestAbort = function (result) {
     if(this._running){
       this.clientCallbackAbort(result);
-      clearInterval(this.interval);
     }
   };
 
@@ -87,7 +83,6 @@
   latencyHttpTest.prototype.onTestTimeout = function (result) {
     if(this._running){
       this.clientCallbackTimeout(result);
-      clearInterval(this.interval);
     }
   };
 
@@ -115,7 +110,6 @@
     else {
       this._running = false;
       this.clientCallbackComplete(this._results);
-      clearInterval(this.interval);
     }
   };
 
@@ -131,17 +125,6 @@
     }
   };
 
-  /**
-   * Monitor testSeries
-   */
-  latencyHttpTest.prototype._monitor = function () {
-    if ((Date.now() - this._beginTime) > (this.timeout) &&(this._testIndex===1)) {
-      clearInterval(this.interval);
-      this._running = false;
-      this.clientCallbackError('webSocketTimeout.');
-      this._test.close();
-    }
-  };
 
   /**
    * init test suite
@@ -152,13 +135,7 @@
     //array holding active tests
     this._activeTests.length=0;
     this._running = true;
-    this._beginTime = Date.now();
-    this.interval = null;
     this.start();
-    var self = this;
-    this.interval = setInterval(function () {
-      self._monitor();
-    }, 100);
   };
 
   window.latencyHttpTest = latencyHttpTest;
