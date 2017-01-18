@@ -47,14 +47,16 @@
     this._testIndex++;
     this._test.start();
   };
+
   /**
    * onError method
    * @return abort object
    */
   latencyWebSocketTest.prototype.onTestError = function (result) {
     if(this._running) {
-      this.clientCallbackError(result);
       clearInterval(this.interval);
+      this._running = false;
+      this.clientCallbackError(result);
     }
   };
 
@@ -70,12 +72,14 @@
       this._test.sendMessage();
     }
     else {
-      this.clientCallbackComplete(this._results);
-      this._test.close();
       this._running = false;
       clearInterval(this.interval);
+      this._test.close();
+      this.clientCallbackComplete(this._results);
+
     }
   };
+
   /**
    * Monitor testSeries
    */
