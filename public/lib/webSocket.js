@@ -86,7 +86,7 @@
     /**
      * webSocket close Event
      */
-    webSocket.prototype._handleOnClose = function () {
+    webSocket.prototype._handleOnClose = function (event) {
         if ((event !== null) && (event.code === 1006)) {
             this.callbackOnError('connection error');
         }

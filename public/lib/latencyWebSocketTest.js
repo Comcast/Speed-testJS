@@ -30,10 +30,12 @@
     this._test = null;
     this._testIndex = 0;
     this._results = [];
+    this._beginTime=null;
+    this.interval = null;
+    this._running = true;
     this.clientCallbackComplete = callbackComplete;
     this.clientCallbackProgress = callbackProgress;
     this.clientCallbackError = callbackError;
-
   }
 
   /**
@@ -45,12 +47,17 @@
     this._testIndex++;
     this._test.start();
   };
+
   /**
    * onError method
    * @return abort object
    */
   latencyWebSocketTest.prototype.onTestError = function (result) {
-    this.clientCallbackError(result);
+    if(this._running) {
+      clearInterval(this.interval);
+      this._running = false;
+      this.clientCallbackError(result);
+    }
   };
 
   /**
@@ -65,10 +72,26 @@
       this._test.sendMessage();
     }
     else {
+      this._running = false;
+      clearInterval(this.interval);
+      this._test.close();
       this.clientCallbackComplete(this._results);
+
+    }
+  };
+
+  /**
+   * Monitor testSeries
+   */
+  latencyWebSocketTest.prototype._monitor = function () {
+    if ((Date.now() - this._beginTime) > (this.timeout) &&(this._testIndex===1)) {
+      clearInterval(this.interval);
+      this._running = false;
+      this.clientCallbackError('webSocketTimeout.');
       this._test.close();
     }
   };
+
 
   /**
    * init test suite
@@ -77,6 +100,13 @@
     this._testIndex = 0;
     this._results.length = 0;
     this.start();
+    this._beginTime = Date.now();
+    this._running = true;
+    this.interval = null;
+    var self = this;
+    this.interval = setInterval(function () {
+      self._monitor();
+    }, 100);
   };
 
   window.latencyWebSocketTest = latencyWebSocketTest;
