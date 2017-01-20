@@ -33,7 +33,7 @@
             xhr: this._test,
             testRun: this._testIndex
         });
-        this._test.start(this.size, this._testIndex, getRandomString(this.size));
+        this._test.start(this.size, this._testIndex, getRandomData(this.size));
         var self = this;
         this.interval = setInterval(function () {
           self._monitor();
@@ -116,17 +116,24 @@
     };
 
     /**
-     * getRandomString creates a random data used for testing the upload bandwidth.
+     * getRandomString creates a random data used for testing the uploadProbe bandwidth.
      * @param size - creates a blob of the given size.
      * @returns {*}
      */
-    function getRandomString(size) {
-        var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^&*()_+`-=[]\{}|;:,./<>?', //random data prevents gzip effect
-            result = '';
-        for (var index = 0; index < size; index++) {
-            var randomChars = Math.floor(Math.random() * chars.length);
-            result += chars.charAt(randomChars);
+    function getRandomData(size) {
+
+        function getData() {
+            return Math.random().toString();
         }
+
+        var count = size / 2;
+        var result = getData();
+
+        while (result.length <= count) {
+            result += getData();
+        }
+
+        result = result + result.substring(0, size - result.length);
         var blob;
         try {
             blob = new Blob([result], {type: "application/octet-stream"});
