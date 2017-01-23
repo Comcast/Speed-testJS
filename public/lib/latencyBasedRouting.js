@@ -20,10 +20,10 @@
     'use strict';
 
     /**
-     *
+     * function performs latency based routing.
      * @param location - pass the location to get the list available servers.
      * @param url - end point for getting the server information.
-     * @param timeout - timeout for the request.
+     * @param timeout - timeout for the test server request.
      * @param callbackComplete - callback function for test suite complete event.
      * @param callbackError - callback function for test suite error event.
      */
@@ -35,7 +35,8 @@
         this.latencyHttpTestRequest = [];
         this.numServersResponded = 0;
         this.trackingServerInfo = [];
-        this.latencyTimeout = timeout;
+        this.testServerTimeout = timeout;
+        this.latencyBasedRoutingTimeout = 3000;
     }
 
     /**
@@ -72,7 +73,7 @@
             }
         };
         var requestTimeout;
-        requestTimeout = setTimeout(request.abort.bind(request), this.latencyTimeout);
+        requestTimeout = setTimeout(request.abort.bind(request), this.testServerTimeout);
         request.abort = function () {
             self.clientCallbackError('no server information');
             clearTimeout(requestTimeout);
@@ -87,6 +88,11 @@
      * @param data object contains server the information
      */
     latencyBasedRouting.prototype.performLatencyBasedRouting = function (data) {
+        this.beginTime = Date.now();
+        var self = this;
+        this.interval = setInterval(function () {
+            self.monitor();
+        }, 100);
         var serverInfo;
         for (var i = 0; i < data.length; i++) {
             serverInfo = data[i];
@@ -99,7 +105,7 @@
                 'latencyResult': 0
             };
             var url = 'http://' + serverInfo.IPv4Address + '/latency';
-            this.selectServer(url, serverData);
+            self.selectServer(url, serverData);
         }
 
     };
@@ -121,6 +127,7 @@
             self.trackingServerInfo.push(data);
             self.numServersResponded++;
             if (self.numServersResponded === 3) {
+                clearInterval(self.interval);
                 // once we get the response from at least three server we abort all
                 // other latency request for rest of the servers
                 for (var i = 0; i < self.latencyHttpTestRequest.length; i++) {
@@ -141,6 +148,18 @@
         latencyHttpTestSuite.start();
         // pushing latencyHttpTestSuite for each server into an array
         self.latencyHttpTestRequest.push(latencyHttpTestSuite);
+    };
+
+    latencyBasedRouting.prototype.monitor = function () {
+
+        if (Date.now() - this.beginTime > this.latencyBasedRoutingTimeout) {
+            clearInterval(this.interval);
+            if (this.numServersResponded >= 1) {
+                this.clientCallbackComplete(this.trackingServerInfo[0]);
+            } else {
+                this.clientCallbackError('no server available');
+            }
+        }
     };
 
     function latencyHttpOnProgress() {
