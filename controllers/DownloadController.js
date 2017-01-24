@@ -50,12 +50,17 @@ class DownloadController {
         res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
         res.header('Expires', '-1');
         res.header('Pragma', 'no-cache');
+      if(!isNaN(parseFloat(req.query.bufferSize)) && (parseFloat(req.query.bufferSize)<=532421875)){
         var bufferStream = new stream.PassThrough();
         bufferStream.pipe(res);
         var responseBuffer = new Buffer(parseInt(req.query.bufferSize));
         responseBuffer.fill(0x1020304);
         bufferStream.write(responseBuffer);
         bufferStream.end();
+      }
+      else{
+        res.status(404).end('bufferSize failed validation.');
+      }
     }
 }
 
