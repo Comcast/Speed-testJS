@@ -335,7 +335,7 @@
             //use default value for download testing
             void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         }
-        var downloadProbeTestRun = new window.downloadProbeTest('http://' + testPlan.baseUrlIPv4 + '/download?bufferSize='+downloadSize, 'http://' + testPlan.baseUrlIPv4 + '/downloadProbe', false, 3000,762939,downloadProbeTestOnComplete,
+        var downloadProbeTestRun = new window.downloadProbeTest('http://' + testPlan.baseUrlIPv4 + '/download', 'http://' + testPlan.baseUrlIPv4 + '/downloadProbe', false, 3000,downloadSize,downloadProbeTestOnComplete,
             downloadProbeTestOnError);
         downloadProbeTestRun.start();
 
