@@ -89,6 +89,9 @@ module.exports.TestServerController = require('./controllers/TestServerControlle
 app.use(express.static(path.join(__dirname, 'public')));
 app.listen(webPort, '::');
 
+//max download buffer size based off of download probing data
+global.maxDownloadBuffer = 532421875;
+
 var wss = new WebSocketServer({port: webSocketPort});
 wss.on('connection', function connection(ws) {
     console.log('client connected');
