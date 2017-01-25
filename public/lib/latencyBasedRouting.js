@@ -23,11 +23,12 @@
      * function performs latency based routing.
      * @param location - pass the location to get the list available servers.
      * @param url - end point for getting the server information.
-     * @param timeout - timeout for the test server request.
+     * @param testServerTimeout - timeout for the test server request.
+     * @param latencyTimeout - timeout for latency based routing.
      * @param callbackComplete - callback function for test suite complete event.
      * @param callbackError - callback function for test suite error event.
      */
-    function latencyBasedRouting(location, url, timeout, callbackComplete, callbackError) {
+    function latencyBasedRouting(location, url, testServerTimeout, latencyTimeout, callbackComplete, callbackError) {
         this.location = location;
         this.url = url;
         this.clientCallbackComplete = callbackComplete;
@@ -35,8 +36,8 @@
         this.latencyHttpTestRequest = [];
         this.numServersResponded = 0;
         this.trackingServerInfo = [];
-        this.testServerTimeout = timeout;
-        this.latencyBasedRoutingTimeout = 3000;
+        this.testServerTimeout = testServerTimeout;
+        this.latencyBasedRoutingTimeout = latencyTimeout;
     }
 
     /**
@@ -154,7 +155,12 @@
 
         if (Date.now() - this.beginTime > this.latencyBasedRoutingTimeout) {
             clearInterval(this.interval);
-            if (this.numServersResponded >= 1) {
+            if (this.trackingServerInfo && this.trackingServerInfo.length) {
+
+                this.trackingServerInfo = this.trackingServerInfo.sort(function (a, b) {
+                    return +a.latencyResult - +b.latencyResult;
+                });
+
                 this.clientCallbackComplete(this.trackingServerInfo[0]);
             } else {
                 this.clientCallbackError('no server available');
