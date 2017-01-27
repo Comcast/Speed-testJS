@@ -166,13 +166,19 @@
               }
 
           }
-    if(this._request.status > 399){
-      var err = {
-        statusText: this._request.statusText,
-        status: this._request.status
-      };
-      this.callbackError(err);
-      return;
+    //mobile devices(iPad have thrown invalid state error for this check)
+    try {
+      if (this._request.status > 399) {
+        var err = {
+          statusText: this._request.statusText,
+          status: this._request.status
+        };
+        this.callbackError(err);
+        return;
+      }
+    }
+    catch(error){// jshint ignore:line
+
     }
   };
 

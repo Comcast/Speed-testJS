@@ -219,7 +219,7 @@
         function calculateStatsonComplete(result) {
             var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
             finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
-            void ((version === 'IPv6') && uploadTest('IPv4'));
+            void ((version === 'IPv6') && downloadTest('IPv4'));
             if (!(version === 'IPv6')) {
                 //update dom with final result
                 startTestButton.disabled = false;
