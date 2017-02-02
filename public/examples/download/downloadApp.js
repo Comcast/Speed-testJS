@@ -34,6 +34,7 @@
     var startTestButton;
     var firstRun = true;
     var downloadSize = 1000000;
+
     function initTest() {
         function addEvent(el, ev, fn) {
             void (el.addEventListener && el.addEventListener(ev, fn, false));
@@ -142,6 +143,7 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
+                testPlan.baseUrlIPv4 = '69.252.86.194';
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
@@ -161,8 +163,8 @@
                 resultsEl[i].innerHTML = '';
             }
         }
-        downloadProbe();
-
+        //downloadProbe();
+      void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
         //disable button
@@ -338,8 +340,8 @@
 
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize='+downloadSize, 'GET', 6, 15000, 15000,10, downloadHttpOnComplete, downloadHttpOnProgress,
-            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
+        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize=', 'GET', 1, 15000, 15000,2, downloadHttpOnComplete, downloadHttpOnProgress,
+            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize);
         downloadHttpConcurrentProgress.initiateTest();
     }
 

@@ -33,7 +33,8 @@
      * @param function callback function for test suite error event
      **/
     function downloadHttpConcurrentProgress(url, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
-                                            callbackTimeout, callbackError) {
+                                            callbackTimeout, callbackError, size) {
+        this.size = size;
         this.url = url;
         this.type = type;
         this.concurrentRuns = concurrentRuns;
@@ -65,6 +66,7 @@
         this._collectMovingAverages = false;
         //monitor interval
         this.interval = null;
+
     }
 
     /**
@@ -126,9 +128,14 @@
         }
         this._collectMovingAverages = false;
         //pushing results to an array
-        this._results.push(result);
+        this._results.push(result.bandwidth);
+      console.log(this._results);
+      if(this._results.length>10){
+          console.log(this._results.slice(this._results.length-10, 10));
+      }
         //cancel remaining tests
-        for (var i = 0; i < this._activeTests.length; i++) {
+
+      for (var i = 0; i < this._activeTests.length; i++) {
             if (typeof(this._activeTests[i]) !== 'undefined') {
                 this._activeTests[i].xhr._request.abort();
             }
@@ -137,7 +144,13 @@
         this._activeTests.length =0;
         //checking if we can continue with the test
         if ((Date.now() - this._beginTime) < this.testLength) {
-            this.start();
+          console.log(result);
+          if(result.id===5){
+            this.concurrentRuns =2;
+            this.movingAverage=4;
+          }
+          this.size = this.size*2;
+          this.start();
         }
         else {
             //check this._running flag again since it may have been reset in abort
@@ -205,6 +218,7 @@
                 }
                 singleMovingAverage = singleMovingAverage / lastElem;
                 totalMovingAverage = totalMovingAverage + singleMovingAverage;
+              this._results.push(totalMovingAverage);
             }
 
         }
@@ -224,7 +238,7 @@
                 this._testIndex++;
                 this['arrayResults' + this._testIndex] = [];
                 this._progressResults['arrayProgressResults' + this._testIndex] = [];
-                var request = new window.xmlHttpRequest('GET', this.url+ '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
+                var request = new window.xmlHttpRequest('GET', this.url+ this.size +  '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
                     this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
                 this._activeTests.push({
                     xhr: request,
