@@ -187,6 +187,7 @@
       var transferSizeMbs = response.loaded * 8 / 1000000;
       var transferDurationSeconds = this.totalTime/1000;
       result.bandwidth = transferSizeMbs / transferDurationSeconds;
+      result.loaded = response.loaded;
       result.id = this.id;
       if(isFinite(result.bandwidth)) {
           if (this.method === 'GET') {
@@ -205,9 +206,11 @@
           result.id = this.id;
           this.currentTime = Date.now();
           result.totalTime = this.currentTime - this.prevTime;
+            result.time = this.currentTime - this.startTime;
           var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
           var transferDurationSeconds = result.totalTime/1000;
           result.bandwidth = transferSizeMbs/transferDurationSeconds;
+            result.loaded = response.loaded;
           if(isFinite(result.bandwidth)){
             this.callbackProgress(result);
             this.prevTime = this.currentTime;

@@ -33,7 +33,16 @@
     var option;
     var startTestButton;
     var firstRun = true;
-    var downloadSize = 1000000;
+    var downloadSize = 10000;
+    var concurrentRuns = 6;
+    var downloadTestlength = 15000;
+    var downloadTestTimeout = 15000;
+    var prevDownloadSize = 0;
+    var testResults = [];
+    var prevSize;
+    var ports = [80, 5020, 5021, 5022, 5023, 5024];
+    var urls = [];
+
     function initTest() {
         function addEvent(el, ev, fn) {
             void (el.addEventListener && el.addEventListener(ev, fn, false));
@@ -142,6 +151,8 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
+                testPlan.hasIPv6 = false;
+                testPlan.baseUrlIPv4 = '69.252.86.194';
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
@@ -161,7 +172,7 @@
                 resultsEl[i].innerHTML = '';
             }
         }
-        downloadProbe();
+        void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
 
         //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
@@ -219,7 +230,7 @@
         function calculateStatsonComplete(result) {
             var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
             finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
-            void ((version === 'IPv6') && uploadTest('IPv4'));
+            //void ((version === 'IPv6') && downloadTest('IPv4'));
             if (!(version === 'IPv6')) {
                 //update dom with final result
                 startTestButton.disabled = false;
@@ -256,18 +267,38 @@
                 myChart.setOption(option, true);
         }
 
-        function downloadHttpOnComplete(result) {
+        function adaptiveDownloadOnComplete(result) {
+            console.log('in app.js: ' +testResults.length);
+            prevSize = result.size;
+            //console.log(result.size);
+            //testResults.push.apply(testResults, result.downloadData);
+            downloadSize = result.size;
+            if (downloadSize > 532421875) {
+                downloadSize = 100616363;
+            }
+            prevDownloadSize = result.prevDownloadSize;
+            downloadTestTimeout = result.timeout;
+            if (result.calculateResults) {
 
-            var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', result, calculateStatsonComplete, calculateStatsonError);
-            calculateMeanStats.performCalculations();
+                var results = testResults.join("\",\"");
+                console.log(results);
+                var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', testResults, calculateStatsonComplete, calculateStatsonError);
+                calculateMeanStats.performCalculations();
+            } else {
+                //downloadTest(version);
+                downloadTest(version === 'IPv6' ? 'IPv6' : 'IPv4');
+            }
+
+
         }
 
-        function downloadHttpOnProgress(result) {
+        function adaptiveDownloadOnProgress(result) {
             option.series[0].data[0].value = result;
+            testResults.push(result);
             myChart.setOption(option, true);
         }
 
-        function downloadHttpOnAbort(result) {
+        function adaptiveDownloadOnAbort(result) {
             if (version === 'IPv6') {
                 testPlan.hasIPv6 = false;
                 downloadTest('IPv4');
@@ -290,7 +321,7 @@
                 myChart.setOption(option, true);
         }
 
-        function downloadHttpOnTimeout(result) {
+        function adaptiveDownloadOnTimeout(result) {
             if (version === 'IPv6') {
                 testPlan.hasIPv6 = false;
                 downloadTest('IPv4');
@@ -313,7 +344,7 @@
                 myChart.setOption(option, true);
         }
 
-        function downloadHttpOnError(result) {
+        function adaptiveDownloadOnError(result) {
             if (version === 'IPv6') {
                 testPlan.hasIPv6 = false;
                 downloadTest('IPv4');
@@ -338,9 +369,27 @@
 
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize='+downloadSize, 'GET', 6, 15000, 15000,10, downloadHttpOnComplete, downloadHttpOnProgress,
-            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
-        downloadHttpConcurrentProgress.initiateTest();
+        //
+        //for(var x= 1; x<7; x++){
+        //    //urls.push(baseUrl+ '/download?bufferSize='+downloadSize);
+        //    //'http://' + testPlan.baseUrlIPv4 +'/download?bufferSize=
+        //    //console.log('http://' + testPlan.baseUrlIPv4 +':80/download?bufferSize=');
+        //    urls.push('http://' + testPlan.baseUrlIPv4 +':80/download?bufferSize=');
+        //}
+
+        for(var i=0;i<6;i++){
+            //urls.push(baseUrl+':5020/download?bufferSize='+downloadSize);
+            urls.push('http://' + testPlan.baseUrlIPv4 + ':' + ports[i] +'/download?bufferSize=');
+            //urls.push(baseUrl.split(':')[0]+':' +ports[i]+ '/download?bufferSize='+downloadSize/20);
+        }
+
+        var adaptiveDownload = new window.adaptiveDownload(urls, 'http://' + testPlan.baseUrlIPv4 +'/download?bufferSize=', downloadSize, prevDownloadSize, concurrentRuns, downloadTestTimeout, downloadTestlength,
+            adaptiveDownloadOnComplete, adaptiveDownloadOnProgress, adaptiveDownloadOnAbort, adaptiveDownloadOnTimeout, adaptiveDownloadOnError);
+        adaptiveDownload.start();
+
+        //var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize='+downloadSize, 'GET', 6, 15000, 15000,10, downloadHttpOnComplete, downloadHttpOnProgress,
+        //    downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
+        //downloadHttpConcurrentProgress.initiateTest();
     }
 
 })();
