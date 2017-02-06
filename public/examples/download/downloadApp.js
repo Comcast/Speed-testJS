@@ -340,7 +340,7 @@
 
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize=', 'GET', 1, 15000, 15000,2, downloadHttpOnComplete, downloadHttpOnProgress,
+        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize=', 'GET', 1, 20000, 20000,2, downloadHttpOnComplete, downloadHttpOnProgress,
             downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize);
         downloadHttpConcurrentProgress.initiateTest();
     }

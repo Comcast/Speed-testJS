@@ -41,7 +41,7 @@
     this.progressCount = 0;
     this.totalBytes = 0;
     this.currentTime = 0;
-    this.progressInterval = 50;
+    this.progressInterval = 100;
     this.callbackComplete = callbackComplete;
     this.callbackProgress = callbackProgress;
     this.callbackAbort = callbackAbort;
@@ -187,6 +187,7 @@
       var transferSizeMbs = response.loaded * 8 / 1000000;
       var transferDurationSeconds = this.totalTime/1000;
       result.bandwidth = transferSizeMbs / transferDurationSeconds;
+      result.loaded = response.loaded;
       result.id = this.id;
       if(isFinite(result.bandwidth)) {
           if (this.method === 'GET') {
@@ -208,6 +209,7 @@
           var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
           var transferDurationSeconds = result.totalTime/1000;
           result.bandwidth = transferSizeMbs/transferDurationSeconds;
+          result.loaded = response.loaded;
           if(isFinite(result.bandwidth)){
             this.callbackProgress(result);
             this.prevTime = this.currentTime;

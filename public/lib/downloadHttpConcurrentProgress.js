@@ -129,13 +129,9 @@
         this._collectMovingAverages = false;
         //pushing results to an array
         this._results.push(result.bandwidth);
-      console.log(this._results);
-      if(this._results.length>10){
-          console.log(this._results.slice(this._results.length-10, 10));
-      }
         //cancel remaining tests
 
-      for (var i = 0; i < this._activeTests.length; i++) {
+        for (var i = 0; i < this._activeTests.length; i++) {
             if (typeof(this._activeTests[i]) !== 'undefined') {
                 this._activeTests[i].xhr._request.abort();
             }
@@ -145,11 +141,13 @@
         //checking if we can continue with the test
         if ((Date.now() - this._beginTime) < this.testLength) {
           console.log(result);
-          if(result.id===5){
-            this.concurrentRuns =2;
-            this.movingAverage=4;
+          console.log(this.finalResults.slice(this.finalResults.length-10, 10));
+          console.log('packets: ' + (parseFloat(result.loaded) - parseFloat(this.size)));
+          if(result.time<3000) {
+            this.size = this.size * 10;
+            this.movingAverage = this.movingAverage *5;
+            this.concurrentRuns =this.concurrentRuns*2;
           }
-          this.size = this.size*2;
           this.start();
         }
         else {
