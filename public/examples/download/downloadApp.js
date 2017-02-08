@@ -39,6 +39,7 @@
     var downloadTestTimeout = 15000;
     var prevDownloadSize = 0;
     var testResults = [];
+    var maxDownloadBufferSize = 532421875;
     var prevSize;
     var ports = [80, 5020, 5021, 5022, 5023, 5024];
     var urls = [];
@@ -152,7 +153,6 @@
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
                 testPlan.hasIPv6 = false;
-                testPlan.baseUrlIPv4 = '69.252.86.194';
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
@@ -172,6 +172,14 @@
                 resultsEl[i].innerHTML = '';
             }
         }
+        downloadSize = 10000;
+        concurrentRuns = 6;
+        downloadTestlength = 15000;
+        downloadTestTimeout = 15000;
+        prevDownloadSize = 0;
+        testResults = [];
+        prevSize;
+
         void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
 
         //update button text to communicate current state of test as In Progress
@@ -181,27 +189,6 @@
         //set accessiblity aria-disabled state. 
         //This will also effect the visual look by corresponding css
         startTestButton.setAttribute('aria-disabled', true);
-    }
-
-    function downloadProbe() {
-        function downloadProbeTestOnComplete(result) {
-            var downloadSizes = result;
-            if(downloadSizes.length>0) {
-                //downloadSize = downloadSizes[downloadSizes.length-1];
-                downloadSize = downloadSizes[0];
-            }
-            //call downloadTests
-            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
-        }
-
-        function downloadProbeTestOnError(result) {
-            //use default value for download testing
-            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
-        }
-        var downloadProbeTestRun = new window.downloadProbeTest('http://' + testPlan.baseUrlIPv4 +'/download', 'http://' + testPlan.baseUrlIPv4 + '/downloadProbe', false, 3000,downloadSize,downloadProbeTestOnComplete,
-            downloadProbeTestOnError);
-        downloadProbeTestRun.start();
-
     }
 
     function formatSpeed(value) {
@@ -254,14 +241,14 @@
                 option.series[0].data[0].value = 0;
                 //updat test status to complete
                 option.series[0].data[0].name = 'Test Failed';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                //update button text to communicate current state of test as In Progress
                 startTestButton.innerHTML = 'Start Test';
                 //enable start button
                 startTestButton.disabled = false;
-                //hide current test value in chart 
+                //hide current test value in chart
                 option.series[0].detail.show = false;
                 //update gauge
                 myChart.setOption(option, true);
@@ -273,15 +260,14 @@
             //console.log(result.size);
             //testResults.push.apply(testResults, result.downloadData);
             downloadSize = result.size;
-            if (downloadSize > 532421875) {
-                downloadSize = 100616363;
+            if (downloadSize > maxDownloadBufferSize) {
+                downloadSize = maxDownloadBufferSize;
             }
             prevDownloadSize = result.prevDownloadSize;
             downloadTestTimeout = result.timeout;
             if (result.calculateResults) {
-
-                var results = testResults.join("\",\"");
-                console.log(results);
+                //var results = testResults.join("\",\"");
+                //console.log(results);
                 var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', testResults, calculateStatsonComplete, calculateStatsonError);
                 calculateMeanStats.performCalculations();
             } else {
@@ -308,14 +294,14 @@
                 option.series[0].data[0].value = 0;
                 //updat test status to complete
                 option.series[0].data[0].name = 'Test Failed';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                //update button text to communicate current state of test as In Progress
                 startTestButton.innerHTML = 'Start Test';
                 //enable start button
                 startTestButton.disabled = false;
-                //hide current test value in chart 
+                //hide current test value in chart
                 option.series[0].detail.show = false;
                 //update gauge
                 myChart.setOption(option, true);
@@ -331,14 +317,14 @@
                 option.series[0].data[0].value = 0;
                 //updat test status to complete
                 option.series[0].data[0].name = 'Test Failed';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                //update button text to communicate current state of test as In Progress
                 startTestButton.innerHTML = 'Start Test';
                 //enable start button
                 startTestButton.disabled = false;
-                //hide current test value in chart 
+                //hide current test value in chart
                 option.series[0].detail.show = false;
                 //update gauge
                 myChart.setOption(option, true);
@@ -354,14 +340,14 @@
                 option.series[0].data[0].value = 0;
                 //updat test status to complete
                 option.series[0].data[0].name = 'Test Failed';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                //update button text to communicate current state of test as In Progress
                 startTestButton.innerHTML = 'Start Test';
                 //enable start button
                 startTestButton.disabled = false;
-                //hide current test value in chart 
+                //hide current test value in chart
                 option.series[0].detail.show = false;
                 //update gauge
                 myChart.setOption(option, true);
@@ -369,27 +355,14 @@
 
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        //
-        //for(var x= 1; x<7; x++){
-        //    //urls.push(baseUrl+ '/download?bufferSize='+downloadSize);
-        //    //'http://' + testPlan.baseUrlIPv4 +'/download?bufferSize=
-        //    //console.log('http://' + testPlan.baseUrlIPv4 +':80/download?bufferSize=');
-        //    urls.push('http://' + testPlan.baseUrlIPv4 +':80/download?bufferSize=');
-        //}
-
-        for(var i=0;i<6;i++){
-            //urls.push(baseUrl+':5020/download?bufferSize='+downloadSize);
-            urls.push('http://' + testPlan.baseUrlIPv4 + ':' + ports[i] +'/download?bufferSize=');
-            //urls.push(baseUrl.split(':')[0]+':' +ports[i]+ '/download?bufferSize='+downloadSize/20);
+        for (var i = 0; i < 6; i++) {
+            urls.push('http://' + testPlan.baseUrlIPv4 + ':' + ports[i] + '/download?bufferSize=');
         }
 
         var adaptiveDownload = new window.adaptiveDownload(urls, 'http://' + testPlan.baseUrlIPv4 +'/download?bufferSize=', downloadSize, prevDownloadSize, concurrentRuns, downloadTestTimeout, downloadTestlength,
             adaptiveDownloadOnComplete, adaptiveDownloadOnProgress, adaptiveDownloadOnAbort, adaptiveDownloadOnTimeout, adaptiveDownloadOnError);
-        adaptiveDownload.start();
+        adaptiveDownload.initiateTest();
 
-        //var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize='+downloadSize, 'GET', 6, 15000, 15000,10, downloadHttpOnComplete, downloadHttpOnProgress,
-        //    downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
-        //downloadHttpConcurrentProgress.initiateTest();
     }
 
 })();

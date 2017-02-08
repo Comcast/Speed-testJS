@@ -206,11 +206,13 @@
           result.id = this.id;
           this.currentTime = Date.now();
           result.totalTime = this.currentTime - this.prevTime;
-            result.time = this.currentTime - this.startTime;
           var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
           var transferDurationSeconds = result.totalTime/1000;
           result.bandwidth = transferSizeMbs/transferDurationSeconds;
             result.loaded = response.loaded;
+            result.load = response.loaded - this.prevLoad;
+            result.startTime = this.startTime;
+            result.time = Date.now() - this.startTime;
           if(isFinite(result.bandwidth)){
             this.callbackProgress(result);
             this.prevTime = this.currentTime;
