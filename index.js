@@ -88,6 +88,12 @@ module.exports.TestServerController = require('./controllers/TestServerControlle
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.listen(webPort, '::');
+app.listen(5020);
+app.listen(5021);
+app.listen(5022);
+app.listen(5023);
+app.listen(5024);
+app.listen(5025);
 
 //max download buffer size based off of download probing data
 global.maxDownloadBuffer = 532421875;

@@ -33,7 +33,16 @@
     var option;
     var startTestButton;
     var firstRun = true;
-    var downloadSize = 1000000;
+    var downloadSize;
+    var concurrentRuns;
+    var downloadTestlength;
+    var downloadTestTimeout;
+    var prevDownloadSize;
+    var testResults = [];
+    var maxDownloadBufferSize = 532421875;
+    var ports = [5020, 5021, 5022, 5023, 5024, 5025];
+    var urls = [];
+
     function initTest() {
         function addEvent(el, ev, fn) {
             void (el.addEventListener && el.addEventListener(ev, fn, false));
@@ -161,7 +170,9 @@
                 resultsEl[i].innerHTML = '';
             }
         }
-        downloadProbe();
+        setDownloadTestValues();
+
+        void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
 
         //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
@@ -170,27 +181,6 @@
         //set accessiblity aria-disabled state. 
         //This will also effect the visual look by corresponding css
         startTestButton.setAttribute('aria-disabled', true);
-    }
-
-    function downloadProbe() {
-        function downloadProbeTestOnComplete(result) {
-            var downloadSizes = result;
-            if(downloadSizes.length>0) {
-                //downloadSize = downloadSizes[downloadSizes.length-1];
-                downloadSize = downloadSizes[0];
-            }
-            //call downloadTests
-            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
-        }
-
-        function downloadProbeTestOnError(result) {
-            //use default value for download testing
-            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
-        }
-        var downloadProbeTestRun = new window.downloadProbeTest('http://' + testPlan.baseUrlIPv4 +'/download', 'http://' + testPlan.baseUrlIPv4 + '/downloadProbe', false, 3000,downloadSize,downloadProbeTestOnComplete,
-            downloadProbeTestOnError);
-        downloadProbeTestRun.start();
-
     }
 
     function formatSpeed(value) {
@@ -208,6 +198,15 @@
         }
     }
 
+    function setDownloadTestValues() {
+        downloadSize = 10000;
+        concurrentRuns = 6;
+        downloadTestlength = 15000;
+        downloadTestTimeout = 15000;
+        prevDownloadSize = 0;
+        testResults = [];
+    }
+
     function downloadTest(version) {
         var currentTest = 'download';
         option.series[0].data[0].value = 0;
@@ -219,15 +218,18 @@
         function calculateStatsonComplete(result) {
             var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
             finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
-            void ((version === 'IPv6') && uploadTest('IPv4'));
-            if (!(version === 'IPv6')) {
+
+            if (version === 'IPv6') {
+                setDownloadTestValues();
+                downloadTest('IPv4')
+            } else {
                 //update dom with final result
                 startTestButton.disabled = false;
                 //update button text to communicate current state of test as In Progress
                 startTestButton.innerHTML = 'Start Test';
                 option.series[0].data[0].value = 0;
                 option.series[0].data[0].name = 'Test Complete';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                 startTestButton.disabled = false;
@@ -243,31 +245,44 @@
                 option.series[0].data[0].value = 0;
                 //updat test status to complete
                 option.series[0].data[0].name = 'Test Failed';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                //update button text to communicate current state of test as In Progress
                 startTestButton.innerHTML = 'Start Test';
                 //enable start button
                 startTestButton.disabled = false;
-                //hide current test value in chart 
+                //hide current test value in chart
                 option.series[0].detail.show = false;
                 //update gauge
                 myChart.setOption(option, true);
         }
 
-        function downloadHttpOnComplete(result) {
+        function adaptiveDownloadOnComplete(result) {
+            downloadSize = result.size;
+            urls = [];
+            if (downloadSize > maxDownloadBufferSize) {
+                downloadSize = maxDownloadBufferSize;
+            }
+            prevDownloadSize = result.prevDownloadSize;
+            downloadTestTimeout = result.timeout;
+            if (result.calculateResults) {
+                var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4.split(':')[0] + '/calculator', testResults, calculateStatsonComplete, calculateStatsonError);
+                calculateMeanStats.performCalculations();
+            } else {
+                downloadTest(version === 'IPv6' ? 'IPv6' : 'IPv4');
+            }
 
-            var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', result, calculateStatsonComplete, calculateStatsonError);
-            calculateMeanStats.performCalculations();
+
         }
 
-        function downloadHttpOnProgress(result) {
+        function adaptiveDownloadOnProgress(result) {
             option.series[0].data[0].value = result;
+            testResults.push(result);
             myChart.setOption(option, true);
         }
 
-        function downloadHttpOnAbort(result) {
+        function adaptiveDownloadOnAbort(result) {
             if (version === 'IPv6') {
                 testPlan.hasIPv6 = false;
                 downloadTest('IPv4');
@@ -277,20 +292,20 @@
                 option.series[0].data[0].value = 0;
                 //updat test status to complete
                 option.series[0].data[0].name = 'Test Failed';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                //update button text to communicate current state of test as In Progress
                 startTestButton.innerHTML = 'Start Test';
                 //enable start button
                 startTestButton.disabled = false;
-                //hide current test value in chart 
+                //hide current test value in chart
                 option.series[0].detail.show = false;
                 //update gauge
                 myChart.setOption(option, true);
         }
 
-        function downloadHttpOnTimeout(result) {
+        function adaptiveDownloadOnTimeout(result) {
             if (version === 'IPv6') {
                 testPlan.hasIPv6 = false;
                 downloadTest('IPv4');
@@ -300,20 +315,20 @@
                 option.series[0].data[0].value = 0;
                 //updat test status to complete
                 option.series[0].data[0].name = 'Test Failed';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                //update button text to communicate current state of test as In Progress
                 startTestButton.innerHTML = 'Start Test';
                 //enable start button
                 startTestButton.disabled = false;
-                //hide current test value in chart 
+                //hide current test value in chart
                 option.series[0].detail.show = false;
                 //update gauge
                 myChart.setOption(option, true);
         }
 
-        function downloadHttpOnError(result) {
+        function adaptiveDownloadOnError(result) {
             if (version === 'IPv6') {
                 testPlan.hasIPv6 = false;
                 downloadTest('IPv4');
@@ -323,24 +338,29 @@
                 option.series[0].data[0].value = 0;
                 //updat test status to complete
                 option.series[0].data[0].name = 'Test Failed';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                //update button text to communicate current state of test as In Progress
                 startTestButton.innerHTML = 'Start Test';
                 //enable start button
                 startTestButton.disabled = false;
-                //hide current test value in chart 
+                //hide current test value in chart
                 option.series[0].detail.show = false;
                 //update gauge
                 myChart.setOption(option, true);
         }
 
-        var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
+        var baseUrl = (version === 'IPv6') ? '[' + testPlan.baseUrlIPv6.replace(/[[]/g, '').split(']')[0] + ']' : testPlan.baseUrlIPv4.split(':')[0];
 
-        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize='+downloadSize, 'GET', 6, 15000, 15000,10, downloadHttpOnComplete, downloadHttpOnProgress,
-            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
-        downloadHttpConcurrentProgress.initiateTest();
+        for (var i = 0; i < 6; i++) {
+            urls.push('http://' + baseUrl + ':' + ports[i] + '/download?bufferSize=');
+        }
+
+        var adaptiveDownload = new window.adaptiveDownload(urls, 'http://' + testPlan.baseUrlIPv4 +'/download?bufferSize=', downloadSize, prevDownloadSize, concurrentRuns, downloadTestTimeout, downloadTestlength,
+            adaptiveDownloadOnComplete, adaptiveDownloadOnProgress, adaptiveDownloadOnAbort, adaptiveDownloadOnTimeout, adaptiveDownloadOnError);
+        adaptiveDownload.initiateTest();
+
     }
 
 })();
