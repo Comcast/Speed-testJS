@@ -33,15 +33,14 @@
     var option;
     var startTestButton;
     var firstRun = true;
-    var downloadSize = 10000;
-    var concurrentRuns = 6;
-    var downloadTestlength = 15000;
-    var downloadTestTimeout = 15000;
-    var prevDownloadSize = 0;
+    var downloadSize;
+    var concurrentRuns;
+    var downloadTestlength;
+    var downloadTestTimeout;
+    var prevDownloadSize;
     var testResults = [];
     var maxDownloadBufferSize = 532421875;
-    var prevSize;
-    var ports = [80, 5020, 5021, 5022, 5023, 5024];
+    var ports = [5020, 5021, 5022, 5023, 5024, 5025];
     var urls = [];
 
     function initTest() {
@@ -152,7 +151,6 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
-                testPlan.hasIPv6 = false;
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
@@ -172,13 +170,7 @@
                 resultsEl[i].innerHTML = '';
             }
         }
-        downloadSize = 10000;
-        concurrentRuns = 6;
-        downloadTestlength = 15000;
-        downloadTestTimeout = 15000;
-        prevDownloadSize = 0;
-        testResults = [];
-        prevSize;
+        setDownloadTestValues();
 
         void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
 
@@ -206,6 +198,15 @@
         }
     }
 
+    function setDownloadTestValues() {
+        downloadSize = 10000;
+        concurrentRuns = 6;
+        downloadTestlength = 15000;
+        downloadTestTimeout = 15000;
+        prevDownloadSize = 0;
+        testResults = [];
+    }
+
     function downloadTest(version) {
         var currentTest = 'download';
         option.series[0].data[0].value = 0;
@@ -217,15 +218,18 @@
         function calculateStatsonComplete(result) {
             var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
             finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
-            //void ((version === 'IPv6') && downloadTest('IPv4'));
-            if (!(version === 'IPv6')) {
+
+            if (version === 'IPv6') {
+                setDownloadTestValues();
+                downloadTest('IPv4')
+            } else {
                 //update dom with final result
                 startTestButton.disabled = false;
                 //update button text to communicate current state of test as In Progress
                 startTestButton.innerHTML = 'Start Test';
                 option.series[0].data[0].value = 0;
                 option.series[0].data[0].name = 'Test Complete';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                 startTestButton.disabled = false;
@@ -255,23 +259,17 @@
         }
 
         function adaptiveDownloadOnComplete(result) {
-            console.log('in app.js: ' +testResults.length);
-            prevSize = result.size;
-            //console.log(result.size);
-            //testResults.push.apply(testResults, result.downloadData);
             downloadSize = result.size;
+            urls = [];
             if (downloadSize > maxDownloadBufferSize) {
                 downloadSize = maxDownloadBufferSize;
             }
             prevDownloadSize = result.prevDownloadSize;
             downloadTestTimeout = result.timeout;
             if (result.calculateResults) {
-                //var results = testResults.join("\",\"");
-                //console.log(results);
-                var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', testResults, calculateStatsonComplete, calculateStatsonError);
+                var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4.split(':')[0] + '/calculator', testResults, calculateStatsonComplete, calculateStatsonError);
                 calculateMeanStats.performCalculations();
             } else {
-                //downloadTest(version);
                 downloadTest(version === 'IPv6' ? 'IPv6' : 'IPv4');
             }
 
@@ -353,10 +351,10 @@
                 myChart.setOption(option, true);
         }
 
-        var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
+        var baseUrl = (version === 'IPv6') ? '[' + testPlan.baseUrlIPv6.replace(/[[]/g, '').split(']')[0] + ']' : testPlan.baseUrlIPv4.split(':')[0];
 
         for (var i = 0; i < 6; i++) {
-            urls.push('http://' + testPlan.baseUrlIPv4 + ':' + ports[i] + '/download?bufferSize=');
+            urls.push('http://' + baseUrl + ':' + ports[i] + '/download?bufferSize=');
         }
 
         var adaptiveDownload = new window.adaptiveDownload(urls, 'http://' + testPlan.baseUrlIPv4 +'/download?bufferSize=', downloadSize, prevDownloadSize, concurrentRuns, downloadTestTimeout, downloadTestlength,
