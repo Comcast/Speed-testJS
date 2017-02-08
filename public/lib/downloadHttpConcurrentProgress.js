@@ -145,19 +145,21 @@
           console.log(result);
           console.log(this.finalResults.slice(this.finalResults.length-10, 10));
           console.log('packets: ' + (parseFloat(result.loaded) - parseFloat(this.size)));
-          if(result.time>2000 && this.isProbing) {
+          if(result.time>3000 && this.isProbing) {
             this.isProbing=false;
-            var percentLoaded = (result.time/15000)*100;
-            this.size = (100 -percentLoaded) * result.loaded;
+
+            //var percentLoaded = (result.time/15000)*100;
+            //this.size = (100 -percentLoaded) * result.loaded;
+
+          if(this.isProbing){
+            this.size = this.size *4;
+          }
+          else{
+            this.size = this.size *3;
+          }
             if(this.size>532421875){
               this.size = 532421875;
             }
-
-            this.movingAverage = this.movingAverage *3;
-            this.concurrentRuns =6;
-          }
-          else{
-            this.size = this.size *2;
           }
           this.start();
         }
