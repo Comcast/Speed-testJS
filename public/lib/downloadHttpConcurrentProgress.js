@@ -150,16 +150,15 @@
 
             //var percentLoaded = (result.time/15000)*100;
             //this.size = (100 -percentLoaded) * result.loaded;
-
+            //if(this.size>532421875){
+            //  this.size = 532421875;
+            //}
+          }
           if(this.isProbing){
             this.size = this.size *4;
           }
           else{
-            this.size = this.size *3;
-          }
-            if(this.size>532421875){
-              this.size = 532421875;
-            }
+            this.size = this.size *2;
           }
           this.start();
         }
