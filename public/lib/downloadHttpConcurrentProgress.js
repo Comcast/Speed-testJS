@@ -33,7 +33,7 @@
      * @param function callback function for test suite error event
      **/
     function downloadHttpConcurrentProgress(url, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
-                                            callbackTimeout, callbackError, size) {
+                                            callbackTimeout, callbackError, size, probeTime) {
         this.size = size;
         this.url = url;
         this.type = type;
@@ -41,6 +41,7 @@
         this.timeout = timeout;
         this.testLength = testLength;
         this.movingAverage = movingAverage;
+        this.probeTime = probeTime;
         //unique id or test
         this._testIndex = 0;
         //array holding all results
@@ -68,6 +69,15 @@
         this.interval = null;
         //probing flag
         this.isProbing = true;
+        //new run size multiplier
+        this.sizeMultiplier = 2;
+        //total probe time
+        this.probeTotalTime =0;
+        //total probe bytes
+        this.probeTotalBytes = 0;
+        //progress interval collection
+        this.progressIntervalDownload = 5;
+
 
     }
 
@@ -86,8 +96,12 @@
      * onAbort method
      * @return abort object
      */
-    downloadHttpConcurrentProgress.prototype.onTestAbort = function () {
-        if(this._running) {
+    downloadHttpConcurrentProgress.prototype.onTestAbort = function (result) {
+      if(this.isProbing){
+        this.probeTotalTime = this.probeTotalTime + result.time;
+        this.probeTotalBytes = this.probeTotalBytes + result.loaded;
+      }
+      if(this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
               clearInterval(this.interval);
                 if (this.finalResults && this.finalResults.length) {
@@ -142,24 +156,19 @@
         this._activeTests.length =0;
         //checking if we can continue with the test
         if ((Date.now() - this._beginTime) < this.testLength) {
-          console.log(result);
-          console.log(this.finalResults.slice(this.finalResults.length-10, 10));
-          console.log('packets: ' + (parseFloat(result.loaded) - parseFloat(this.size)));
-          if(result.time>3000 && this.isProbing) {
-            this.isProbing=false;
-
-            //var percentLoaded = (result.time/15000)*100;
-            //this.size = (100 -percentLoaded) * result.loaded;
-            //if(this.size>532421875){
-            //  this.size = 532421875;
-            //}
-          }
-          if(this.isProbing){
-            this.size = this.size *4;
+          //console.log(result);
+          //console.log(this.finalResults.slice(this.finalResults.length-10, 10));
+          //console.log('packets: ' + (parseFloat(result.loaded) - parseFloat(this.size)));
+          if(this.isProbing) {
+            this.probeTotalTime = this.probeTotalTime + result.time;
+            this.probeTotalBytes = this.probeTotalBytes + result.loaded;
+            this.size = this.probeTime * result.loaded/result.time;
           }
           else{
-            this.size = this.size *2;
+            this.size = this.timeout * result.loaded/result.time;
+            //this.size = 532421875;
           }
+
           this.start();
         }
         else {
@@ -183,7 +192,17 @@
         if (!this._running) {
             return;
         }
-
+/*
+      if(this._progressCount === 0  && !this.isProbing){
+        this.startTimeBytes = result.startTime;
+      }
+      if(!this.isProbing){
+        this.totalByes = this.totalByes + result.chunckLoadedMb;
+        //console.log(this.totalByes);
+        //console.log(this.startTimeBytes);
+        //console.log('bandWidth: ' + this.totalByes/((Date.now() -parseFloat(this.startTimeBytes))/1000));
+      }
+      */
         if ((Date.now() - this._beginTime) > this.testLength) {
             clearInterval(this.interval);
             this.abortAll();
@@ -240,7 +259,8 @@
      * Start the test
      */
     downloadHttpConcurrentProgress.prototype.start = function () {
-        if (!this._running) {
+      console.log('start: ' + this._running);
+      if (!this._running) {
             return;
         }
         if (this.type === 'GET') {
@@ -249,7 +269,7 @@
                 this['arrayResults' + this._testIndex] = [];
                 this._progressResults['arrayProgressResults' + this._testIndex] = [];
                 var request = new window.xmlHttpRequest('GET', this.url+ this.size +  '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
-                    this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
+                    this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this),this.progressIntervalDownload);
                 this._activeTests.push({
                     xhr: request,
                     testRun: this._testIndex
@@ -272,7 +292,7 @@
      * Cancel the test
      */
     downloadHttpConcurrentProgress.prototype.abortAll = function () {
-        this._running = false;
+
         for (var i = 0; i < this._activeTests.length; i++) {
             if (typeof(this._activeTests[i]) !== 'undefined') {
                 this._activeTests[i].xhr._request.abort();
@@ -284,6 +304,7 @@
      * Monitor testSeries
      */
     downloadHttpConcurrentProgress.prototype._monitor = function () {
+      //check for end of test
       if ((Date.now() - this._beginTime) > (this.testLength)) {
         this._running = false;
         this._collectMovingAverages = false;
@@ -293,7 +314,27 @@
         } else {
           this.clientCallbackError('no measurements obtained');
         }
-      this.abortAll();
+        this.abortAll();
+      }
+      //check for end of probing
+      if ((Date.now() - this._beginTime) > (this.probeTime ) &&this.isProbing) {
+        console.log('monitorAbortProbe');
+        this.isProbing=false;
+        this.abortAll();
+        //this.concurrentRuns = 6;
+        console.log('probeTime: ' + this.probeTotalTime);
+        console.log('probeBytes: ' + this.probeTotalBytes);
+        console.log('probeBandwidth: ' + ((this.probeTotalBytes*8)/1000000)/(this.probeTotalTime/1000));
+        this.size = this.size*10;
+        console.log('testSize: ' + this.size);
+        this.movingAverage =10;
+        this.progressIntervalDownload = 100;
+        console.log(this.finalResults.sort(function(a, b){return b - a}));
+        this.finalResults.length =0;
+        if(this.size>532421875){
+          this.size = 532421875;
+        }
+        this.start();
       }
     };
 

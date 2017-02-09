@@ -27,7 +27,7 @@
   * @param function callback for onprogress function
   */
   function xmlHttpRequest(method, url, timeout, callbackComplete, callbackProgress,callbackAbort,
-  callbackTimeout,callbackError){
+  callbackTimeout,callbackError, progressIntervalDownload){
     this.method = method;
     this.url = url;
     this.timeout = timeout;
@@ -41,7 +41,7 @@
     this.progressCount = 0;
     this.totalBytes = 0;
     this.currentTime = 0;
-    this.progressInterval = 100;
+    this.progressIntervalDownload = progressIntervalDownload;
     this.callbackComplete = callbackComplete;
     this.callbackProgress = callbackProgress;
     this.callbackAbort = callbackAbort;
@@ -128,12 +128,13 @@
       */
      xmlHttpRequest.prototype._handleAbort = function(response) {
        clearTimeout(this.requestTimeout);
-       this.totalTime = this.endTime - this.startTime;
+       this.totalTime = Date.now() - this.startTime;
        var transferSizeMbs = (response.loaded * 8) / 1000000;
        var transferDurationSeconds = this.totalTime/1000;
        //package results
        var result = {};
-       result.latency = this.totalTime;
+       result.time = this.totalTime;
+       result.loaded = response.loaded;
        result.bandwidth = transferSizeMbs/transferDurationSeconds;
        result.id = this.id;
        this.callbackAbort(result);
@@ -207,10 +208,12 @@
           this.currentTime = Date.now();
           result.totalTime = this.currentTime - this.prevTime;
           var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
-          if (result.totalTime > this.progressInterval) {
+          if (result.totalTime > this.progressIntervalDownload) {
             var transferDurationSeconds = result.totalTime / 1000;
             result.bandwidth = transferSizeMbs / transferDurationSeconds;
             result.loaded = response.loaded;
+            result.startTime = this.startTime;
+            result.chunckLoadedMb = transferSizeMbs;
             if (isFinite(result.bandwidth)) {
               this.callbackProgress(result);
               this.prevTime = this.currentTime;

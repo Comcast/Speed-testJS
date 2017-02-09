@@ -33,7 +33,7 @@
     var option;
     var startTestButton;
     var firstRun = true;
-    var downloadSize = 100000;
+    var downloadSize = 10000;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -143,7 +143,7 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
-                testPlan.baseUrlIPv4 = '69.252.86.194';
+                testPlan.baseUrlIPv4 = '96.114.52.66';
                 testPlan.hasIPv6 = false;
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
@@ -339,10 +339,12 @@
                 myChart.setOption(option, true);
         }
 
+
+
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize=', 'GET', 6, 18000, 18000,10, downloadHttpOnComplete, downloadHttpOnProgress,
-            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize);
+        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize=', 'GET', 6, 18000, 18000,2, downloadHttpOnComplete, downloadHttpOnProgress,
+            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize,3000);
         downloadHttpConcurrentProgress.initiateTest();
     }
 
