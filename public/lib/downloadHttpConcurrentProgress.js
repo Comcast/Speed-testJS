@@ -283,7 +283,7 @@
         this.progressIntervalDownload = 200;
 
         var probeResults = (this.finalResults.sort(function(a, b){return b - a}));
-        var lastElem = Math.min(probeResults.length, 10);
+        var lastElem = Math.min(probeResults.length, 20);
         console.log(lastElem);
         var topResults = probeResults.slice(0,lastElem);
         console.log(topResults);
