@@ -233,7 +233,6 @@
                 this._testIndex++;
                 this['arrayResults' + this._testIndex] = [];
                 this._progressResults['arrayProgressResults' + this._testIndex] = [];
-              console.log(this.urls[g]);
                 var request = new window.xmlHttpRequest('GET', this.urls[g-1]+ this.size +  '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
                     this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this),this.progressIntervalDownload);
                 this._activeTests.push({
@@ -279,14 +278,16 @@
         this.isProbing=false;
         this.abortAll();
         //TODO check on better way to get testing size
-        this.size = ((this.testLength - this.probeTimeout) * this.probeTotalBytes)/(3000 * this.concurrentRuns);
+        this.size = ((this.testLength - this.probeTimeTimeout) * this.probeTotalBytes)/(3000 * this.concurrentRuns);
         this.movingAverage =10;
         this.progressIntervalDownload = 200;
 
         var probeResults = (this.finalResults.sort(function(a, b){return b - a}));
         var lastElem = Math.min(probeResults.length, 10);
+        console.log(lastElem);
         var topResults = probeResults.slice(0,lastElem);
-        var probeBandwidth = topResults.reduce(function(a,b){return a+b;})/topResults;
+        console.log(topResults);
+        var probeBandwidth = topResults.reduce(function(a,b){return a+b;})/lastElem;
         if(probeBandwidth<=20){
           this.progressIntervalDownload = 25;
           this.concurrentRuns=2;
