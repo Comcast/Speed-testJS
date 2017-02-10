@@ -141,9 +141,11 @@
         //checking if we can continue with the test
         if ((Date.now() - this._beginTime) < this.testLength) {
           if(this.isProbing) {
+            this.abortAll()
             this.probeTotalTime = this.probeTotalTime + result.time;
             this.probeTotalBytes = this.probeTotalBytes + result.loaded;
             this.size = this.probeTimeTimeout * result.loaded/result.time;
+            this.concurrentRuns = this.concurrentRuns*2;
           }
           else{
             this.size = this.timeout * result.loaded/result.time;
@@ -296,7 +298,7 @@
           this.progressIntervalDownload = 5;
           this.concurrentRuns=4;
           this.movingAverage =20;
-        }else if(probeBandwidth>150 && probeBandwidth<=200){
+        }else if(probeBandwidth>150 && probeBandwidth<=300){
           this.progressIntervalDownload = 50;
           this.concurrentRuns=6;
           this.movingAverage =10;
