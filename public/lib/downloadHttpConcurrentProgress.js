@@ -141,10 +141,10 @@
         //checking if we can continue with the test
         if ((Date.now() - this._beginTime) < this.testLength) {
           if(this.isProbing) {
-            this.abortAll()
+            this.abortAll();
             this.probeTotalTime = this.probeTotalTime + result.time;
             this.probeTotalBytes = this.probeTotalBytes + result.loaded;
-            this.size = this.probeTimeTimeout * result.loaded/result.time;
+            this.size = (this.probeTimeTimeout-result.time) * result.loaded/result.time;
             this.concurrentRuns = this.concurrentRuns*2;
           }
           else{
@@ -174,17 +174,11 @@
         if (!this._running) {
             return;
         }
-/*
-      if(this._progressCount === 0  && !this.isProbing){
-        this.startTimeBytes = result.startTime;
-      }
-      if(!this.isProbing){
-        this.totalByes = this.totalByes + result.chunckLoadedMb;
-        //console.log(this.totalByes);
-        //console.log(this.startTimeBytes);
-        //console.log('bandWidth: ' + this.totalByes/((Date.now() -parseFloat(this.startTimeBytes))/1000));
-      }
-      */
+
+        if(this.isProbing){
+          this.probeTotalTime = this.probeTotalTime + result.time;
+          this.probeTotalBytes = this.probeTotalBytes + result.loaded;
+        }
 
         if(!this._collectMovingAverages){
             return;
@@ -285,12 +279,14 @@
         this.isProbing=false;
         this.abortAll();
         //TODO check on better way to get testing size
-        this.size = this.size*10;
+        this.size = ((this.testLength - this.probeTimeout) * this.probeTotalBytes)/(3000 * this.concurrentRuns);
         this.movingAverage =10;
         this.progressIntervalDownload = 200;
+
         var probeResults = (this.finalResults.sort(function(a, b){return b - a}));
-        var topResults = probeResults.slice(0,10);
-        var probeBandwidth = topResults.reduce(function(a,b){return a+b;})/10;
+        var lastElem = Math.min(probeResults.length, 10);
+        var topResults = probeResults.slice(0,lastElem);
+        var probeBandwidth = topResults.reduce(function(a,b){return a+b;})/topResults;
         if(probeBandwidth<=20){
           this.progressIntervalDownload = 25;
           this.concurrentRuns=2;
