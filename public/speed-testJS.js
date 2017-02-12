@@ -45,6 +45,12 @@
     var microsoftUiUploadMovingAverage = 2;
     var testServerTimeout = 2000;
     var latencyTimeout = 3000;
+    var downloadCurrentRuns = 6;
+    var downloadTestTimeout = 18000;
+    var downloadTestLength = 18000;
+    var downloadMovingAverage = 10;
+    var downloadProbingTime = 3000;
+    var downloadProgressInterval = 10;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -157,6 +163,7 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
+              testPlan.baseUrlIPv4 = '69.252.86.194';
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
@@ -194,8 +201,10 @@
             }
         }
         
-        setTimeout(downloadProbe(),500);
-        //update button text to communicate current state of test as In Progress
+
+      void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+
+      //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
         //disable button
         startTestButton.disabled = true;
@@ -461,9 +470,9 @@
 
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize='+downloadSize, 'GET', 6, 15000, 15000,10, downloadHttpOnComplete, downloadHttpOnProgress,
-            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError);
-        downloadHttpConcurrentProgress.initiateTest();
+      var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize=', 'GET', downloadCurrentRuns, downloadTestTimeout, downloadTestLength, downloadMovingAverage, downloadHttpOnComplete, downloadHttpOnProgress,
+        downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize,downloadProbingTime,downloadProgressInterval,testPlan.maxDownloadSize);
+      downloadHttpConcurrentProgress.initiateTest();
     }
 
     function uploadProbe() {

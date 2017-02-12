@@ -32,9 +32,8 @@
      * @param function callback function for test suite timeout event
      * @param function callback function for test suite error event
      **/
-    function downloadHttpConcurrentProgress(urls, url, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
-                                            callbackTimeout, callbackError, size, probeTimeTimeout, progressIntervalDownload) {
-        this.urls = urls;
+    function downloadHttpConcurrentProgress(url, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
+                                            callbackTimeout, callbackError, size, probeTimeTimeout, progressIntervalDownload, maxDownloadSize) {
         this.size = size;
         this.url = url;
         this.type = type;
@@ -43,6 +42,8 @@
         this.testLength = testLength;
         this.movingAverage = movingAverage;
         this.probeTimeTimeout = probeTimeTimeout;
+        this.progressIntervalDownload = progressIntervalDownload;
+        this.maxDownloadSize = maxDownloadSize;
         //unique id or test
         this._testIndex = 0;
         //array holding all results
@@ -76,9 +77,6 @@
         this.probeTotalTime =0;
         //total probe bytes
         this.probeTotalBytes = 0;
-        //progress interval collection TODO make configurable
-        this.progressIntervalDownload = progressIntervalDownload;
-
 
     }
 
@@ -145,12 +143,13 @@
             this.probeTotalTime = this.probeTotalTime + result.time;
             this.probeTotalBytes = this.probeTotalBytes + result.loaded;
             this.size = (this.probeTimeTimeout-result.time) * result.loaded/result.time;
-            this.concurrentRuns = this.concurrentRuns*2;
           }
           else{
             this.size = this.timeout * result.loaded/result.time;
           }
-
+          if(this.size>this.maxDownloadSize){
+            this.size = this.maxDownloadSize;
+          }
           this.start();
         }
         else {
@@ -233,7 +232,7 @@
                 this._testIndex++;
                 this['arrayResults' + this._testIndex] = [];
                 this._progressResults['arrayProgressResults' + this._testIndex] = [];
-                var request = new window.xmlHttpRequest('GET', this.urls[g-1]+ this.size +  '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
+                var request = new window.xmlHttpRequest('GET', this.url+ this.size +  '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
                     this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this),this.progressIntervalDownload);
                 this._activeTests.push({
                     xhr: request,
@@ -283,31 +282,29 @@
         this.progressIntervalDownload = 200;
 
         var probeResults = (this.finalResults.sort(function(a, b){return b - a}));
-        var lastElem = Math.min(probeResults.length, 40);
-        console.log(lastElem);
+        var lastElem = Math.min(probeResults.length, 10);
         var topResults = probeResults.slice(0,lastElem);
         console.log(topResults);
         var probeBandwidth = topResults.reduce(function(a,b){return a+b;})/lastElem;
         if(probeBandwidth<=20){
-          this.progressIntervalDownload = 100;
+          this.progressIntervalDownload = 10;
           this.concurrentRuns=2;
-        }else if(probeBandwidth>20 && probeBandwidth<=150){
-          this.progressIntervalDownload = 100;
-          this.concurrentRuns=3;
-          this.movingAverage =20;
-        }else if(probeBandwidth>150 && probeBandwidth<=300){
-          this.progressIntervalDownload = 100;
-          this.concurrentRuns=6;
-          this.movingAverage =10;
-        }else{
+        }else if(probeBandwidth>20 && probeBandwidth<=75){
+          this.progressIntervalDownload = 25;
+          this.concurrentRuns=4;
+        }else if(probeBandwidth>75 && probeBandwidth<=300){
           this.progressIntervalDownload = 50;
           this.concurrentRuns=6;
+        }else{
+          this.progressIntervalDownload = 100;
+          this.concurrentRuns=6;
         }
-        console.log(probeBandwidth + '  ' + this.concurrentRuns);
+
         this.finalResults.length =0;
-        if(this.size>532421875){
-          this.size = 532421875;
+        if(this.size>this.maxDownloadSize){
+          this.size = this.maxDownloadSize;
         }
+        console.log(probeBandwidth + '  ' + this.concurrentRuns + '  ' + this.size + ' ' + this.maxDownloadSize);
         this.start();
       }
     };
@@ -325,6 +322,8 @@
         this._running = true;
         this.interval = null;
         this.isProbing = true;
+        this.probeTotalTime =0;
+        this.probeTotalBytes = 0;
         this.start();
         var self = this;
         this.interval = setInterval(function () {
