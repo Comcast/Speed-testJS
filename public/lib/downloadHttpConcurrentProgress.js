@@ -283,24 +283,24 @@
         this.progressIntervalDownload = 200;
 
         var probeResults = (this.finalResults.sort(function(a, b){return b - a}));
-        var lastElem = Math.min(probeResults.length, 20);
+        var lastElem = Math.min(probeResults.length, 40);
         console.log(lastElem);
         var topResults = probeResults.slice(0,lastElem);
         console.log(topResults);
         var probeBandwidth = topResults.reduce(function(a,b){return a+b;})/lastElem;
         if(probeBandwidth<=20){
-          this.progressIntervalDownload = 25;
+          this.progressIntervalDownload = 100;
           this.concurrentRuns=2;
         }else if(probeBandwidth>20 && probeBandwidth<=150){
-          this.progressIntervalDownload = 5;
-          this.concurrentRuns=4;
+          this.progressIntervalDownload = 100;
+          this.concurrentRuns=3;
           this.movingAverage =20;
         }else if(probeBandwidth>150 && probeBandwidth<=300){
-          this.progressIntervalDownload = 50;
+          this.progressIntervalDownload = 100;
           this.concurrentRuns=6;
           this.movingAverage =10;
         }else{
-          this.progressIntervalDownload = 200;
+          this.progressIntervalDownload = 50;
           this.concurrentRuns=6;
         }
         console.log(probeBandwidth + '  ' + this.concurrentRuns);
