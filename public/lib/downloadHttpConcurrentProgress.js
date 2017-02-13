@@ -279,7 +279,6 @@
         var probeResults = (this.finalResults.sort(function(a, b){return b - a}));
         var lastElem = Math.min(probeResults.length, 10);
         var topResults = probeResults.slice(0,lastElem);
-        console.log(topResults);
         var probeBandwidth = topResults.reduce(function(a,b){return a+b;})/lastElem;
         if(probeBandwidth<=40){
           this.progressIntervalDownload = 10;
@@ -293,7 +292,6 @@
         if(this.size>this.maxDownloadSize){
           this.size = this.maxDownloadSize;
         }
-        console.log(probeBandwidth + '  ' + this.concurrentRuns + '  ' + this.size + ' ' + this.maxDownloadSize);
         this.start();
       }
     };
