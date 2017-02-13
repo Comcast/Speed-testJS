@@ -71,8 +71,6 @@
         this.interval = null;
         //probing flag
         this.isProbing = true;
-        //new run size multiplier
-        this.sizeMultiplier = 2;
         //total probe time
         this.probeTotalTime =0;
         //total probe bytes
@@ -278,26 +276,20 @@
         this.abortAll();
         //TODO check on better way to get testing size
         this.size = ((this.testLength - this.probeTimeTimeout) * this.probeTotalBytes)/(3000 * this.concurrentRuns);
-        this.movingAverage =10;
-        this.progressIntervalDownload = 200;
-
         var probeResults = (this.finalResults.sort(function(a, b){return b - a}));
         var lastElem = Math.min(probeResults.length, 10);
         var topResults = probeResults.slice(0,lastElem);
         console.log(topResults);
         var probeBandwidth = topResults.reduce(function(a,b){return a+b;})/lastElem;
-        if(probeBandwidth<=20){
+        if(probeBandwidth<=40){
           this.progressIntervalDownload = 10;
-          this.concurrentRuns=2;
-        }else if(probeBandwidth>20 && probeBandwidth<=75){
-          this.progressIntervalDownload = 25;
-          this.concurrentRuns=4;
-        }else if(probeBandwidth>75 && probeBandwidth<=300){
+          this.concurrentRuns=1;
+        }else if(probeBandwidth>40 && probeBandwidth<=300){
           this.progressIntervalDownload = 50;
           this.concurrentRuns=6;
         }else{
-          this.progressIntervalDownload = 100;
-          this.concurrentRuns=6;
+          this.progressIntervalDownload = 50;
+          this.concurrentRuns=6
         }
 
         this.finalResults.length =0;
