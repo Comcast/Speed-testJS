@@ -201,7 +201,7 @@
         }
         
 
-      void (!(testPlan.hasIPv6) && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+      void ((testPlan.hasIPv6) && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
 
       //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';

@@ -148,6 +148,7 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
+              testPlan.baseUrlIPv4='69.252.86.194';
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
@@ -167,7 +168,8 @@
                 resultsEl[i].innerHTML = '';
             }
         }
-      void (!(testPlan.hasIPv6) && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+
+      void ((testPlan.hasIPv6) && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
         //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
         //disable button
