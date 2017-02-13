@@ -33,17 +33,19 @@
      * @param function callback function for test suite error event
      **/
     function downloadHttpConcurrentProgress(url, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
-                                            callbackTimeout, callbackError) {
+                                            callbackTimeout, callbackError, size, probeTimeTimeout, progressIntervalDownload, maxDownloadSize) {
+        this.size = size;
         this.url = url;
         this.type = type;
         this.concurrentRuns = concurrentRuns;
         this.timeout = timeout;
         this.testLength = testLength;
         this.movingAverage = movingAverage;
+        this.probeTimeTimeout = probeTimeTimeout;
+        this.progressIntervalDownload = progressIntervalDownload;
+        this.maxDownloadSize = maxDownloadSize;
         //unique id or test
         this._testIndex = 0;
-        //array holding all results
-        this._results = [];
         //array holding active tests
         this._activeTests = [];
         this.clientCallbackComplete = callbackComplete;
@@ -65,6 +67,15 @@
         this._collectMovingAverages = false;
         //monitor interval
         this.interval = null;
+        //probing flag
+        this.isProbing = true;
+        //total probe bytes
+        this.probeTotalBytes = 0;
+        //low bandwidth
+        this.lowProbeBandwidth = 40;
+        //high bandwidth
+        this.highProbeBandwidth = 300;
+
     }
 
     /**
@@ -82,19 +93,10 @@
      * onAbort method
      * @return abort object
      */
-    downloadHttpConcurrentProgress.prototype.onTestAbort = function () {
-        if(this._running) {
-            if ((Date.now() - this._beginTime) > this.testLength) {
-              clearInterval(this.interval);
-                if (this.finalResults && this.finalResults.length) {
-                    this.clientCallbackComplete(this.finalResults);
-                } else {
-                    this.clientCallbackError('no measurements obtained');
-                }
-                this._running = false;
-            }
-
-        }
+    downloadHttpConcurrentProgress.prototype.onTestAbort = function (result) {
+      if(this.isProbing){
+        this.probeTotalBytes = this.probeTotalBytes + result.loaded;
+      }
 
     };
     /**
@@ -125,32 +127,37 @@
             return;
         }
         this._collectMovingAverages = false;
-        //pushing results to an array
-        this._results.push(result);
         //cancel remaining tests
-        for (var i = 0; i < this._activeTests.length; i++) {
-            if (typeof(this._activeTests[i]) !== 'undefined') {
-                this._activeTests[i].xhr._request.abort();
-            }
-        }
+        this.abortAll();
         //reset Active Tests array
         this._activeTests.length =0;
         //checking if we can continue with the test
         if ((Date.now() - this._beginTime) < this.testLength) {
-            this.start();
-        }
-        else {
-            //check this._running flag again since it may have been reset in abort
-            if (this._running) {
-                clearInterval(this.interval);
-                this._running = false;
-                if (this.finalResults && this.finalResults.length) {
-                    this.clientCallbackComplete(this.finalResults);
-                } else {
-                    this.clientCallbackError('no measurements obtained');
+          if(this.isProbing) {
+            this.abortAll();
+            try{
+              if(result.time>0) {
+                this.probeTotalBytes = this.probeTotalBytes + result.loaded;
+                if(((this.probeTimeTimeout - result.time) * result.loaded / result.time) > this.size) {
+                  this.size = (this.probeTimeTimeout - result.time) * result.loaded / result.time;
                 }
+              }
+            }catch(error){// jshint ignore:line
+
             }
+
+          }
+          else{
+            if((this.timeout * result.loaded/result.time)> this.size) {
+              this.size = this.timeout * result.loaded / result.time;
+            }
+          }
+          if(this.size>this.maxDownloadSize){
+            this.size = this.maxDownloadSize;
+          }
+          this.start();
         }
+
     };
 
     /**
@@ -161,15 +168,8 @@
             return;
         }
 
-        if ((Date.now() - this._beginTime) > this.testLength) {
-            clearInterval(this.interval);
-            this.abortAll();
-            if (this.finalResults && this.finalResults.length) {
-                this.clientCallbackComplete(this.finalResults);
-            } else {
-                this.clientCallbackError('no measurements obtained');
-            }
-            this._running = false;
+        if(this.isProbing){
+          this.probeTotalBytes = this.probeTotalBytes + result.loaded;
         }
 
         if(!this._collectMovingAverages){
@@ -216,7 +216,7 @@
      * Start the test
      */
     downloadHttpConcurrentProgress.prototype.start = function () {
-        if (!this._running) {
+      if (!this._running) {
             return;
         }
         if (this.type === 'GET') {
@@ -224,8 +224,8 @@
                 this._testIndex++;
                 this['arrayResults' + this._testIndex] = [];
                 this._progressResults['arrayProgressResults' + this._testIndex] = [];
-                var request = new window.xmlHttpRequest('GET', this.url+ '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
-                    this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
+                var request = new window.xmlHttpRequest('GET', this.url+ this.size +  '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
+                    this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this),this.progressIntervalDownload);
                 this._activeTests.push({
                     xhr: request,
                     testRun: this._testIndex
@@ -234,21 +234,13 @@
             }
             this._collectMovingAverages = true;
         }
-        else {
-            for (var p = 1; p <= this.concurrentRuns; p++) {
-                this._testIndex++;
-                this._activeTests.push(this._testIndex);
-                this['testResults' + this._testIndex] = [];
-                this.test.start(this.size, this._testIndex);
-            }
-        }
     };
 
     /**
      * Cancel the test
      */
     downloadHttpConcurrentProgress.prototype.abortAll = function () {
-        this._running = false;
+
         for (var i = 0; i < this._activeTests.length; i++) {
             if (typeof(this._activeTests[i]) !== 'undefined') {
                 this._activeTests[i].xhr._request.abort();
@@ -260,6 +252,7 @@
      * Monitor testSeries
      */
     downloadHttpConcurrentProgress.prototype._monitor = function () {
+      //check for end of test
       if ((Date.now() - this._beginTime) > (this.testLength)) {
         this._running = false;
         this._collectMovingAverages = false;
@@ -269,7 +262,34 @@
         } else {
           this.clientCallbackError('no measurements obtained');
         }
-      this.abortAll();
+        this.abortAll();
+      }
+      //check for end of probing
+      if ((Date.now() - this._beginTime) > (this.probeTimeTimeout) && this.isProbing) {
+        this.isProbing = false;
+        this.abortAll();
+        //TODO check on better way to get testing size
+        this.size = ((this.testLength - this.probeTimeTimeout) * this.probeTotalBytes) / (this.probeTimeTimeout * this.concurrentRuns);
+        var probeResults = (this.finalResults.sort(function (a, b) {
+          return +b - +a;
+        }));
+        var lastElem = Math.min(probeResults.length, 10);
+        var topResults = probeResults.slice(0, lastElem);
+        var probeBandwidth = topResults.reduce(function (a, b) {
+            return a + b;
+          }) / lastElem;
+        if (probeBandwidth <= this.lowProbeBandwidth) {
+          this.progressIntervalDownload = 10;
+          this.concurrentRuns = 1;
+        } else if (probeBandwidth > this.lowProbeBandwidth && probeBandwidth <= this.highProbeBandwidth) {
+          this.progressIntervalDownload = 50;
+          this.concurrentRuns = 6;
+        }
+        this.finalResults.length = 0;
+        if (this.size > this.maxDownloadSize) {
+          this.size = this.maxDownloadSize;
+        }
+        this.start();
       }
     };
 
@@ -278,13 +298,14 @@
      */
     downloadHttpConcurrentProgress.prototype.initiateTest = function(){
         this._testIndex = 0;
-        this._results.length=0;
         this.finalResults.length=0;
         this._activeTests.length=0;
         this._progressResults = {};
         this._progressCount = 0;
         this._running = true;
         this.interval = null;
+        this.isProbing = true;
+        this.probeTotalBytes = 0;
         this.start();
         var self = this;
         this.interval = setInterval(function () {
