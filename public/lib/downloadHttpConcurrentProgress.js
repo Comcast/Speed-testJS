@@ -284,12 +284,9 @@
         if(probeBandwidth<=40){
           this.progressIntervalDownload = 10;
           this.concurrentRuns=1;
-        }else if(probeBandwidth>40 && probeBandwidth<=300){
+        }else if(probeBandwidth>40 && probeBandwidth<=300) {
           this.progressIntervalDownload = 50;
-          this.concurrentRuns=6;
-        }else{
-          this.progressIntervalDownload = 50;
-          this.concurrentRuns=6
+          this.concurrentRuns = 6;
         }
 
         this.finalResults.length =0;
