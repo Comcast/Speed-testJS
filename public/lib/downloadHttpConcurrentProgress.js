@@ -173,7 +173,7 @@
         }
 
         if(this.isProbing){
-          this.probeTotalTime = this.probeTotalTime + result.time;
+          this.probeTotalTime = this.probeTotalTime + result.totalTime;
           this.probeTotalBytes = this.probeTotalBytes + result.loaded;
         }
 
@@ -271,25 +271,29 @@
         this.abortAll();
       }
       //check for end of probing
-      if ((Date.now() - this._beginTime) > (this.probeTimeTimeout) &&this.isProbing) {
-        this.isProbing=false;
+      if ((Date.now() - this._beginTime) > (this.probeTimeTimeout) && this.isProbing) {
+        this.isProbing = false;
         this.abortAll();
         //TODO check on better way to get testing size
-        this.size = ((this.testLength - this.probeTimeTimeout) * this.probeTotalBytes)/(3000 * this.concurrentRuns);
-        var probeResults = (this.finalResults.sort(function(a, b){return b - a}));
+        this.size = ((this.testLength - this.probeTimeTimeout) * this.probeTotalBytes) / (3000 * this.concurrentRuns);
+        var probeResults = (this.finalResults.sort(function (a, b) {
+          return b - a
+        }));
         var lastElem = Math.min(probeResults.length, 10);
-        var topResults = probeResults.slice(0,lastElem);
-        var probeBandwidth = topResults.reduce(function(a,b){return a+b;})/lastElem;
-        if(probeBandwidth<=40){
+        var topResults = probeResults.slice(0, lastElem);
+        var probeBandwidth = topResults.reduce(function (a, b) {
+            return a + b;
+          }) / lastElem;
+        if (probeBandwidth <= 40) {
           this.progressIntervalDownload = 10;
-          this.concurrentRuns=1;
-        }else if(probeBandwidth>40 && probeBandwidth<=300) {
+          this.concurrentRuns = 1;
+        } else if (probeBandwidth > 40 && probeBandwidth <= 300) {
           this.progressIntervalDownload = 50;
           this.concurrentRuns = 6;
         }
 
-        this.finalResults.length =0;
-        if(this.size>this.maxDownloadSize){
+        this.finalResults.length = 0;
+        if (this.size > this.maxDownloadSize) {
           this.size = this.maxDownloadSize;
         }
         this.start();
