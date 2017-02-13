@@ -277,7 +277,7 @@
         //TODO check on better way to get testing size
         this.size = ((this.testLength - this.probeTimeTimeout) * this.probeTotalBytes) / (3000 * this.concurrentRuns);
         var probeResults = (this.finalResults.sort(function (a, b) {
-          return b - a
+          return +b - +a;
         }));
         var lastElem = Math.min(probeResults.length, 10);
         var topResults = probeResults.slice(0, lastElem);
