@@ -138,7 +138,7 @@
             try{
               if(result.time>0) {
                 this.probeTotalBytes = this.probeTotalBytes + result.loaded;
-                if((this.timeout * result.loaded/result.time)> this.size) {
+                if(((this.probeTimeTimeout - result.time) * result.loaded / result.time) > this.size) {
                   this.size = (this.probeTimeTimeout - result.time) * result.loaded / result.time;
                 }
               }
