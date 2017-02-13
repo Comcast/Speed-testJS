@@ -213,7 +213,6 @@
             result.bandwidth = transferSizeMbs / transferDurationSeconds;
             result.loaded = response.loaded;
             result.startTime = this.startTime;
-            result.chunckLoadedMb = transferSizeMbs;
             if (isFinite(result.bandwidth)) {
               this.callbackProgress(result);
               this.prevTime = this.currentTime;

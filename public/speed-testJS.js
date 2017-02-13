@@ -201,7 +201,7 @@
         }
         
 
-      void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
+      void (!(testPlan.hasIPv6) && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
 
       //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
@@ -327,27 +327,6 @@
         if (dom) {
             dom.innerHTML = value;
         }
-    }
-
-    function downloadProbe() {
-        function downloadProbeTestOnComplete(result) {
-            var downloadSizes = result;
-            if(downloadSizes.length>0) {
-                //downloadSize = downloadSizes[downloadSizes.length-1];
-                downloadSize = downloadSizes[0];
-            }
-            //call downloadTests
-            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
-        }
-
-        function downloadProbeTestOnError(result) {
-            //use default value for download testing
-            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { downloadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
-        }
-        var downloadProbeTestRun = new window.downloadProbeTest('http://' + testPlan.baseUrlIPv4 + '/download', 'http://' + testPlan.baseUrlIPv4 + '/downloadProbe', false, 3000,downloadSize,downloadProbeTestOnComplete,
-            downloadProbeTestOnError);
-        downloadProbeTestRun.start();
-
     }
 
     function downloadTest(version) {
