@@ -138,7 +138,9 @@
             try{
               if(result.time>0) {
                 this.probeTotalBytes = this.probeTotalBytes + result.loaded;
-                this.size = (this.probeTimeTimeout - result.time) * result.loaded / result.time;
+                if((this.timeout * result.loaded/result.time)> this.size) {
+                  this.size = (this.probeTimeTimeout - result.time) * result.loaded / result.time;
+                }
               }
             }catch(error){// jshint ignore:line
 
@@ -146,7 +148,7 @@
 
           }
           else{
-            if((this.timeout * result.loaded/result.time)< this.size) {
+            if((this.timeout * result.loaded/result.time)> this.size) {
               this.size = this.timeout * result.loaded / result.time;
             }
           }
