@@ -287,7 +287,6 @@
         if (this.size > this.maxDownloadSize) {
           this.size = this.maxDownloadSize;
         }
-        console.log('probeBandWidht: ' + probeBandwidth + ' ' + this.concurrentRuns);
         this.start();
       }
     };
