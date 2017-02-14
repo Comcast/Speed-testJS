@@ -268,23 +268,25 @@
       if ((Date.now() - this._beginTime) > (this.probeTimeTimeout) && this.isProbing) {
         this.isProbing = false;
         this.abortAll();
-        //TODO check on better way to get testing size
-        this.size = ((this.testLength - this.probeTimeTimeout) * this.probeTotalBytes) / (this.probeTimeTimeout * this.concurrentRuns);
-        var probeResults = (this.finalResults.sort(function (a, b) {
-          return +b - +a;
-        }));
-        var lastElem = Math.min(probeResults.length, 10);
-        var topResults = probeResults.slice(0, lastElem);
-        var probeBandwidth = topResults.reduce(function (a, b) {
-            return a + b;
-          }) / lastElem;
-        if (probeBandwidth <= this.lowProbeBandwidth) {
-          this.progressIntervalDownload = 10;
-          this.concurrentRuns = 1;
-        } else if (probeBandwidth > this.lowProbeBandwidth && probeBandwidth <= this.highProbeBandwidth) {
-          this.progressIntervalDownload = 50;
-          this.concurrentRuns = 6;
+        if(this.finalResults.length>0) {
+          this.size = ((this.testLength - this.probeTimeTimeout) * this.probeTotalBytes) / (this.probeTimeTimeout * this.concurrentRuns);
+          var probeResults = (this.finalResults.sort(function (a, b) {
+            return +b - +a;
+          }));
+          var lastElem = Math.min(probeResults.length, 10);
+          var topResults = probeResults.slice(0, lastElem);
+          var probeBandwidth = topResults.reduce(function (a, b) {
+              return a + b;
+            }) / lastElem;
+          if (probeBandwidth <= this.lowProbeBandwidth) {
+            this.progressIntervalDownload = 10;
+            this.concurrentRuns = 1;
+          } else if (probeBandwidth > this.lowProbeBandwidth && probeBandwidth <= this.highProbeBandwidth) {
+            this.progressIntervalDownload = 50;
+            this.concurrentRuns = 6;
+          }
         }
+        
         this.finalResults.length = 0;
         if (this.size > this.maxDownloadSize) {
           this.size = this.maxDownloadSize;
