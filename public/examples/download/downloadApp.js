@@ -40,6 +40,13 @@
     var downloadMovingAverage = 10;
     var downloadProbingTime = 3000;
     var downloadProgressInterval = 10;
+    var downloadLowProbeBandwidth = 40;
+    var downHighProbeBandwidth = 300;
+    var downLowProbeBandwidthConcurrentRuns = 1;
+    var downHighProbeBandwidthConcurrentRuns = 6;
+    var downloadLowProbeBandwidthProgressInterval = 10;
+    var downHighProbeBandwidthProgressInterval = 50;
+
     function initTest() {
         function addEvent(el, ev, fn) {
             void (el.addEventListener && el.addEventListener(ev, fn, false));
@@ -148,6 +155,7 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
+                testPlan.hasIPv6 = false;
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
@@ -326,8 +334,11 @@
         var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
         var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize=', 'GET', downloadCurrentRuns, downloadTestTimeout, downloadTestLength, downloadMovingAverage, downloadHttpOnComplete, downloadHttpOnProgress,
-            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize,downloadProbingTime,downloadProgressInterval,testPlan.maxDownloadSize);
-        downloadHttpConcurrentProgress.initiateTest();
+            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize,downloadProbingTime,downloadProgressInterval,testPlan.maxDownloadSize,
+          downloadLowProbeBandwidth, downHighProbeBandwidth,downLowProbeBandwidthConcurrentRuns,downHighProbeBandwidthConcurrentRuns,
+          downloadLowProbeBandwidthProgressInterval,downHighProbeBandwidthProgressInterval);
+
+      downloadHttpConcurrentProgress.initiateTest();
     }
 
 })();
