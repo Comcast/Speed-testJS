@@ -155,7 +155,6 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
-                testPlan.hasIPv6 = false;
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
