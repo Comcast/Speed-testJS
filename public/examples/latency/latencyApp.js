@@ -231,7 +231,7 @@
         }
 
         function latencyHttpOnAbort(result) {
-          if(result.results.length===0) {
+          if(result && result.results && result.results.length === 0) {
             //set test value to 0
             option.series[0].data[0].value = 0;
             //updat test status to complete
@@ -258,24 +258,24 @@
             return;
           }
           else{
-            void (!(version === 'IPv6') && setTimeout(function () {
-              //update button text to communicate current state of test as In Progress
-              startTestButton.innerHTML = 'Start Test';
-              option.series[0].data[0].value = 0;
-              option.series[0].data[0].name = 'Test Complete';
-              //set accessiblity aria-disabled state.
-              //This will also effect the visual look by corresponding css
-              startTestButton.setAttribute('aria-disabled', false);
-              startTestButton.disabled = false;
-              option.series[0].detail.show = false;
-              myChart.setOption(option, true);
+            if(!version === 'IPv6') {
+                //update button text to communicate current state of test as In Progress
+                startTestButton.innerHTML = 'Start Test';
+                option.series[0].data[0].value = 0;
+                option.series[0].data[0].name = 'Test Complete';
+                //set accessiblity aria-disabled state.
+                //This will also effect the visual look by corresponding css
+                startTestButton.setAttribute('aria-disabled', false);
+                startTestButton.disabled = false;
+                option.series[0].detail.show = false;
+                myChart.setOption(option, true);
+              }
 
-            }, 500));
           }
         }
 
         function latencyHttpOnTimeout(result) {
-          if(result.results.length===0) {
+          if(result && result.results && result.results.length === 0) {
             //set test value to 0
             option.series[0].data[0].value = 0;
             //updat test status to complete
@@ -302,7 +302,7 @@
             return;
           }
           else{
-            void (!(version === 'IPv6') && setTimeout(function () {
+            if(!version === 'IPv6'){
               //update button text to communicate current state of test as In Progress
               startTestButton.innerHTML = 'Start Test';
               option.series[0].data[0].value = 0;
@@ -314,12 +314,12 @@
               option.series[0].detail.show = false;
               myChart.setOption(option, true);
 
-            }, 500));
+            }
           }
         }
 
         function latencyHttpOnError(result) {
-          if(result.results.length===0) {
+          if(result && result.results && result.results.length === 0) {
             //set test value to 0
             option.series[0].data[0].value = 0;
             //updat test status to complete
@@ -346,7 +346,7 @@
             return;
           }
           else{
-            void (!(version === 'IPv6') && setTimeout(function () {
+            if(!version === 'IPv6'){
               //update button text to communicate current state of test as In Progress
               startTestButton.innerHTML = 'Start Test';
               option.series[0].data[0].value = 0;
@@ -358,7 +358,7 @@
               option.series[0].detail.show = false;
               myChart.setOption(option, true);
 
-            }, 500));
+            }
           }
         }
 

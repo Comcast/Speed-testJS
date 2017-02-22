@@ -252,7 +252,7 @@
         }
 
         function latencyHttpOnAbort(result) {
-            if(result.results.length===0) {
+            if(result && result.results && result.results.length === 0) {
                 //set test value to 0
                 option.series[0].data[0].value = 0;
                 //updat test status to complete
@@ -281,7 +281,7 @@
         }
 
         function latencyHttpOnTimeout(result) {
-            if(result.results.length===0) {
+            if(result && result.results && result.results.length === 0) {
                 //set test value to 0
                 option.series[0].data[0].value = 0;
                 //updat test status to complete
@@ -310,7 +310,7 @@
         }
 
         function latencyHttpOnError(result) {
-            if(result.results.length===0) {
+            if(result && result.results && result.results.length === 0) {
                 //set test value to 0
                 option.series[0].data[0].value = 0;
                 //updat test status to complete
