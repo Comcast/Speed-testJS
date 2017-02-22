@@ -145,37 +145,18 @@
         if (!this._running) {
             return;
         }
-        this._collectMovingAverages = false;
-        //cancel remaining tests
-       this._storeResults(result);
-        this.abortAll();
-        //reset Active Tests array
-        this._activeTests.length =0;
+
+        //store results
+        this._storeResults(result);
         //checking if we can continue with the test
         if ((Date.now() - this._beginTime) < this.testLength) {
           if(this.isProbing) {
-            this.abortAll();
-
             this.probeTotalBytes = this.probeTotalBytes + result.loaded;
             if(((this.probeTimeTimeout - result.time) * result.loaded / result.time) > this.size) {
               this.size = (this.probeTimeTimeout - result.time) * result.loaded / result.time;
-            }
-            this.size *2;
-            this.concurrentRuns = this.concurrentRuns+4;
-
-
-            try{
-                /*
-                this.probeTotalBytes = this.probeTotalBytes + result.loaded;
-                if(((this.probeTimeTimeout - result.time) * result.loaded / result.time) > this.size) {
-                  this.size = (this.probeTimeTimeout - result.time) * result.loaded / result.time;
-                }
-                */
-
-
-            }catch(error){// jshint ignore:line
-
-            }
+            };
+            //todo... concurrent runs might have to be adjusted based on real time bandwidth measurements
+            this.concurrentRuns = this.concurrentRuns*3;
 
           }
           else{
@@ -187,7 +168,7 @@
             this.size = this.maxDownloadSize;
           }
           if(this.concurrentRuns > 30){
-            this.concurrentRuns = 20;
+            this.concurrentRuns = 30;
           }
           this.start();
         }
@@ -211,38 +192,6 @@
         }
         this._storeResults(result);
 
-    };
-
-    /**
-     * calculateStats method
-     */
-    downloadHttpConcurrentProgress.prototype.calculateStats = function () {
-        //loop thru active tests to calculate totalMovingAverage
-        var totalMovingAverage = 0;
-        for (var i = 0; i < this.concurrentRuns; i++) {
-            // get array size and loop thru size of moving average series or array length
-            var id = this._testIndex -i;
-            var arrayData = 'arrayProgressResults' + id;
-          var tempArray = [];
-            var lastElem = Math.min(this._progressResults[arrayData].length, this.movingAverage);
-            if (lastElem > 0) {
-                var singleMovingAverage = 0;
-                for (var j = 1; j <= lastElem; j++) {
-                    if (isFinite(this._progressResults[arrayData][this._progressResults[arrayData].length - j])) {
-                        singleMovingAverage = singleMovingAverage + this._progressResults[arrayData][this._progressResults[arrayData].length - j];
-
-                    }
-                }
-                singleMovingAverage = singleMovingAverage / lastElem;
-                totalMovingAverage = totalMovingAverage + singleMovingAverage;
-              tempArray.push(totalMovingAverage);
-            }
-
-        }
-
-      //console.log(ss.quantile(tempArray, 0.5));
-            this.clientCallbackProgress(ss.quantile(tempArray, 0.2));
-            this.finalResults.push(ss.quantile(tempArray, 0.2));
     };
 
     /**
@@ -290,15 +239,6 @@
      */
     downloadHttpConcurrentProgress.prototype._storeResults = function (result) {
       this.results.push(result);
-
-      //update progress count
-      this._progressCount++;
-      //populate array
-      this._progressResults['arrayProgressResults' + result.id].push(result.bandwidth);
-      //calculate moving average
-      if (this._progressCount % this.movingAverage === 0) {
-        //this.calculateStats();
-      }
     };
 
 
@@ -361,37 +301,7 @@
         }
         this.abortAll();
       }
-      /*
-      //check for end of probing
-      if ((Date.now() - this._beginTime) > (this.probeTimeTimeout) && this.isProbing) {
-        this.isProbing = false;
-        this.abortAll();
-        if(this.finalResults.length>0) {
-          this.size = ((this.testLength - this.probeTimeTimeout) * this.probeTotalBytes) / (this.probeTimeTimeout * this.concurrentRuns);
-          var probeResults = (this.finalResults.sort(function (a, b) {
-            return +b - +a;
-          }));
-          var lastElem = Math.min(probeResults.length, 10);
-          var topResults = probeResults.slice(0, lastElem);
-          var probeBandwidth = topResults.reduce(function (a, b) {
-              return a + b;
-            }) / lastElem;
-          if (probeBandwidth <= this.lowProbeBandwidth) {
-            this.progressIntervalDownload = this.lowProbeBandwidthProgressInterval;
-            this.concurrentRuns = this.lowProbeBandwidthConcurrentRuns;
-          } else if (probeBandwidth > this.lowProbeBandwidth && probeBandwidth <= this.highProbeBandwidth) {
-            this.progressIntervalDownload = this.highProbeBandwidthProgressInterval;
-            this.concurrentRuns = this.highProbeBandwidthConcurrentRuns;
-          }
-        }
-        
-        //this.finalResults.length = 0;
-        if (this.size > this.maxDownloadSize) {
-          this.size = this.maxDownloadSize;
-        }
-        //this.start();
-      }
-      */
+
     };
 
     /**
