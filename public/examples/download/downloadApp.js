@@ -165,7 +165,7 @@
                 void ((func && func instanceof Function) && func(data));
             }
         };
-        xhr.open('GET', 'http://96.114.52.66/testplan', true);
+        xhr.open('GET', 'http://69.252.86.194/testplan', true);
         xhr.send(null);
     }
 
