@@ -45,7 +45,7 @@
    * Execute the request
    */
   latencyHttpTest.prototype.start = function () {
-    var cachebuster = Date.now();
+    var cachebuster = Math.random();
     this._test = new window.xmlHttpRequest('GET', [this.url, '?', cachebuster].join(''), this.timeout, this.onTestComplete.bind(this),this.onTestProgress.bind(this),
         this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
     this._testIndex++;
@@ -62,7 +62,9 @@
    */
   latencyHttpTest.prototype.onTestError = function (result) {
     if(this._running){
+      result.results = this._results;
       this.clientCallbackError(result);
+      this._running = false;
     }
   };
 
@@ -72,7 +74,9 @@
    */
   latencyHttpTest.prototype.onTestAbort = function (result) {
     if(this._running){
+      result.results = this._results;
       this.clientCallbackAbort(result);
+      this._running = false;
     }
   };
 
@@ -82,7 +86,9 @@
    */
   latencyHttpTest.prototype.onTestTimeout = function (result) {
     if(this._running){
+      result.results = this._results;
       this.clientCallbackTimeout(result);
+      this._running = false;
     }
   };
 
