@@ -63,12 +63,8 @@
         this.finalResults = [];
         //monitor interval
         this.interval = null;
-        //probing flag
-        this.isProbing = true;
         //total probe bytes
         this.totalBytes = 0;
-        //running tests
-        this.runningTest = [];
         //results object array
         this.results =[];
         //results count
@@ -131,7 +127,6 @@
             if(((this.testLength - result.time) * result.loaded / result.time) > this.size) {
               this.size = (this.testLength - result.time) * result.loaded / result.time;
             };
-            //todo... concurrent runs might have to be adjusted based on real time bandwidth measurements
             this.concurrentRuns = this.concurrentRuns*3;
           }
           if(this.size>this.maxDownloadSize){
@@ -167,7 +162,6 @@
 
             for (var g = 1; g <= this.concurrentRuns; g++) {
                 this._testIndex++;
-                this.runningTest.push(this._testIndex);
                 var request = new window.xmlHttpRequest('GET', this.urls[g]+ this.size +  '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
                     this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this),this.progressIntervalDownload);
                 this._activeTests.push({
@@ -187,7 +181,6 @@
         for (var i = 0; i < this._activeTests.length; i++) {
             if (typeof(this._activeTests[i]) !== 'undefined') {
                 this._activeTests[i].xhr._request.abort();
-              this.runningTest.pop(this._activeTests[i].xhr.testRun);
             }
         }
     };
@@ -216,7 +209,6 @@
       if(this.results.length>0) {
         for (var i = 0; i < this.results.length; i++) {
           if (this.results[i].timeStamp > (Date.now() - this.monitorInterval)) {
-            //console.log(this.results[i]);
             intervalBandwidth = intervalBandwidth + parseFloat(this.results[i].bandwidth);
             totalLoaded = totalLoaded + this.results[i].chunckLoaded;
             totalTime = totalTime + this.results[i].totalTime;
@@ -224,13 +216,8 @@
           }
         }
         if(!isNaN(intervalBandwidth/intervalCounter)) {
-          //console.log('intervalBandwidth: ' + intervalBandwidth / intervalCounter);
-          //console.log('intervalBandwidthLoaded: ' + ((totalLoaded * 8) / 1000000) / (100/1000));
           var transferSizeMbs = (totalLoaded * 8) / 1000000;
           var transferDurationSeconds = this.monitorInterval/1000;
-          //console.log(transferSizeMbs + '    ' + transferDurationSeconds);
-          //console.log('intervalBandwidthLoaded: ' + (transferSizeMbs / transferDurationSeconds));
-          //this.clientCallbackProgress(transferSizeMbs / transferDurationSeconds);
           this.finalResults.push(transferSizeMbs / transferDurationSeconds);
           var singleMovingAverage = 0;
           var lastElem = Math.min(this.finalResults.length, this.movingAverage);
@@ -243,6 +230,7 @@
               }
             }
             singleMovingAverage = singleMovingAverage / lastElem;
+            this.finalResults.push(singleMovingAverage);
             this.clientCallbackProgress(singleMovingAverage);
           }
 
@@ -271,7 +259,7 @@
         this.finalResults.length=0;
         this._running = true;
         this.interval = null;
-        this.isProbing = true;
+
         this.totalBytes = 0;
         this.start();
         var self = this;
