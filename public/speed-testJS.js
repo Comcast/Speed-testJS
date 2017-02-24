@@ -33,7 +33,7 @@
   var option;
   var startTestButton;
   var firstRun = true;
-  var downloadSize = 1000000;
+  var downloadSize = 10000;
   var uploadSize = 10526506;
   var uploadConcurrentRuns = 1;
   var uploadTimeout = 20000;
@@ -45,19 +45,15 @@
   var microsoftUiUploadMovingAverage = 2;
   var testServerTimeout = 2000;
   var latencyTimeout = 3000;
-  var downloadCurrentRuns = 6;
-  var downloadTestTimeout = 18000;
-  var downloadTestLength = 18000;
+  var downloadCurrentRuns = 1;
+  var downloadTestTimeout = 12000;
+  var downloadTestLength = 12000;
   var downloadMovingAverage = 10;
-  var downloadProbingTime = 3000;
-  var downloadProgressInterval = 10;
-  var downloadProgressInterval = 10;
-  var downloadLowProbeBandwidth = 40;
-  var downHighProbeBandwidth = 300;
-  var downLowProbeBandwidthConcurrentRuns = 1;
-  var downHighProbeBandwidthConcurrentRuns = 6;
-  var downloadLowProbeBandwidthProgressInterval = 10;
-  var downHighProbeBandwidthProgressInterval = 50;
+  var downloadProgressInterval = 25;
+  var urls = [];
+  var ports = [5020, 5021, 5022, 5023, 5024, 5025];
+  var maxConcurrentRuns = 18;
+  var monitorInterval = 100;
 
   function initTest() {
     function addEvent(el, ev, fn) {
@@ -471,14 +467,20 @@
       myChart.setOption(option, true);
     }
 
-    var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
+    urls.length=0;
+    var baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
+    for (var i = 0; i < ports.length; i++) {
+      for(var b= 0; b <6; b++ )
+      {
+        urls.push('http://' + baseUrl + ':' + ports[i] + '/download?bufferSize=');
 
-    var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(baseUrl + '/download?bufferSize=', 'GET', downloadCurrentRuns, downloadTestTimeout, downloadTestLength, downloadMovingAverage, downloadHttpOnComplete, downloadHttpOnProgress,
-      downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize,downloadProbingTime,downloadProgressInterval,testPlan.maxDownloadSize,
-      downloadLowProbeBandwidth, downHighProbeBandwidth,downLowProbeBandwidthConcurrentRuns,downHighProbeBandwidthConcurrentRuns,
-      downloadLowProbeBandwidthProgressInterval,downHighProbeBandwidthProgressInterval);
+      }
+    }
+    var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(urls, 'GET', downloadCurrentRuns, downloadTestTimeout, downloadTestLength, downloadMovingAverage, downloadHttpOnComplete, downloadHttpOnProgress,
+      downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize, downloadProgressInterval,testPlan.maxDownloadSize,maxConcurrentRuns,monitorInterval);
 
     downloadHttpConcurrentProgress.initiateTest();
+
   }
 
   function uploadProbe() {
