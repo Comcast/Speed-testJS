@@ -38,16 +38,11 @@
     var downloadTestTimeout = 15000;
     var downloadTestLength = 15000;
     var downloadMovingAverage = 10;
-    var downloadProbingTime = 15000;
     var downloadProgressInterval = 25;
-    var downloadLowProbeBandwidth = 40;
-    var downHighProbeBandwidth = 300;
-    var downLowProbeBandwidthConcurrentRuns = 1;
-    var downHighProbeBandwidthConcurrentRuns = 6;
-    var downloadLowProbeBandwidthProgressInterval = 25;
-    var downHighProbeBandwidthProgressInterval = 50;
     var urls = [];
     var ports = [5020, 5021, 5022, 5023, 5024, 5025];
+    var maxConcurrentRuns = 30;
+    var monitorInterval = 200;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -336,7 +331,7 @@
 
       var baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
 
-console.log(baseUrl);
+
 
       for (var i = 0; i < ports.length; i++) {
         for(var b= 0; b <6; b++ )
@@ -346,10 +341,8 @@ console.log(baseUrl);
         }
       }
 
-        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(urls, baseUrl + '/download?bufferSize=', 'GET', downloadCurrentRuns, downloadTestTimeout, downloadTestLength, downloadMovingAverage, downloadHttpOnComplete, downloadHttpOnProgress,
-            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize,downloadProbingTime,downloadProgressInterval,testPlan.maxDownloadSize,downloadTestLength,
-          downloadLowProbeBandwidth, downHighProbeBandwidth,downLowProbeBandwidthConcurrentRuns,downHighProbeBandwidthConcurrentRuns,
-          downloadLowProbeBandwidthProgressInterval,downHighProbeBandwidthProgressInterval);
+        var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(urls, 'GET', downloadCurrentRuns, downloadTestTimeout, downloadTestLength, downloadMovingAverage, downloadHttpOnComplete, downloadHttpOnProgress,
+            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize, downloadProgressInterval,testPlan.maxDownloadSize,maxConcurrentRuns,monitorInterval);
 
       downloadHttpConcurrentProgress.initiateTest();
     }
