@@ -35,14 +35,14 @@
     var firstRun = true;
     var downloadSize = 10000;
     var downloadCurrentRuns = 1;
-    var downloadTestTimeout = 15000;
-    var downloadTestLength = 15000;
+    var downloadTestTimeout = 12000;
+    var downloadTestLength = 12000;
     var downloadMovingAverage = 10;
     var downloadProgressInterval = 25;
     var urls = [];
     var ports = [5020, 5021, 5022, 5023, 5024, 5025];
-    var maxConcurrentRuns = 30;
-    var monitorInterval = 200;
+    var maxConcurrentRuns = 18;
+    var monitorInterval = 100;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -152,15 +152,13 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
-              testPlan.baseUrlIPv4 = '69.252.86.194';
-              testPlan.hasIPv6 = false;
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
                 void ((func && func instanceof Function) && func(data));
             }
         };
-        xhr.open('GET', 'http://69.252.86.194/testplan', true);
+      xhr.open('GET', '/testplan', true);
         xhr.send(null);
     }
 
