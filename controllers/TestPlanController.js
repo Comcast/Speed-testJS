@@ -95,7 +95,6 @@ class TestPlanController {
         }
         testPlan.baseUrlIPv4 = global.AddressIpv4 + ':' + global.webPort;
         testPlan.baseUrlIPv4NoPort = global.AddressIpv4;
-      testPlan.port = global.webPort;
         testPlan.maxDownloadSize = global.maxDownloadBuffer;
         res.json(testPlan);
     }

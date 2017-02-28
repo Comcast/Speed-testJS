@@ -86,7 +86,10 @@
       this._request.open(this.method, this.url, true);
       this._request.timeout = this.timeout;
       if(this.method==='POST') {
-        this._request.send(payload);
+        this._request.setRequestHeader("Content-Type", "application/json");
+        var data = {data: payload};
+        var value = '{ "data": "'+payload+'" }';
+        this._request.send(value);
       }
       else{
         this._request.send(null);
@@ -138,6 +141,8 @@
        result.chunckLoaded = response.loaded - this.prevLoad;
        result.time = this.totalTime;
        result.loaded = response.loaded;
+       result.timeStamp = Date.now();
+       result.chunckLoaded = response.loaded - this.prevLoad;
        result.bandwidth = transferSizeMbs/transferDurationSeconds;
        result.id = this.id;
        this.callbackAbort(result);
@@ -160,9 +165,14 @@
               result.totalTime = Date.now() - this.startTime;
               result.id = this.id;
               if(this.method==='POST'){
+                console.log(this._request.response);
                 var transferSizeMbs = (this.transferSize * 8) / 1000000;
                 var transferDurationSeconds = result.totalTime/1000;
                 result.bandwidth = transferSizeMbs/transferDurationSeconds;
+                result.timeStamp = Date.now();
+                result.loaded = this.transferSize;
+                result.time = result.totalTime;
+                result.chunckLoaded = this.transferSize - this.prevLoad;
                 if(isFinite(result.bandwidth)) {
                     this.callbackComplete(result);
                 }
@@ -189,6 +199,7 @@
       result.time = this.totalTime;
       this.totalBytes += response.loaded;
       var transferSizeMbs = response.loaded * 8 / 1000000;
+
       var transferDurationSeconds = this.totalTime/1000;
       result.bandwidth = transferSizeMbs / transferDurationSeconds;
       result.loaded = response.loaded;
@@ -234,7 +245,8 @@
      */
    xmlHttpRequest.prototype._handleOnProgressUpload = function (response) {
        //measure bandwidth after one progress event due to rampup
-       if (this.progressCount > 1 && response.lengthComputable) {
+     //console.log('xmlhttp onprogress' + this.progressCount);
+       if (this.progressCount > 1) {
            var result = {};
            result.id = this.id;
            this.currentTime = Date.now();
@@ -243,6 +255,8 @@
                var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
                var transferDurationSeconds = result.totalTime / 1000;
                result.bandwidth = transferSizeMbs / transferDurationSeconds;
+             result.timeStamp = Date.now();
+             result.chunckLoaded = response.loaded - this.prevLoad;
                if (isFinite(result.bandwidth)) {
                    this.callbackProgress(result);
                    this.prevTime = this.currentTime;
