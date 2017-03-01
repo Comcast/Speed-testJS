@@ -69,7 +69,8 @@
         this.results =[];
         //results count
         this.resultsCount = 0;
-
+        //results to send to client
+        this.downloadResults = [];
     }
 
     /**
@@ -100,7 +101,7 @@
             if ((Date.now() - this._beginTime) > this.testLength) {
                 clearInterval(this.interval);
                 if (this.finalResults && this.finalResults.length) {
-                    this.clientCallbackComplete(this.finalResults);
+                  this.clientCallbackComplete(this.downloadResults);
                 } else {
                     this.clientCallbackError('no measurements obtained');
                 }
@@ -230,7 +231,7 @@
               }
             }
             singleMovingAverage = singleMovingAverage / lastElem;
-            this.finalResults.push(singleMovingAverage);
+            this.downloadResults.push(singleMovingAverage);
             this.clientCallbackProgress(singleMovingAverage);
           }
 
@@ -242,7 +243,7 @@
         this._running = false;
         clearInterval(this.interval);
         if (this.finalResults && this.finalResults.length) {
-          this.clientCallbackComplete(this.finalResults);
+          this.clientCallbackComplete(this.downloadResults);
         } else {
           this.clientCallbackError('no measurements obtained');
         }

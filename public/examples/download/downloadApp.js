@@ -33,8 +33,8 @@
     var option;
     var startTestButton;
     var firstRun = true;
-    var downloadSize = 10000;
-    var downloadCurrentRuns = 1;
+    var downloadSize = 230483949;
+    var downloadCurrentRuns = 18;
     var downloadTestTimeout = 12000;
     var downloadTestLength = 12000;
     var downloadMovingAverage = 10;
