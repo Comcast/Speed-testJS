@@ -231,8 +231,10 @@
               }
             }
             singleMovingAverage = singleMovingAverage / lastElem;
-            this.downloadResults.push(singleMovingAverage);
-            this.clientCallbackProgress(singleMovingAverage);
+            if(singleMovingAverage>0) {
+              this.downloadResults.push(singleMovingAverage);
+              this.clientCallbackProgress(singleMovingAverage);
+            }
           }
 
         }
