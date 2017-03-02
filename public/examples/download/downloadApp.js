@@ -37,7 +37,7 @@
     var downloadCurrentRuns = 18;
     var downloadTestTimeout = 12000;
     var downloadTestLength = 12000;
-    var downloadMovingAverage = 10;
+    var downloadMovingAverage = 18;
     var downloadProgressInterval = 25;
     var urls = [];
     var ports = [5020, 5021, 5022, 5023, 5024, 5025];
