@@ -33,8 +33,7 @@
      * @param function callback function for test suite error event
      **/
     function downloadHttpConcurrentProgress(urls,  type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
-                                            callbackTimeout, callbackError, size, progressIntervalDownload, maxDownloadSize,
-                                            maxConcurrentRuns, monitorInterval) {
+                                            callbackTimeout, callbackError, size, progressIntervalDownload, monitorInterval) {
         this.urls = urls;
         this.size = size;
         this.type = type;
@@ -43,8 +42,6 @@
         this.testLength = testLength;
         this.movingAverage = movingAverage;
         this.progressIntervalDownload = progressIntervalDownload;
-        this.maxDownloadSize = maxDownloadSize;
-        this.maxConcurrentRuns = maxConcurrentRuns;
         this.monitorInterval = monitorInterval;
         //unique id or test
         this._testIndex = 0;
@@ -100,7 +97,7 @@
         if(this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
                 clearInterval(this.interval);
-                if (this.finalResults && this.finalResults.length) {
+                if (this.downloadResults && this.downloadResults.length) {
                   this.clientCallbackComplete(this.downloadResults);
                 } else {
                     this.clientCallbackError('no measurements obtained');
@@ -122,21 +119,7 @@
 
         //store results
         this._storeResults(result);
-        //checking if we can continue with the test
-        if ((Date.now() - this._beginTime) < this.testLength) {
-            this.totalBytes = this.totalBytes + result.loaded;
-            if(((this.testLength - result.time) * result.loaded / result.time) > this.size) {
-              this.size = (this.testLength - result.time) * result.loaded / result.time;
-            };
-            this.concurrentRuns = this.concurrentRuns*3;
-          }
-          if(this.size>this.maxDownloadSize){
-            this.size = this.maxDownloadSize;
-          }
-          if(this.concurrentRuns > this.maxConcurrentRuns){
-            this.concurrentRuns = this.maxConcurrentRuns;
-          }
-          this.start();
+        this.start();
         };
 
 
@@ -200,57 +183,56 @@
      * Monitor testSeries
      */
     downloadHttpConcurrentProgress.prototype._monitor = function () {
-      //console.log('interval: ' + (Date.now() - this._beginTime));
-      var intervalBandwidth=0;
-      var totalLoaded = 0;
-      var totalTime = 0;
-      var intervalCounter = 0;
-      this.resultsCount++;
+        var intervalBandwidth = 0;
+        var totalLoaded = 0;
+        var totalTime = 0;
+        var intervalCounter = 0;
+        this.resultsCount++;
 
-      if(this.results.length>0) {
-        for (var i = 0; i < this.results.length; i++) {
-          if (this.results[i].timeStamp > (Date.now() - this.monitorInterval)) {
-            intervalBandwidth = intervalBandwidth + parseFloat(this.results[i].bandwidth);
-            totalLoaded = totalLoaded + this.results[i].chunckLoaded;
-            totalTime = totalTime + this.results[i].totalTime;
-            intervalCounter++;
-          }
-        }
-        if(!isNaN(intervalBandwidth/intervalCounter)) {
-          var transferSizeMbs = (totalLoaded * 8) / 1000000;
-          var transferDurationSeconds = this.monitorInterval/1000;
-          this.finalResults.push(transferSizeMbs / transferDurationSeconds);
-          var singleMovingAverage = 0;
-          var lastElem = Math.min(this.finalResults.length, this.movingAverage);
-          if (lastElem > 0) {
-            var singleMovingAverage = 0;
-            for (var j = 1; j <= lastElem; j++) {
-              if (isFinite(this.finalResults[this.finalResults.length - j])) {
-                singleMovingAverage = singleMovingAverage + this.finalResults[this.finalResults.length-j];
-
-              }
+        if (this.results.length > 0) {
+            for (var i = 0; i < this.results.length; i++) {
+                if (this.results[i].timeStamp > (Date.now() - this.monitorInterval)) {
+                    intervalBandwidth = intervalBandwidth + parseFloat(this.results[i].bandwidth);
+                    totalLoaded = totalLoaded + this.results[i].chunckLoaded;
+                    totalTime = totalTime + this.results[i].totalTime;
+                    intervalCounter++;
+                }
             }
-            singleMovingAverage = singleMovingAverage / lastElem;
-            if(singleMovingAverage>0) {
-              this.downloadResults.push(singleMovingAverage);
-              this.clientCallbackProgress(singleMovingAverage);
+            if (!isNaN(intervalBandwidth / intervalCounter)) {
+                var transferSizeMbs = (totalLoaded * 8) / 1000000;
+                var transferDurationSeconds = this.monitorInterval / 1000;
+                this.finalResults.push(transferSizeMbs / transferDurationSeconds);
+                var singleMovingAverage = 0;
+                var lastElem = Math.min(this.finalResults.length, this.movingAverage);
+                if (lastElem > 0) {
+                    var singleMovingAverage = 0;
+                    for (var j = 1; j <= lastElem; j++) {
+                        if (isFinite(this.finalResults[this.finalResults.length - j])) {
+                            singleMovingAverage = singleMovingAverage + this.finalResults[this.finalResults.length - j];
+
+                        }
+                    }
+                    singleMovingAverage = singleMovingAverage / lastElem;
+                    if (singleMovingAverage > 0) {
+                        this.downloadResults.push(singleMovingAverage);
+                        this.clientCallbackProgress(singleMovingAverage);
+                    }
+                }
+
             }
-          }
 
         }
-
-      }
-      //check for end of test
-      if ((Date.now() - this._beginTime) > (this.testLength)) {
-        this._running = false;
-        clearInterval(this.interval);
-        if (this.finalResults && this.finalResults.length) {
-          this.clientCallbackComplete(this.downloadResults);
-        } else {
-          this.clientCallbackError('no measurements obtained');
+        //check for end of test
+        if ((Date.now() - this._beginTime) > (this.testLength)) {
+            this._running = false;
+            clearInterval(this.interval);
+            if (this.downloadResults && this.downloadResults.length) {
+                this.clientCallbackComplete(this.downloadResults);
+            } else {
+                this.clientCallbackError('no measurements obtained');
+            }
+            this.abortAll();
         }
-        this.abortAll();
-      }
 
     };
 
@@ -262,7 +244,7 @@
         this.finalResults.length=0;
         this._running = true;
         this.interval = null;
-
+        this.downloadResults.length = 0;
         this.totalBytes = 0;
         this.start();
         var self = this;

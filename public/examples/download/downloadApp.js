@@ -41,7 +41,6 @@
     var downloadProgressInterval = 25;
     var urls = [];
     var ports = [5020, 5021, 5022, 5023, 5024, 5025];
-    var maxConcurrentRuns = 18;
     var monitorInterval = 100;
 
     function initTest() {
@@ -325,24 +324,21 @@
                 myChart.setOption(option, true);
         }
 
-      urls.length=0;
+        urls.length = 0;
 
-      var baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
+        var baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
 
+        for (var i = 0; i < ports.length; i++) {
+            for (var b = 0; b < 6; b++) {
+                urls.push('http://' + baseUrl + ':' + ports[i] + '/download?bufferSize=');
 
-
-      for (var i = 0; i < ports.length; i++) {
-        for(var b= 0; b <6; b++ )
-        {
-          urls.push('http://' + baseUrl + ':' + ports[i] + '/download?bufferSize=');
-
+            }
         }
-      }
 
         var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(urls, 'GET', downloadCurrentRuns, downloadTestTimeout, downloadTestLength, downloadMovingAverage, downloadHttpOnComplete, downloadHttpOnProgress,
-            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize, downloadProgressInterval,testPlan.maxDownloadSize,maxConcurrentRuns,monitorInterval);
+            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError, downloadSize, downloadProgressInterval, monitorInterval);
 
-      downloadHttpConcurrentProgress.initiateTest();
+        downloadHttpConcurrentProgress.initiateTest();
     }
 
 })();
