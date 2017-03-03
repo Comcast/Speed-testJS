@@ -87,13 +87,15 @@ class TestPlanController {
         if (global.hasAddressIpv6) {
             testPlan.hasIPv6 = true;
             testPlan.baseUrlIPv6 = '[' + global.AddressIpv6 + ']:' + global.webPort;
+            testPlan.baseUrlIPv6NoPort = '[' + global.AddressIpv6 + ']';
             //TODO to investigate ipv6 address for localhost web sockets
             testPlan.webSocketUrlIPv6 = 'ws://v6-' + testPlan.osHostName + ':' + global.webSocketPort;
         } else {
             testPlan.hasIPv6 = false;
         }
         testPlan.baseUrlIPv4 = global.AddressIpv4 + ':' + global.webPort;
-        testPlan.port = global.webPort;
+        testPlan.baseUrlIPv4NoPort = global.AddressIpv4;
+      testPlan.port = global.webPort;
         testPlan.maxDownloadSize = global.maxDownloadBuffer;
         res.json(testPlan);
     }

@@ -134,6 +134,8 @@
        var transferDurationSeconds = this.totalTime/1000;
        //package results
        var result = {};
+       result.timeStamp = Date.now();
+       result.chunckLoaded = response.loaded - this.prevLoad;
        result.time = this.totalTime;
        result.loaded = response.loaded;
        result.bandwidth = transferSizeMbs/transferDurationSeconds;
@@ -214,6 +216,8 @@
             result.bandwidth = transferSizeMbs / transferDurationSeconds;
             result.loaded = response.loaded;
             result.startTime = this.startTime;
+            result.timeStamp = Date.now();
+            result.chunckLoaded = response.loaded - this.prevLoad;
             if (isFinite(result.bandwidth)) {
               this.callbackProgress(result);
               this.prevTime = this.currentTime;
