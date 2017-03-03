@@ -41,7 +41,9 @@
         this.timeout = timeout;
         this.testLength = testLength;
         this.movingAverage = movingAverage;
+        //time to capture onProgressEvent
         this.progressIntervalDownload = progressIntervalDownload;
+        //time for monitor to calcualte stats
         this.monitorInterval = monitorInterval;
         //unique id or test
         this._testIndex = 0;
