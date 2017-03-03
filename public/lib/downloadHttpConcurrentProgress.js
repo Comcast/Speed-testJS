@@ -202,7 +202,6 @@
                 var transferSizeMbs = (totalLoaded * 8) / 1000000;
                 var transferDurationSeconds = this.monitorInterval / 1000;
                 this.finalResults.push(transferSizeMbs / transferDurationSeconds);
-                var singleMovingAverage = 0;
                 var lastElem = Math.min(this.finalResults.length, this.movingAverage);
                 if (lastElem > 0) {
                     var singleMovingAverage = 0;
