@@ -42,7 +42,7 @@
     this.totalBytes = 0;
     this.currentTime = 0;
     this.progressIntervalDownload = progressIntervalDownload;
-    this.progressIntervalUpload = 50;
+    this.progressIntervalUpload = 25;
     this.callbackComplete = callbackComplete;
     this.callbackProgress = callbackProgress;
     this.callbackAbort = callbackAbort;
@@ -86,10 +86,7 @@
       this._request.open(this.method, this.url, true);
       this._request.timeout = this.timeout;
       if(this.method==='POST') {
-        this._request.setRequestHeader("Content-Type", "application/json");
-        var data = {data: payload};
-        var value = '{ "data": "'+payload+'" }';
-        this._request.send(value);
+        this._request.send(payload);
       }
       else{
         this._request.send(null);
@@ -165,7 +162,6 @@
               result.totalTime = Date.now() - this.startTime;
               result.id = this.id;
               if(this.method==='POST'){
-                console.log(this._request.response);
                 var transferSizeMbs = (this.transferSize * 8) / 1000000;
                 var transferDurationSeconds = result.totalTime/1000;
                 result.bandwidth = transferSizeMbs/transferDurationSeconds;
@@ -245,7 +241,6 @@
      */
    xmlHttpRequest.prototype._handleOnProgressUpload = function (response) {
        //measure bandwidth after one progress event due to rampup
-     //console.log('xmlhttp onprogress' + this.progressCount);
        if (this.progressCount > 1) {
            var result = {};
            result.id = this.id;
