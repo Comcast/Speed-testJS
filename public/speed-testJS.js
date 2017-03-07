@@ -33,7 +33,7 @@
   var option;
   var startTestButton;
   var firstRun = true;
-  var downloadSize = 10000;
+  var downloadSize = 230483949;
   var uploadSize = 10526506;
   var uploadConcurrentRuns = 1;
   var uploadTimeout = 20000;
@@ -45,10 +45,10 @@
   var microsoftUiUploadMovingAverage = 2;
   var testServerTimeout = 2000;
   var latencyTimeout = 3000;
-  var downloadCurrentRuns = 1;
+  var downloadCurrentRuns = 18;
   var downloadTestTimeout = 12000;
   var downloadTestLength = 12000;
-  var downloadMovingAverage = 10;
+  var downloadMovingAverage = 18;
   var downloadProgressInterval = 25;
   var urls = [];
   var ports = [5020, 5021, 5022, 5023, 5024, 5025];
@@ -361,6 +361,7 @@
       var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
       finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
       void (version === 'IPv6' && downloadTest('IPv4'));
+
       if(version==='IPv4'){
         uploadProbe();
       }
@@ -493,7 +494,7 @@
       void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () {
         !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4');
       }, 500));
-
+    }
       function uploadProbeTestOnError(result) {
 
         void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () {
@@ -504,7 +505,7 @@
       var uploadProbeTestRun = new window.uploadProbeTest('http://' + testPlan.baseUrlIPv4 + '/upload', 'http://' + testPlan.baseUrlIPv4 + '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
       uploadProbeTestRun.start();
     }
-  }
+
 
   function uploadTest(version) {
     console.log('uploadTest: ' + version);
