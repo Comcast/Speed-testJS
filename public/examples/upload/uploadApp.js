@@ -38,10 +38,8 @@
     var uploadTestTimeout = 12000;
     var uploadTestLength = 12000;
     var uploadMovingAverage = 18;
-    var uploadProgressInterval = 50;
     var urls = [];
     var ports = [5020, 5021, 5022, 5023, 5024, 5025];
-    var maxConcurrentRuns = 18;
     var monitorInterval = 200;
 
     function initTest() {
@@ -152,9 +150,6 @@
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 var data = JSON.parse(xhr.responseText);
                 testPlan = data;
-                testPlan.baseUrlIPv4NoPort='69.252.86.194';
-                testPlan.baseUrlIPv4 = '69.252.86.194';
-                testPlan.hasIPv6=false;
                 if (testPlan.performLatencyRouting) {
                     latencyBasedRouting();
                 }
@@ -265,7 +260,7 @@
                 myChart.setOption(option, true);
         }
         function uploadHttpOnComplete(result) {
-            var calculateMeanStats = new window.calculateStats('http://' + '127.0.0.1:8080' + '/calculator', result, calculateStatsonComplete, calculateStatsonError);
+            var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', result, calculateStatsonComplete, calculateStatsonError);
             calculateMeanStats.performCalculations();
         }
         function uploadHttpOnProgress(result) {
@@ -341,14 +336,13 @@
 
         var baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
         for (var i = 0; i < ports.length; i++) {
-            for(var b= 0; b <6; b++ )
-            {
+            for (var b = 0; b < 6; b++) {
                 urls.push('http://' + baseUrl + ':' + ports[i] + '/upload');
             }
         }
 
         var uploadHttpConcurrentProgress = new window.uploadHttpConcurrentProgress(urls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
-          uploadHttpOnAbort, uploadHttpOnTimeout, uploadHttpOnError,uploadSize, uploadProgressInterval,testPlan.maxuploadSize,maxConcurrentRuns,monitorInterval);
+            uploadHttpOnAbort, uploadHttpOnTimeout, uploadHttpOnError, uploadSize, testPlan.maxuploadSize, monitorInterval);
 
         uploadHttpConcurrentProgress.initiateTest();
     }

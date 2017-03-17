@@ -195,7 +195,6 @@
       result.time = this.totalTime;
       this.totalBytes += response.loaded;
       var transferSizeMbs = response.loaded * 8 / 1000000;
-
       var transferDurationSeconds = this.totalTime/1000;
       result.bandwidth = transferSizeMbs / transferDurationSeconds;
       result.loaded = response.loaded;

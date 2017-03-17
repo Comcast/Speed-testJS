@@ -19,22 +19,25 @@
 (function () {
     'use strict';
     /**
-     * upload testing based on httpRequests
-     * @param string server endpoint for upload testing
-     * @param string post or get request
-     * @param integer number of concurrentRuns
-     * @param integer timeout of the request
-     * @param integer length of the testLength
-     * @param integer when to calculate moving average
-     * @param function callback function for test suite complete event
-     * @param function callback function for test suite progress event
-     * @param function callback function for test suite abort event
-     * @param function callback function for test suite timeout event
-     * @param function callback function for test suite error event
-     **/
-    function uploadHttpConcurrentProgress(urls,  type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
-                                            callbackTimeout, callbackError, size, progressIntervalupload, maxuploadSize,
-                                            maxConcurrentRuns, monitorInterval) {
+     * upload testing based on httpRequests.
+     * @param urls - array of url to server endpoint for upload testing.
+     * @param type - post request.
+     * @param concurrentRuns - number of concurrentRuns.
+     * @param timeout - timeout of the request.
+     * @param testLength - length of the upload test.
+     * @param movingAverage - when to calculate moving average.
+     * @param callbackComplete - function callback function for test suite complete event.
+     * @param callbackProgress - function callback function for test suite progress event.
+     * @param callbackAbort - function callback function for test suite abort event.
+     * @param callbackTimeout - function callback function for test suite timeout event.
+     * @param callbackError - function callback function for test suite error event.
+     * @param size - initial size to start upload testing.
+     * @param maxuploadSize - upload size should not exceed max upload size.
+     * @param monitorInterval - monitor interval.
+     */
+    function uploadHttpConcurrentProgress(urls, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
+                                          callbackTimeout, callbackError, size, maxuploadSize,
+                                          monitorInterval) {
         this.urls = urls;
         this.size = size;
         this.type = type;
@@ -42,9 +45,7 @@
         this.timeout = timeout;
         this.testLength = testLength;
         this.movingAverage = movingAverage;
-        this.progressIntervalupload = progressIntervalupload;
-        this.maxuploadSize = 10000000;
-        this.maxConcurrentRuns = maxConcurrentRuns;
+        this.maxuploadSize = maxuploadSize;
         this.monitorInterval = monitorInterval;
         //unique id or test
         this._testIndex = 0;
@@ -66,11 +67,11 @@
         //total probe bytes
         this.totalBytes = 0;
         //results object array
-        this.results =[];
+        this.results = [];
         //results count
         this.resultsCount = 0;
-      //initializing the random data used for testing upload
-      this._payload = null;
+        //initializing the random data used for testing upload
+        this._payload = null;
         this.uploadResults = [];
 
     }
@@ -80,7 +81,7 @@
      * @return error object
      */
     uploadHttpConcurrentProgress.prototype.onTestError = function (result) {
-      if (this._running) {
+        if (this._running) {
             this.clientCallbackError(result);
             clearInterval(this.interval);
             this._running = false;
@@ -91,7 +92,7 @@
      * @return abort object
      */
     uploadHttpConcurrentProgress.prototype.onTestAbort = function (result) {
-      this._storeResults(result);
+        this._storeResults(result);
         this.totalBytes = this.totalBytes + result.loaded;
     };
     /**
@@ -99,7 +100,7 @@
      * @return timeout object
      */
     uploadHttpConcurrentProgress.prototype.onTestTimeout = function () {
-        if(this._running) {
+        if (this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
                 clearInterval(this.interval);
                 if (this.uploadResults && this.uploadResults.length) {
@@ -146,7 +147,6 @@
     };
 
 
-
     /**
      * onProgress method
      */
@@ -189,38 +189,6 @@
 
 
     };
-
-    /**
-     * getRandomData creates a random data used for testing the upload bandwidth.
-     * @param size - creates a blob of the given size.
-     * @returns {*}
-     */
-    function getRandomData(size) {
-
-      function getData() {
-        return Math.random().toString();
-      }
-
-      var count = size / 2;
-      var result = getData();
-
-      while (result.length <= count) {
-        result += getData();
-      }
-
-      result = result + result.substring(0, size - result.length);
-      var blob;
-      try {
-        blob = new Blob([result], {type: "application/octet-stream"});
-      } catch (e) {
-        var bb = new BlobBuilder; // jshint ignore:line
-        bb.append(result);
-        blob = bb.getBlob("application/octet-stream");
-      }
-      return blob;
-    }
-
-
 
     /**
      * Cancel the test
@@ -293,7 +261,7 @@
      * Monitor testSeries
      */
     uploadHttpConcurrentProgress.prototype._monitor = function () {
-      this._calculateResults();
+        this._calculateResults();
         //check for end of test
         if ((Date.now() - this._beginTime) > (this.testLength)) {
             this.abortAll();
@@ -326,6 +294,36 @@
         var self = this;
 
     };
+
+    /**
+     * getRandomData creates a random data used for testing the upload bandwidth.
+     * @param size - creates a blob of the given size.
+     * @returns {*}
+     */
+    function getRandomData(size) {
+
+        function getData() {
+            return Math.random().toString();
+        }
+
+        var count = size / 2;
+        var result = getData();
+
+        while (result.length <= count) {
+            result += getData();
+        }
+
+        result = result + result.substring(0, size - result.length);
+        var blob;
+        try {
+            blob = new Blob([result], {type: "application/octet-stream"});
+        } catch (e) {
+            var bb = new BlobBuilder; // jshint ignore:line
+            bb.append(result);
+            blob = bb.getBlob("application/octet-stream");
+        }
+        return blob;
+    }
 
     window.uploadHttpConcurrentProgress = uploadHttpConcurrentProgress;
 })();
