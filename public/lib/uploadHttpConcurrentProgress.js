@@ -124,22 +124,25 @@
         //store results
         this._storeResults(result);
         var uploadSize = (this.testLength - result.time) * result.loaded / result.time;
+
         if (uploadSize > this.size) {
             this.size = uploadSize;
+            if (this.size > this.maxuploadSize) {
+                this.size = this.maxuploadSize;
+            }
         }
 
         if (this.newRun) {
             this.concurrentRuns = 1;
             this.start();
-        } else {
-            this.concurrentRuns = 6;
+        }
+        else {
+            this.concurrentRuns = 4;
             this.start();
+            //from the third group run. when a connection ends start a new one.
             this.newRun = true;
         }
 
-        if (this.size > this.maxuploadSize) {
-            this.size = this.maxuploadSize;
-        }
     };
 
 
@@ -186,19 +189,6 @@
 
 
     };
-
-  function getRandomString(size){
-
-      var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
-      var randomstring = '';
-      for (var i=0; i<size; i++) {
-        var rnum = Math.floor(Math.random() * chars.length);
-        randomstring += chars.substring(rnum,rnum+1);
-      }
-      return randomstring;
-
-  }
-
 
     /**
      * getRandomData creates a random data used for testing the upload bandwidth.

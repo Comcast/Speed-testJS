@@ -47,7 +47,6 @@ class UploadController {
     runUpload(req, res) {
         var response = {
             result: 'success',
-            transferSize: req.body.data.length,
             message: Date.now()
         };
         res.status(200).json(response);
