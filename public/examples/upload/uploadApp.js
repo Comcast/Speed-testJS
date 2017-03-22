@@ -220,8 +220,9 @@
         option.series[0].detail.show = true;
         myChart.setOption(option, true);
 
-        function calculateStatsonComplete(result) {
-            var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
+        function uploadHttpOnComplete(result) {
+
+            var finalValue = parseFloat(Math.round(result.mean * 100) / 100).toFixed(2);
             finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
             void ((version === 'IPv6') && uploadTest('IPv4'));
             if (!(version === 'IPv6')) {
@@ -231,7 +232,7 @@
                 startTestButton.innerHTML = 'Start Test';
                 option.series[0].data[0].value = 0;
                 option.series[0].data[0].name = 'Test Complete';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                 startTestButton.disabled = false;
@@ -240,28 +241,6 @@
             }
 
             updateValue([currentTest, '-', version].join(''), finalValue);
-        }
-
-        function calculateStatsonError(result) {
-                //set test value to 0
-                option.series[0].data[0].value = 0;
-                //updat test status to complete
-                option.series[0].data[0].name = 'Test Failed';
-                //set accessiblity aria-disabled state. 
-                //This will also effect the visual look by corresponding css
-                startTestButton.setAttribute('aria-disabled', false);
-               //update button text to communicate current state of test as In Progress
-                startTestButton.innerHTML = 'Start Test';
-                //enable start button
-                startTestButton.disabled = false;
-                //hide current test value in chart 
-                option.series[0].detail.show = false;
-                //update gauge
-                myChart.setOption(option, true);
-        }
-        function uploadHttpOnComplete(result) {
-            var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', result, calculateStatsonComplete, calculateStatsonError);
-            calculateMeanStats.performCalculations();
         }
         function uploadHttpOnProgress(result) {
             option.series[0].data[0].value = result;

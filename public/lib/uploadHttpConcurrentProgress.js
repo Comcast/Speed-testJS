@@ -268,7 +268,12 @@
             this._running = false;
             clearInterval(this.interval);
             if (this.uploadResults && this.uploadResults.length) {
-                this.clientCallbackComplete(this.uploadResults);
+                var uploadResults = this.uploadResults;
+                var dataLength = uploadResults.length;
+                var data = slicing(uploadResults, Math.round(dataLength * 0.4), dataLength);
+                data = data.sort(numericComparator);
+                var result = meanCalculator(data);
+                this.clientCallbackComplete(result);
             } else {
                 this.clientCallbackError('no measurements obtained');
             }
@@ -323,6 +328,27 @@
             blob = bb.getBlob("application/octet-stream");
         }
         return blob;
+    }
+
+    //TODO will be moved to a seperate file
+    function slicing(data, start, end) {
+        return data.slice(start, end);
+    }
+
+    function meanCalculator(arr) {
+        var peakValue = arr[arr.length - 1];
+        var sum = arr.reduce(function (a, b) {
+            return a + b;
+        }, 0);
+        var mean = sum / arr.length;
+        return {
+            mean: mean,
+            peakValue: peakValue
+        };
+    }
+
+    function numericComparator(a, b) {
+        return (a - b);
     }
 
     window.uploadHttpConcurrentProgress = uploadHttpConcurrentProgress;
