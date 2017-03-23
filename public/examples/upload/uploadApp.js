@@ -40,7 +40,7 @@
     var uploadMovingAverage = 18;
     var urls = [];
     var ports = [5020, 5021, 5022, 5023, 5024, 5025];
-    var monitorInterval = 200;
+    var monitorInterval = 400;
 
     function initTest() {
         function addEvent(el, ev, fn) {
