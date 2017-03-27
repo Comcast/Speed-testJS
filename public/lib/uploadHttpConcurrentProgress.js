@@ -167,6 +167,14 @@
             return;
         }
 
+        if (this._payload === null) {
+            this._payload = getRandomData(this.size);
+        } else {
+            if (this._payload.size !== this.size) {
+                this._payload = getRandomData(this.size);
+            }
+        }
+
         for (var p = 1; p <= this.concurrentRuns; p++) {
             this._testIndex++;
             this['arrayResults' + this._testIndex] = [];
@@ -177,13 +185,6 @@
                 testRun: this._testIndex
             });
 
-            if (this._payload === null) {
-                this._payload = getRandomData(this.size);
-            } else {
-                if (this._payload.size !== this.size) {
-                    this._payload = getRandomData(this.size);
-                }
-            }
             request.start(this.size, this._testIndex, this._payload);
         }
 
