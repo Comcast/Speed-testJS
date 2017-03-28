@@ -293,6 +293,7 @@
         this._running = true;
         this.interval = null;
         this.totalBytes = 0;
+        this._payload = null;
         this.interval = setInterval(function () {
             self._monitor();
         }, 100);

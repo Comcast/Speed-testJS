@@ -321,7 +321,7 @@
             uploadSize = 17526506;
             uploadTestTimeout = 15000;
             uploadTestLength = 15000;
-            var uploadMovingAverage = 1;
+            uploadMovingAverage = 1;
             var uiMicrsoftMovingAverage = 2;
         }
 

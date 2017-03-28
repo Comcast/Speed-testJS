@@ -579,18 +579,39 @@
       myChart.setOption(option, true);
     }
 
-    uploadUrls.length = 0;
-    var baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
-    for (var i = 0; i < ports.length; i++) {
-      for (var b = 0; b < 6; b++) {
-        uploadUrls.push('http://' + baseUrl + ':' + ports[i] + '/upload');
-      }
+
+    var uploadHttpConcurrentProgress;
+    var baseUrl;
+    //TODO needs to removed once we know the issues  with ie
+    if (navigator.appVersion.indexOf("MSIE") != -1 || navigator.appVersion.indexOf("Trident") != -1 || navigator.appVersion.indexOf("Edge") != -1) {
+      var isIE = true;
+      uploadSize = 17526506;
+      uploadTestTimeout = 15000;
+      uploadTestLength = 15000;
+      uploadMovingAverage = 1;
+      var uiMicrsoftMovingAverage = 2;
     }
 
-    var uploadHttpConcurrentProgress = new window.uploadHttpConcurrentProgress(uploadUrls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
-        uploadHttpOnAbort, uploadHttpOnTimeout, uploadHttpOnError, uploadSize, testPlan.maxuploadSize, uploadMonitorInterval);
+    if (isIE) {
+      baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-    uploadHttpConcurrentProgress.initiateTest();
+      uploadHttpConcurrentProgress = new window.uploadHttpMicrosoft(baseUrl + '/upload', 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength,
+          uploadMovingAverage, uiMicrsoftMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress, uploadHttpOnError, uploadSize);
+      uploadHttpConcurrentProgress.initiateTest();
+    } else {
+      baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
+      uploadUrls.length = 0;
+      for (var i = 0; i < ports.length; i++) {
+        for (var b = 0; b < 6; b++) {
+          uploadUrls.push('http://' + baseUrl + ':' + ports[i] + '/upload');
+        }
+      }
+
+      uploadHttpConcurrentProgress = new window.uploadHttpConcurrentProgress(uploadUrls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
+          uploadHttpOnAbort, uploadHttpOnTimeout, uploadHttpOnError, uploadSize, testPlan.maxuploadSize, uploadMonitorInterval);
+
+      uploadHttpConcurrentProgress.initiateTest();
+    }
 
   }
 
