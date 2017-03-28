@@ -96,6 +96,7 @@ app.listen(5024);
 app.listen(5025);
 //max download buffer size based off of download probing data
 global.maxDownloadBuffer = 532421875;
+global.maxUploadBuffer = 10000000;
 
 var wss = new WebSocketServer({port: webSocketPort});
 wss.on('connection', function connection(ws) {

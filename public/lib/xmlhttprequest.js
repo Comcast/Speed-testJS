@@ -42,7 +42,7 @@
     this.totalBytes = 0;
     this.currentTime = 0;
     this.progressIntervalDownload = progressIntervalDownload;
-    this.progressIntervalUpload = 50;
+    this.progressIntervalUpload = 25;
     this.callbackComplete = callbackComplete;
     this.callbackProgress = callbackProgress;
     this.callbackAbort = callbackAbort;
@@ -138,6 +138,8 @@
        result.chunckLoaded = response.loaded - this.prevLoad;
        result.time = this.totalTime;
        result.loaded = response.loaded;
+       result.timeStamp = Date.now();
+       result.chunckLoaded = response.loaded - this.prevLoad;
        result.bandwidth = transferSizeMbs/transferDurationSeconds;
        result.id = this.id;
        this.callbackAbort(result);
@@ -163,6 +165,10 @@
                 var transferSizeMbs = (this.transferSize * 8) / 1000000;
                 var transferDurationSeconds = result.totalTime/1000;
                 result.bandwidth = transferSizeMbs/transferDurationSeconds;
+                result.timeStamp = Date.now();
+                result.loaded = this.transferSize;
+                result.time = result.totalTime;
+                result.chunckLoaded = this.transferSize - this.prevLoad;
                 if(isFinite(result.bandwidth)) {
                     this.callbackComplete(result);
                 }
@@ -234,7 +240,7 @@
      */
    xmlHttpRequest.prototype._handleOnProgressUpload = function (response) {
        //measure bandwidth after one progress event due to rampup
-       if (this.progressCount > 1 && response.lengthComputable) {
+       if (this.progressCount > 1) {
            var result = {};
            result.id = this.id;
            this.currentTime = Date.now();
@@ -243,6 +249,8 @@
                var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
                var transferDurationSeconds = result.totalTime / 1000;
                result.bandwidth = transferSizeMbs / transferDurationSeconds;
+             result.timeStamp = Date.now();
+             result.chunckLoaded = response.loaded - this.prevLoad;
                if (isFinite(result.bandwidth)) {
                    this.callbackProgress(result);
                    this.prevTime = this.currentTime;

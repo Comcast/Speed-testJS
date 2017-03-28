@@ -33,17 +33,14 @@
     var option;
     var startTestButton;
     var firstRun = true;
-    var uploadSize = 10526506;
-    var uploadConcurrentRuns = 1;
-    var uploadTimeout = 20000;
-    var uploadTestLength = 20000;
-    var uploadMovingAverage = 1;
-    var defaultUploadSize = 25526506;
-    var uiMovingAverage = 10;
-    var microsoftUploadSize = 17526506;
-    var microsoftUiUploadMovingAverage = 2;
-    var testServerTimeout = 2000;
-    var latencyTimeout = 3000;
+    var uploadSize = 10000;
+    var uploadCurrentRuns = 1;
+    var uploadTestTimeout = 12000;
+    var uploadTestLength = 12000;
+    var uploadMovingAverage = 18;
+    var urls = [];
+    var ports = [5020, 5021, 5022, 5023, 5024, 5025];
+    var monitorInterval = 400;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -188,9 +185,10 @@
                 resultsEl[i].innerHTML = '';
             }
         }
-        uploadProbe();
+      void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
 
-        //update button text to communicate current state of test as In Progress
+
+      //update button text to communicate current state of test as In Progress
         startTestButton.innerHTML = 'Testing in Progress ...';
         //disable button
         startTestButton.disabled = true;
@@ -214,26 +212,6 @@
         }
     }
 
-    function uploadProbe() {
-        function uploadProbeTestOnComplete(result) {
-            uploadSize = defaultUploadSize;
-
-            if (result && isMobile()) {
-                uploadSize = result;
-            }
-
-            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
-        }
-
-        function uploadProbeTestOnError(result) {
-
-            void (!(testPlan.hasIPv6 === 'IPv6') && setTimeout(function () { !firstRun && uploadTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4'); }, 500));
-        }
-
-        var uploadProbeTestRun = new window.uploadProbeTest('http://' + testPlan.baseUrlIPv4 + '/upload', 'http://'  + testPlan.baseUrlIPv4 + '/uploadProbe', false, 3000, 194872, uploadProbeTestOnComplete, uploadProbeTestOnError);
-        uploadProbeTestRun.start();
-    }
-
     function uploadTest(version) {
         var currentTest = 'upload';
         option.series[0].data[0].value = 0;
@@ -242,8 +220,9 @@
         option.series[0].detail.show = true;
         myChart.setOption(option, true);
 
-        function calculateStatsonComplete(result) {
-            var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
+        function uploadHttpOnComplete(result) {
+
+            var finalValue = parseFloat(Math.round(result.mean * 100) / 100).toFixed(2);
             finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
             void ((version === 'IPv6') && uploadTest('IPv4'));
             if (!(version === 'IPv6')) {
@@ -253,7 +232,7 @@
                 startTestButton.innerHTML = 'Start Test';
                 option.series[0].data[0].value = 0;
                 option.series[0].data[0].name = 'Test Complete';
-                //set accessiblity aria-disabled state. 
+                //set accessiblity aria-disabled state.
                 //This will also effect the visual look by corresponding css
                 startTestButton.setAttribute('aria-disabled', false);
                 startTestButton.disabled = false;
@@ -262,28 +241,6 @@
             }
 
             updateValue([currentTest, '-', version].join(''), finalValue);
-        }
-
-        function calculateStatsonError(result) {
-                //set test value to 0
-                option.series[0].data[0].value = 0;
-                //updat test status to complete
-                option.series[0].data[0].name = 'Test Failed';
-                //set accessiblity aria-disabled state. 
-                //This will also effect the visual look by corresponding css
-                startTestButton.setAttribute('aria-disabled', false);
-               //update button text to communicate current state of test as In Progress
-                startTestButton.innerHTML = 'Start Test';
-                //enable start button
-                startTestButton.disabled = false;
-                //hide current test value in chart 
-                option.series[0].detail.show = false;
-                //update gauge
-                myChart.setOption(option, true);
-        }
-        function uploadHttpOnComplete(result) {
-            var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', result, calculateStatsonComplete, calculateStatsonError);
-            calculateMeanStats.performCalculations();
         }
         function uploadHttpOnProgress(result) {
             option.series[0].data[0].value = result;
@@ -355,21 +312,38 @@
                 //update gauge
                 myChart.setOption(option, true);
         }
-        var baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
+        var uploadHttpConcurrentProgress;
+        var baseUrl;
+        //TODO needs to removed once we know the issues  with ie
         if (navigator.appVersion.indexOf("MSIE") != -1 || navigator.appVersion.indexOf("Trident") != -1 || navigator.appVersion.indexOf("Edge") != -1) {
-            uploadSize = microsoftUploadSize;
-            uiMovingAverage = microsoftUiUploadMovingAverage;
+            var isIE = true;
+            uploadSize = 17526506;
+            uploadTestTimeout = 15000;
+            uploadTestLength = 15000;
+            uploadMovingAverage = 1;
+            var uiMicrsoftMovingAverage = 2;
         }
 
-        var uploadHttpConcurrentTestSuite = new window.uploadHttpConcurrentProgress(baseUrl + '/upload', 'POST', uploadConcurrentRuns, uploadTimeout, uploadTestLength,
-            uploadMovingAverage, uiMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress, uploadHttpOnError, uploadSize);
-        uploadHttpConcurrentTestSuite.initiateTest();
+        if (isIE) {
+             baseUrl = (version === 'IPv6') ? 'http://' + testPlan.baseUrlIPv6 : 'http://' + testPlan.baseUrlIPv4;
 
-    }
+            uploadHttpConcurrentProgress = new window.uploadHttpMicrosoft(baseUrl + '/upload', 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength,
+                uploadMovingAverage, uiMicrsoftMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress, uploadHttpOnError, uploadSize);
+            uploadHttpConcurrentProgress.initiateTest();
+        } else {
+            baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
+            for (var i = 0; i < ports.length; i++) {
+                for (var b = 0; b < 6; b++) {
+                    urls.push('http://' + baseUrl + ':' + ports[i] + '/upload');
+                }
+            }
 
-    function isMobile() {
-        return (/Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) );
+            uploadHttpConcurrentProgress = new window.uploadHttpConcurrentProgress(urls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
+                uploadHttpOnAbort, uploadHttpOnTimeout, uploadHttpOnError, uploadSize, testPlan.maxuploadSize, monitorInterval);
+
+            uploadHttpConcurrentProgress.initiateTest();
+        }
     }
 
 })();
