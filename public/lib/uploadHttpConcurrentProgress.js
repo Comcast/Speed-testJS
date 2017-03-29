@@ -35,8 +35,7 @@
      * @param maxuploadSize - upload size should not exceed max upload size.
      * @param monitorInterval - monitor interval.
      */
-    function uploadHttpConcurrentProgress(urls, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
-                                          callbackTimeout, callbackError, size, maxuploadSize,
+    function uploadHttpConcurrentProgress(urls, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackError, size, maxuploadSize,
                                           monitorInterval) {
         this.urls = urls;
         this.size = size;
@@ -53,8 +52,6 @@
         this._activeTests = [];
         this.clientCallbackComplete = callbackComplete;
         this.clientCallbackProgress = callbackProgress;
-        this.clientCallbackAbort = callbackAbort;
-        this.clientCallbackTimeout = callbackTimeout;
         this.clientCallbackError = callbackError;
         //start time of test suite
         this._beginTime = Date.now();
@@ -234,7 +231,6 @@
                 var transferSizeMbs = (totalLoaded * 8) / 1000000;
                 var transferDurationSeconds = this.monitorInterval / 1000;
                 this.finalResults.push(transferSizeMbs / transferDurationSeconds);
-                var singleMovingAverage = 0;
                 var lastElem = Math.min(this.finalResults.length, this.movingAverage);
                 if (lastElem > 0) {
                     var singleMovingAverage = 0;
