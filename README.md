@@ -47,7 +47,7 @@ to (ie. app.listen(SERVERPORT,'::');). Addtionaly ports can be assigned with app
 3. WebSockets 
 4. Modules folder contains custom modules used for the application.
 
-#Client
+# Client
 
 Client: Client application resides under the public folder and consists of plain javascript. Index.html is the 
 default start page of the application and will contain an end to end example of aBandwidth Speed Test. The following describes
@@ -62,7 +62,7 @@ the folder structure of the client application:
 * img: images for testing or ui
 
 
-#Manual deployment
+# Manual deployment
 Grunt is being used to package the needed files and folders to deploy the application to a server to run the application.
 The steps are listed below:
 
@@ -72,7 +72,7 @@ The steps are listed below:
 4. execute node index.js from the console.
 
 
-#Running the application
+# Running the application
 To run the application locally
 
 1. Clone repo
@@ -80,7 +80,7 @@ To run the application locally
 3. run node index.js
 4. browse to the ipaddress:port number (ie. locally it will be http://localhost:port
 
-#Database
+# Database
 To set dynamodb locally
 
 1. Follow the instructions in the link to download and run dynamodb locally http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html
