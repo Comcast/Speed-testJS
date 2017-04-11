@@ -56,7 +56,7 @@ vagrant up
 This will create the virtual machine and install ansible. It may take a while, and once that is completed, type
 
 ```
-vagraht ssh
+vagrant ssh
 ```
 
 Vagrant automatically mounts the directory where `Vagrantfile` resides to `/vagrant`. So once we are inside the
