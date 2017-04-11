@@ -201,6 +201,7 @@
       for (var i = 0; i < resultsEl.length; i++) {
         resultsEl[i].innerHTML = '';
       }
+      latencyTest(testPlan.hasIPv6 ? 'IPv6' : 'IPv4');
     }
 
 
