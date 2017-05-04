@@ -36,7 +36,7 @@
      * @param monitorInterval - monitor interval.
      */
     function uploadHttpConcurrentProgress(urls, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackError, size, maxuploadSize,
-                                          monitorInterval) {
+                                          monitorInterval, isIE) {
         this.urls = urls;
         this.size = size;
         this.type = type;
@@ -70,7 +70,12 @@
         //initializing the random data used for testing upload
         this._payload = null;
         this.uploadResults = [];
-
+        //boolean to see if the client is running the on microsoft browse
+        this.isIE = isIE;
+        //upload size for low bandwidth clients(microsoft browsers)
+        this.lowBandwidthUploadSize = 50000;
+        //upload size for high bandwidth clients(microsoft browsers)
+        this.highBandwidthUploadSize = 5000000;
     }
 
     /**
@@ -121,12 +126,28 @@
 
         //store results
         this._storeResults(result);
-        var uploadSize = (this.testLength - result.time) * result.loaded / result.time;
 
-        if (uploadSize > this.size) {
-            this.size = uploadSize;
-            if (this.size > this.maxuploadSize) {
-                this.size = this.maxuploadSize;
+        if (this.isIE) {
+            if (!this.isMaxUploadSize) {
+                //TODO need to dynamically increase the size.. may be look at the requests completed or the uploadSpeed
+                //upload size used for low bandwidth clients of microsoft browsers
+                this.size = this.lowBandwidthUploadSize;
+            }
+
+            if (this.uploadResults[this.uploadResults.length - 1] > 50 && !this.isMaxUploadSize) {
+                this.isMaxUploadSize = true;
+                //TODO need to be updated in testplan controller
+                //upload size used for high bandwidth clients of microsoft browsers
+                this.size = this.highBandwidthUploadSize;
+            }
+        } else {
+            var uploadSize = (this.testLength - result.time) * result.loaded / result.time;
+
+            if (uploadSize > this.size) {
+                this.size = uploadSize;
+                if (this.size > this.maxuploadSize) {
+                    this.size = this.maxuploadSize;
+                }
             }
         }
 

@@ -280,17 +280,11 @@
         if (navigator.appVersion.indexOf("MSIE") != -1 || navigator.appVersion.indexOf("Trident") != -1 || navigator.appVersion.indexOf("Edge") != -1) {
             var isIE = true;
         }
-        var isIE = true;
-        if (isIE) {
-            uploadHttpConcurrentProgress = new window.uploadHttpMicrosoft(urls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength,
-                uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress, uploadHttpOnError, uploadSize, testPlan.maxuploadSize, monitorInterval);
-            uploadHttpConcurrentProgress.initiateTest();
-        } else {
-            uploadHttpConcurrentProgress = new window.uploadHttpConcurrentProgress(urls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
-                uploadHttpOnError, uploadSize, testPlan.maxuploadSize, monitorInterval);
 
-            uploadHttpConcurrentProgress.initiateTest();
-        }
+        uploadHttpConcurrentProgress = new window.uploadHttpConcurrentProgress(urls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
+            uploadHttpOnError, uploadSize, testPlan.maxuploadSize, monitorInterval, isIE);
+
+        uploadHttpConcurrentProgress.initiateTest();
     }
 
 })();
