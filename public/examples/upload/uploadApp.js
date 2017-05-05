@@ -41,7 +41,7 @@
     var urls = [];
     var ports = [5020, 5021, 5022, 5023, 5024, 5025];
     var monitorInterval = 400;
-    var isIE = false;
+    var isMicrosoftBrowser = false;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -279,11 +279,11 @@
         }
         //TODO needs to removed once we know the issues  with ie
         if (navigator.appVersion.indexOf("MSIE") != -1 || navigator.appVersion.indexOf("Trident") != -1 || navigator.appVersion.indexOf("Edge") != -1) {
-            isIE = true;
+            isMicrosoftBrowser = true;
         }
 
         uploadHttpConcurrentProgress = new window.uploadHttpConcurrentProgress(urls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
-            uploadHttpOnError, uploadSize, testPlan.maxuploadSize, monitorInterval, isIE);
+            uploadHttpOnError, uploadSize, testPlan.maxuploadSize, monitorInterval, isMicrosoftBrowser);
 
         uploadHttpConcurrentProgress.initiateTest();
     }

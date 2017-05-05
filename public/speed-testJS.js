@@ -51,7 +51,7 @@
   var uploadMovingAverage = 18;
   var uploadUrls = [];
   var uploadMonitorInterval = 200;
-  var isIE = false;
+  var isMicrosoftBrowser = false;
 
   function initTest() {
     function addEvent(el, ev, fn) {
@@ -538,7 +538,7 @@
 
       //TODO needs to removed once we know the issues  with ie
       if (navigator.appVersion.indexOf("MSIE") != -1 || navigator.appVersion.indexOf("Trident") != -1 || navigator.appVersion.indexOf("Edge") != -1) {
-          isIE = true;
+          isMicrosoftBrowser = true;
       }
 
       var baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
@@ -550,7 +550,7 @@
       }
 
       var uploadHttpConcurrentProgress = new window.uploadHttpConcurrentProgress(uploadUrls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
-          uploadHttpOnError, uploadSize, testPlan.maxuploadSize, uploadMonitorInterval, isIE);
+          uploadHttpOnError, uploadSize, testPlan.maxuploadSize, uploadMonitorInterval, isMicrosoftBrowser);
 
       uploadHttpConcurrentProgress.initiateTest();
   }

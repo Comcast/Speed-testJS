@@ -36,7 +36,7 @@
      * @param monitorInterval - monitor interval.
      */
     function uploadHttpConcurrentProgress(urls, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackError, size, maxuploadSize,
-                                          monitorInterval, isIE) {
+                                          monitorInterval, isMicrosoftBrowser) {
         this.urls = urls;
         this.size = size;
         this.type = type;
@@ -71,7 +71,7 @@
         this._payload = null;
         this.uploadResults = [];
         //boolean to see if the client is running the on microsoft browse
-        this.isIE = isIE;
+        this.isMicrosoftBrowser = isMicrosoftBrowser;
         //upload size for low bandwidth clients(microsoft browsers)
         this.lowBandwidthUploadSize = 50000;
         //upload size for high bandwidth clients(microsoft browsers)
@@ -129,7 +129,7 @@
         //store results
         this._storeResults(result);
 
-        if (this.isIE) {
+        if (this.isMicrosoftBrowser) {
 
             if (!this.isMaxUploadSize) {
                 if (this.uploadResults[this.uploadResults.length - 1] > this.uploadThresholdValue) {
