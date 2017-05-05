@@ -76,6 +76,8 @@
         this.lowBandwidthUploadSize = 50000;
         //upload size for high bandwidth clients(microsoft browsers)
         this.highBandwidthUploadSize = 5000000;
+        //upload threshold value
+        this.uploadThresholdValue = 50;
     }
 
     /**
@@ -128,18 +130,19 @@
         this._storeResults(result);
 
         if (this.isIE) {
+
             if (!this.isMaxUploadSize) {
-                //TODO need to dynamically increase the size.. may be look at the requests completed or the uploadSpeed
-                //upload size used for low bandwidth clients of microsoft browsers
-                this.size = this.lowBandwidthUploadSize;
+                if (this.uploadResults[this.uploadResults.length - 1] > this.uploadThresholdValue) {
+                    //TODO need to dynamically increase the size.. may be look at the requests completed or the uploadSpeed
+                    this.isMaxUploadSize = true;
+                    //upload size used for high bandwidth clients of microsoft browsers
+                    this.size = this.highBandwidthUploadSize;
+                } else {
+                    //upload size used for low bandwidth clients of microsoft browsers
+                    this.size = this.lowBandwidthUploadSize;
+                }
             }
 
-            if (this.uploadResults[this.uploadResults.length - 1] > 50 && !this.isMaxUploadSize) {
-                this.isMaxUploadSize = true;
-                //TODO need to be updated in testplan controller
-                //upload size used for high bandwidth clients of microsoft browsers
-                this.size = this.highBandwidthUploadSize;
-            }
         } else {
             var uploadSize = (this.testLength - result.time) * result.loaded / result.time;
 
