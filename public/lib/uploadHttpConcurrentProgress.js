@@ -36,7 +36,7 @@
      * @param monitorInterval - monitor interval.
      */
     function uploadHttpConcurrentProgress(urls, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackError, size, maxuploadSize,
-                                          monitorInterval) {
+                                          monitorInterval, isMicrosoftBrowser) {
         this.urls = urls;
         this.size = size;
         this.type = type;
@@ -70,7 +70,14 @@
         //initializing the random data used for testing upload
         this._payload = null;
         this.uploadResults = [];
-
+        //boolean to see if the client is running the on microsoft browse
+        this.isMicrosoftBrowser = isMicrosoftBrowser;
+        //upload size for low bandwidth clients(microsoft browsers)
+        this.lowBandwidthUploadSize = 50000;
+        //upload size for high bandwidth clients(microsoft browsers)
+        this.highBandwidthUploadSize = 5000000;
+        //upload threshold value
+        this.uploadThresholdValue = 50;
     }
 
     /**
@@ -121,12 +128,29 @@
 
         //store results
         this._storeResults(result);
-        var uploadSize = (this.testLength - result.time) * result.loaded / result.time;
 
-        if (uploadSize > this.size) {
-            this.size = uploadSize;
-            if (this.size > this.maxuploadSize) {
-                this.size = this.maxuploadSize;
+        if (this.isMicrosoftBrowser) {
+
+            if (!this.isMaxUploadSize) {
+                if (this.uploadResults[this.uploadResults.length - 1] > this.uploadThresholdValue) {
+                    //TODO need to dynamically increase the size.. may be look at the requests completed or the uploadSpeed
+                    this.isMaxUploadSize = true;
+                    //upload size used for high bandwidth clients of microsoft browsers
+                    this.size = this.highBandwidthUploadSize;
+                } else {
+                    //upload size used for low bandwidth clients of microsoft browsers
+                    this.size = this.lowBandwidthUploadSize;
+                }
+            }
+
+        } else {
+            var uploadSize = (this.testLength - result.time) * result.loaded / result.time;
+
+            if (uploadSize > this.size) {
+                this.size = uploadSize;
+                if (this.size > this.maxuploadSize) {
+                    this.size = this.maxuploadSize;
+                }
             }
         }
 
