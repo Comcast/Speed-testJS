@@ -42,6 +42,8 @@
     var urls = [];
     var ports = [5020, 5021, 5022, 5023, 5024, 5025];
     var monitorInterval = 100;
+    var sliceStartValue = 0.3;
+    var sliceEndValue = 0.9;
 
     function initTest() {
         function addEvent(el, ev, fn) {
@@ -226,28 +228,9 @@
             updateValue([currentTest, '-', version].join(''), finalValue);
         }
 
-        function calculateStatsonError(result) {
-                //set test value to 0
-                option.series[0].data[0].value = 0;
-                //updat test status to complete
-                option.series[0].data[0].name = 'Test Failed';
-                //set accessiblity aria-disabled state. 
-                //This will also effect the visual look by corresponding css
-                startTestButton.setAttribute('aria-disabled', false);
-               //update button text to communicate current state of test as In Progress
-                startTestButton.innerHTML = 'Start Test';
-                //enable start button
-                startTestButton.disabled = false;
-                //hide current test value in chart 
-                option.series[0].detail.show = false;
-                //update gauge
-                myChart.setOption(option, true);
-        }
-
         function downloadHttpOnComplete(result) {
-
-            var calculateMeanStats = new window.calculateStats('http://' + testPlan.baseUrlIPv4 + '/calculator', result, calculateStatsonComplete, calculateStatsonError);
-            calculateMeanStats.performCalculations();
+            var calculateMeanStats = new window.statisticalCalculator(result, false, sliceStartValue, sliceEndValue, calculateStatsonComplete);
+            calculateMeanStats.getResults();
         }
 
         function downloadHttpOnProgress(result) {
