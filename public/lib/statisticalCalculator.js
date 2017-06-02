@@ -42,7 +42,7 @@
      */
     statisticalCalculator.prototype.getResults = function () {
         this.data = this.data.sort(this.numericComparator);
-        var dataset = (this.isIqrFilter) ? this.interQuartileRange(data) : this.slicing(this.data, this.start, this.end);
+        var dataset = (this.isIqrFilter) ? this.interQuartileRange(this.data) : this.slicing(this.data, this.start, this.end);
         var peakValue = dataset[dataset.length - 1];
         var mean = this.meanCalculator(dataset);
 
@@ -146,9 +146,9 @@
      */
     statisticalCalculator.prototype.slicing = function (a, start, end) {
         var dataLength = a.length;
-        var start = Math.round(dataLength * start);
-        var end = Math.round(dataLength * end);
-        var sliceData = a.slice(start, end);
+        var arrayStartVal = Math.round(dataLength * start);
+        var arrayEndVal = Math.round(dataLength * end);
+        var sliceData = a.slice(arrayStartVal, arrayEndVal);
         return sliceData;
     };
 
