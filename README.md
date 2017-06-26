@@ -14,7 +14,7 @@ For deploying to a test server, see the README under **ansible** folder.
 
 ## Client Server Setup
 The application consists of a node/express software running the server and plain javascript/html on the client. The server
-powers rest endpoints, websocket communication, database interactions and the client website. 
+powers REST endpoints, websocket communication, database interactions and the client website. 
 
 # Server
 Index.js is the starting point of the app contains of the neccessary functions to run the application. Significant
@@ -27,8 +27,8 @@ to (ie. app.listen(SERVERPORT,'::');). Additionally, ports can be assigned with 
 
 * WebSockets: websockets communication is defined
 
-* REST endpoints: rest endpoints are exposed to complete a speed test and include the following:
-    1. testplan: testplan will return json data containing the ipv4, ipv6 ipaddresses and ports used for rest endPoints
+* REST endoints: REST endpoints are exposed to complete a speed test and include the following:
+    1. testplan: testplan will return json data containing the ipv4, ipv6 ipaddresses and ports used for REST endpoints
     and websockets running on the server and the client ipAddress. Also additional speed test features (ie. latency based
     routing flags can be returned)
     2. latency: returns simple pong message
