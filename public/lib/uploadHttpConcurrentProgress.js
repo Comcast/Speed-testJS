@@ -87,7 +87,6 @@
      * @return error object
      */
     uploadHttpConcurrentProgress.prototype.onTestError = function (result) {
-      console.dir(result);
         if (this._running) {
           if ((Date.now() - this._beginTime) > this.testLength) {
             this.endTest();
