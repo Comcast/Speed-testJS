@@ -83,7 +83,6 @@
       this.id = id;
       this.transferSize = size;
       this._request.open(this.method, this.url, true);
-      this._request.timeout = this.timeout;
       this.requestTimeout= setTimeout(this._internalAbort.bind(this), this.timeout);
       if(this.method==='POST') {
         this._request.send(payload);
