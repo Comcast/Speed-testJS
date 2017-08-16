@@ -65,7 +65,6 @@
        this._request.onload = this._handleLoad.bind(this);
        this._request.onabort = this._handleAbort.bind(this);
        this._request.timout = this._handleTimeout.bind(this);
-       this.requestTimeout= setTimeout(this._request.abort.bind(this._request), this.timeout);
        this._request.onerror = this._handleError.bind(this);
        this._request.onreadystatechange = this._handleOnReadyStateChange.bind(this);
        if(this.method==='GET') {
@@ -85,6 +84,7 @@
       this.transferSize = size;
       this._request.open(this.method, this.url, true);
       this._request.timeout = this.timeout;
+      this.requestTimeout= setTimeout(this._internalAbort.bind(this), this.timeout);
       if(this.method==='POST') {
         this._request.send(payload);
       }
@@ -93,6 +93,18 @@
       }
 
     };
+
+  /**
+  * internal timed abort
+  */
+  xmlHttpRequest.prototype._internalAbort = function() {
+    console.log('internal abort');
+    console.log(this.id);
+    console.dir(this._request);
+    if((this._request)&&(this._request.readyState!==4)){
+      this._request.abort();
+    }
+  }
   /**
   * Mark the start time of the request
   */
@@ -103,7 +115,10 @@
   /**
   * Handle eror event
   */
-  xmlHttpRequest.prototype._handleError = function() {
+  xmlHttpRequest.prototype._handleError = function(response) {
+    console.log('xmlHttpRequest Error');
+    console.dir(response);
+    clearTimeout(this.requestTimeout);
      var err = {
        statusText: this._request.statusText,
        status: this._request.status
@@ -114,6 +129,8 @@
       * Handle the timeout event on the wrapped request
       */
      xmlHttpRequest.prototype._handleTimeout = function(response) {
+       console.log('xmlHttpRequest timeOut');
+       clearTimeout(this.requestTimeout);
        this.totalTime = this.endTime - this.startTime;
        var transferSizeMbs = (response.loaded * 8) / 1000000;
        var transferDurationSeconds = this.totalTime/1000;
@@ -128,6 +145,7 @@
       * Handle the abort event on the wrapped request
       */
      xmlHttpRequest.prototype._handleAbort = function(response) {
+       console.log('xmlHttpRequest _handleAbort');
        clearTimeout(this.requestTimeout);
        this.totalTime = Date.now() - this.startTime;
        var transferSizeMbs = (response.loaded * 8) / 1000000;
@@ -149,7 +167,11 @@
     * Close the request explicitly
     */
   xmlHttpRequest.prototype.close = function () {
+    console.log('xmlHttpRequest close method');
+    clearTimeout(this.requestTimeout);
+    if((this._request)&&(this._request.readyState!==4)){
       this._request.abort();
+    }
   };
 
   /**
@@ -158,6 +180,7 @@
   xmlHttpRequest.prototype._handleOnReadyStateChange = function () {
 
     if(this._request.readyState === 4 && this._request.status === 200) {
+      clearTimeout(this.requestTimeout);
               var result = {};
               result.totalTime = Date.now() - this.startTime;
               result.id = this.id;
@@ -182,6 +205,7 @@
    * Handle the load event on the wrapped request
    */
   xmlHttpRequest.prototype._handleLoad = function (response) {
+      clearTimeout(this.requestTimeout);
       this.totalTime = Date.now() - this.startTime;
       var result = {};
       result.time = this.totalTime;

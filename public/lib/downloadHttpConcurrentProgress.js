@@ -102,6 +102,7 @@
     downloadHttpConcurrentProgress.prototype.onTestTimeout = function () {
         if(this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
+              console.log('call endTest onTestTimeout');
                 this.endTest();
             }
 
@@ -133,6 +134,7 @@
         }
         //check for end of test
         if ((Date.now() - this._beginTime) > this.testLength) {
+          console.log('call endTest onTestProgress');
             this.endTest();
         }
         this.totalBytes = this.totalBytes + result.loaded;
@@ -168,6 +170,7 @@
         clearInterval(this.interval);
         for (var i = 0; i < this._activeTests.length; i++) {
             if (typeof(this._activeTests[i]) !== 'undefined') {
+              console.log('abort request');
                 this._activeTests[i].xhr._request.abort();
             }
         }
@@ -229,6 +232,7 @@
         this.clientCallbackPercentageComplete(percentComplete);
         //check for end of test
         if ((Date.now() - this._beginTime) > this.testLength) {
+          console.log('call endTest onMonitor');
           this.endTest();
         }
 
