@@ -100,7 +100,8 @@
     if((this._request)&&(this._request.readyState!==4)){
       this._request.abort();
     }
-  }
+  };
+  
   /**
   * Mark the start time of the request
   */
