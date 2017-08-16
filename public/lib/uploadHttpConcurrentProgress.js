@@ -34,9 +34,10 @@
      * @param size - initial size to start upload testing.
      * @param maxuploadSize - upload size should not exceed max upload size.
      * @param monitorInterval - monitor interval.
+     * @param function callback function for test percentage complete
      */
     function uploadHttpConcurrentProgress(urls, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackError, size, maxuploadSize,
-                                          monitorInterval, isMicrosoftBrowser) {
+                                          monitorInterval, isMicrosoftBrowser, callbackPercentageComplete) {
         this.urls = urls;
         this.size = size;
         this.type = type;
@@ -53,6 +54,7 @@
         this.clientCallbackComplete = callbackComplete;
         this.clientCallbackProgress = callbackProgress;
         this.clientCallbackError = callbackError;
+        this.clientCallbackPercentageComplete = callbackPercentageComplete;
         //start time of test suite
         this._beginTime = Date.now();
         //boolean on whether test  suite is running or not
@@ -86,9 +88,9 @@
      */
     uploadHttpConcurrentProgress.prototype.onTestError = function (result) {
         if (this._running) {
-            this.clientCallbackError(result);
-            clearInterval(this.interval);
-            this._running = false;
+          if ((Date.now() - this._beginTime) > this.testLength) {
+            this.testEnd();
+          }
         }
     };
     /**
@@ -106,13 +108,7 @@
     uploadHttpConcurrentProgress.prototype.onTestTimeout = function () {
         if (this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
-                clearInterval(this.interval);
-                if (this.uploadResults && this.uploadResults.length) {
-                    this.clientCallbackComplete(this.uploadResults);
-                } else {
-                    this.clientCallbackError('no measurements obtained');
-                }
-                this._running = false;
+              this.testEnd();
             }
 
         }
@@ -277,30 +273,35 @@
         }
     };
 
-
+    /**
+     * end of test
+     */
+    uploadHttpConcurrentProgress.prototype.testEnd = function () {
+      this._running = false;
+      this.abortAll();
+      clearInterval(this.interval);
+      if (this.uploadResults && this.uploadResults.length) {
+          var uploadResults = this.uploadResults;
+          var dataLength = uploadResults.length;
+          var data = slicing(uploadResults, Math.round(dataLength * 0.4), dataLength);
+          data = data.sort(numericComparator);
+          var result = meanCalculator(data);
+          this.clientCallbackComplete(result);
+      } else {
+          this.clientCallbackError('no measurements obtained');
+      }
+    }
     /**
      * Monitor testSeries
      */
     uploadHttpConcurrentProgress.prototype._monitor = function () {
         this._calculateResults();
         //check for end of test
-        if ((Date.now() - this._beginTime) > (this.testLength)) {
-            this.abortAll();
-            this._running = false;
-            clearInterval(this.interval);
-            if (this.uploadResults && this.uploadResults.length) {
-                var uploadResults = this.uploadResults;
-                var dataLength = uploadResults.length;
-                var data = slicing(uploadResults, Math.round(dataLength * 0.4), dataLength);
-                data = data.sort(numericComparator);
-                var result = meanCalculator(data);
-                this.clientCallbackComplete(result);
-            } else {
-                this.clientCallbackError('no measurements obtained');
-            }
-
+        var percentComplete = Math.round(((Date.now() - this._beginTime)/this.testLength)*100);
+        this.clientCallbackPercentageComplete(percentComplete);
+        if ((Date.now() - this._beginTime) > this.testLength) {
+          this.testEnd();
         }
-
     };
 
     /**

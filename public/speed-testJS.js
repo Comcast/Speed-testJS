@@ -166,6 +166,8 @@
       if (xhr.readyState == XMLHttpRequest.DONE) {
         var data = JSON.parse(xhr.responseText);
         testPlan = data;
+        testPlan.hasIPv6 = false;
+        testPlan.baseUrlIPv4NoPort = '127.0.0.1';
         if (testPlan.performLatencyRouting) {
           latencyBasedRouting();
         }
@@ -450,6 +452,10 @@
       myChart.setOption(option, true);
     }
 
+    function downloadHttpOnPercentageComplete(result) {
+        console.log(result);
+    }
+
     downloadUrls.length=0;
     var baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
     for (var i = 0; i < ports.length; i++) {
@@ -460,7 +466,7 @@
       }
     }
     var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(downloadUrls, 'GET', downloadCurrentRuns, downloadTestTimeout, downloadTestLength, downloadMovingAverage, downloadHttpOnComplete, downloadHttpOnProgress,
-      downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize, downloadProgressInterval,downloadMonitorInterval);
+      downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize, downloadProgressInterval,downloadMonitorInterval, downloadHttpOnPercentageComplete);
 
     downloadHttpConcurrentProgress.initiateTest();
   }
@@ -533,8 +539,12 @@
           }
       }
 
+      function uploadHttpOnPercentageComplete(result) {
+          console.log(result);
+      }
+
       var uploadHttpConcurrentProgress = new window.uploadHttpConcurrentProgress(uploadUrls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
-          uploadHttpOnError, uploadSize, testPlan.maxuploadSize, uploadMonitorInterval, isMicrosoftBrowser);
+          uploadHttpOnError, uploadSize, testPlan.maxuploadSize, uploadMonitorInterval, isMicrosoftBrowser, uploadHttpOnPercentageComplete);
 
       uploadHttpConcurrentProgress.initiateTest();
   }

@@ -176,14 +176,6 @@
               }
 
           }
-    if(this._request.status > 399){
-      var err = {
-        statusText: this._request.statusText,
-        status: this._request.status
-      };
-      this.callbackError(err);
-      return;
-    }
   };
 
   /**

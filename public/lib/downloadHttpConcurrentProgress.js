@@ -31,9 +31,10 @@
      * @param function callback function for test suite abort event
      * @param function callback function for test suite timeout event
      * @param function callback function for test suite error event
+     * @param function callback function for test percentage complete
      **/
     function downloadHttpConcurrentProgress(urls,  type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
-                                            callbackTimeout, callbackError, size, progressIntervalDownload, monitorInterval) {
+                                            callbackTimeout, callbackError, size, progressIntervalDownload, monitorInterval, callbackPercentageComplete) {
         this.urls = urls;
         this.size = size;
         this.type = type;
@@ -54,6 +55,7 @@
         this.clientCallbackAbort = callbackAbort;
         this.clientCallbackTimeout = callbackTimeout;
         this.clientCallbackError = callbackError;
+        this.clientCallbackPercentageComplete = callbackPercentageComplete;
         //start time of test suite
         this._beginTime = Date.now();
         //boolean on whether test  suite is running or not
@@ -77,11 +79,13 @@
      * @return error object
      */
     downloadHttpConcurrentProgress.prototype.onTestError = function (result) {
-        if (this._running) {
-            this.clientCallbackError(result);
-            clearInterval(this.interval);
-            this._running = false;
-        }
+      if (this._running) {
+         console.log('onTestErrorCalled: ' + this.downloadResults.length);
+         console.log('onTestErrorCalled call time: ' + (Date.now() - this._beginTime));
+         if ((Date.now() - this._beginTime) > this.testLength) {
+           this.testEnd();
+          }
+      }
     };
     /**
      * onAbort method
@@ -98,13 +102,7 @@
     downloadHttpConcurrentProgress.prototype.onTestTimeout = function () {
         if(this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
-                clearInterval(this.interval);
-                if (this.downloadResults && this.downloadResults.length) {
-                  this.clientCallbackComplete(this.downloadResults);
-                } else {
-                    this.clientCallbackError('no measurements obtained');
-                }
-                this._running = false;
+                this.testEnd();
             }
 
         }
@@ -132,6 +130,10 @@
     downloadHttpConcurrentProgress.prototype.onTestProgress = function (result) {
         if (!this._running) {
             return;
+        }
+        //check for end of test
+        if ((Date.now() - this._beginTime) > this.testLength) {
+            this.endTest();
         }
         this.totalBytes = this.totalBytes + result.loaded;
         this._storeResults(result);
@@ -223,19 +225,27 @@
             }
 
         }
+        var percentComplete = Math.round(((Date.now() - this._beginTime)/this.testLength)*100);
+        this.clientCallbackPercentageComplete(percentComplete);
         //check for end of test
-        if ((Date.now() - this._beginTime) > (this.testLength)) {
-            this._running = false;
-            clearInterval(this.interval);
-            if (this.downloadResults && this.downloadResults.length) {
-                this.clientCallbackComplete(this.downloadResults);
-            } else {
-                this.clientCallbackError('no measurements obtained');
-            }
-            this.abortAll();
+        if ((Date.now() - this._beginTime) > this.testLength) {
+          this.endTest();
         }
 
     };
+    /**
+     * end test method
+     */
+     downloadHttpConcurrentProgress.prototype.endTest = function(){
+       this._running = false;
+       clearInterval(this.interval);
+       if (this.downloadResults && this.downloadResults.length) {
+           this.clientCallbackComplete(this.downloadResults);
+       } else {
+           this.clientCallbackError('no measurements obtained');
+       }
+       this.abortAll();
+     }
 
     /**
      * reset test variables
