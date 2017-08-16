@@ -166,8 +166,6 @@
       if (xhr.readyState == XMLHttpRequest.DONE) {
         var data = JSON.parse(xhr.responseText);
         testPlan = data;
-        testPlan.hasIPv6 = false;
-        testPlan.baseUrlIPv4NoPort = '127.0.0.1';
         if (testPlan.performLatencyRouting) {
           latencyBasedRouting();
         }
