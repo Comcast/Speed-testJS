@@ -31,10 +31,9 @@
      * @param function callback function for test suite abort event
      * @param function callback function for test suite timeout event
      * @param function callback function for test suite error event
-     * @param function callback function for test percentage complete
      **/
     function downloadHttpConcurrentProgress(urls,  type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
-                                            callbackTimeout, callbackError, size, progressIntervalDownload, monitorInterval, callbackPercentageComplete) {
+                                            callbackTimeout, callbackError, size, progressIntervalDownload, monitorInterval) {
         this.urls = urls;
         this.size = size;
         this.type = type;
@@ -55,7 +54,6 @@
         this.clientCallbackAbort = callbackAbort;
         this.clientCallbackTimeout = callbackTimeout;
         this.clientCallbackError = callbackError;
-        this.clientCallbackPercentageComplete = callbackPercentageComplete;
         //start time of test suite
         this._beginTime = Date.now();
         //boolean on whether test  suite is running or not
@@ -229,8 +227,6 @@
             }
 
         }
-        var percentComplete = Math.round(((Date.now() - this._beginTime)/this.testLength)*100);
-        this.clientCallbackPercentageComplete(percentComplete);
         //check for end of test
         if ((Date.now() - this._beginTime) > this.testLength) {
           this.endTest();

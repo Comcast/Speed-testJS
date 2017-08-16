@@ -450,10 +450,6 @@
       myChart.setOption(option, true);
     }
 
-    function downloadHttpOnPercentageComplete(result) {
-        console.log(result);
-    }
-
     downloadUrls.length=0;
     var baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
     for (var i = 0; i < ports.length; i++) {
@@ -464,7 +460,7 @@
       }
     }
     var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(downloadUrls, 'GET', downloadCurrentRuns, downloadTestTimeout, downloadTestLength, downloadMovingAverage, downloadHttpOnComplete, downloadHttpOnProgress,
-      downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize, downloadProgressInterval,downloadMonitorInterval, downloadHttpOnPercentageComplete);
+      downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError,downloadSize, downloadProgressInterval,downloadMonitorInterval);
 
     downloadHttpConcurrentProgress.initiateTest();
   }
@@ -537,12 +533,8 @@
           }
       }
 
-      function uploadHttpOnPercentageComplete(result) {
-          console.log(result);
-      }
-
       var uploadHttpConcurrentProgress = new window.uploadHttpConcurrentProgress(uploadUrls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
-          uploadHttpOnError, uploadSize, testPlan.maxuploadSize, uploadMonitorInterval, isMicrosoftBrowser, uploadHttpOnPercentageComplete);
+          uploadHttpOnError, uploadSize, testPlan.maxuploadSize, uploadMonitorInterval, isMicrosoftBrowser);
 
       uploadHttpConcurrentProgress.initiateTest();
   }

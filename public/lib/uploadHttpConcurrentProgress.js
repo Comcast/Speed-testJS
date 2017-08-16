@@ -34,10 +34,9 @@
      * @param size - initial size to start upload testing.
      * @param maxuploadSize - upload size should not exceed max upload size.
      * @param monitorInterval - monitor interval.
-     * @param function callback function for test percentage complete
      */
     function uploadHttpConcurrentProgress(urls, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackError, size, maxuploadSize,
-                                          monitorInterval, isMicrosoftBrowser, callbackPercentageComplete) {
+                                          monitorInterval, isMicrosoftBrowser) {
         this.urls = urls;
         this.size = size;
         this.type = type;
@@ -54,7 +53,6 @@
         this.clientCallbackComplete = callbackComplete;
         this.clientCallbackProgress = callbackProgress;
         this.clientCallbackError = callbackError;
-        this.clientCallbackPercentageComplete = callbackPercentageComplete;
         //start time of test suite
         this._beginTime = Date.now();
         //boolean on whether test  suite is running or not
@@ -303,8 +301,6 @@
     uploadHttpConcurrentProgress.prototype._monitor = function () {
         this._calculateResults();
         //check for end of test
-        var percentComplete = Math.round(((Date.now() - this._beginTime)/this.testLength)*100);
-        this.clientCallbackPercentageComplete(percentComplete);
         if ((Date.now() - this._beginTime) > this.testLength) {
           this.endTest();
         }

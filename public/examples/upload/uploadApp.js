@@ -269,9 +269,6 @@
                 //update gauge
                 myChart.setOption(option, true);
         }
-        function uploadHttpOnPercentageComplete(result) {
-                  console.log(result);
-        }
 
         var uploadHttpConcurrentProgress;
         var baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
@@ -286,7 +283,7 @@
         }
 
         uploadHttpConcurrentProgress = new window.uploadHttpConcurrentProgress(urls, 'POST', uploadCurrentRuns, uploadTestTimeout, uploadTestLength, uploadMovingAverage, uploadHttpOnComplete, uploadHttpOnProgress,
-            uploadHttpOnError, uploadSize, testPlan.maxuploadSize, monitorInterval, isMicrosoftBrowser, uploadHttpOnPercentageComplete);
+            uploadHttpOnError, uploadSize, testPlan.maxuploadSize, monitorInterval, isMicrosoftBrowser);
 
         uploadHttpConcurrentProgress.initiateTest();
     }

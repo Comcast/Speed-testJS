@@ -307,10 +307,6 @@
                 myChart.setOption(option, true);
         }
 
-        function downloadHttpOnPercentageComplete(result) {
-                 console.log(result);
-        }
-
         urls.length = 0;
 
         var baseUrl = (version === 'IPv6') ? testPlan.baseUrlIPv6NoPort : testPlan.baseUrlIPv4NoPort;
@@ -323,7 +319,7 @@
         }
 
         var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(urls, 'GET', downloadCurrentRuns, downloadTestTimeout, downloadTestLength, downloadMovingAverage, downloadHttpOnComplete, downloadHttpOnProgress,
-            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError, downloadSize, downloadProgressInterval, monitorInterval, downloadHttpOnPercentageComplete);
+            downloadHttpOnAbort, downloadHttpOnTimeout, downloadHttpOnError, downloadSize, downloadProgressInterval, monitorInterval);
 
         downloadHttpConcurrentProgress.initiateTest();
     }
