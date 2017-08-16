@@ -83,7 +83,7 @@
          console.log('onTestErrorCalled: ' + this.downloadResults.length);
          console.log('onTestErrorCalled call time: ' + (Date.now() - this._beginTime));
          if ((Date.now() - this._beginTime) > this.testLength) {
-           this.testEnd();
+           this.endTest();
           }
       }
     };
@@ -102,7 +102,7 @@
     downloadHttpConcurrentProgress.prototype.onTestTimeout = function () {
         if(this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
-                this.testEnd();
+                this.endTest();
             }
 
         }

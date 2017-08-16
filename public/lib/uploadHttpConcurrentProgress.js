@@ -89,7 +89,7 @@
     uploadHttpConcurrentProgress.prototype.onTestError = function (result) {
         if (this._running) {
           if ((Date.now() - this._beginTime) > this.testLength) {
-            this.testEnd();
+            this.endTest();
           }
         }
     };
@@ -108,7 +108,7 @@
     uploadHttpConcurrentProgress.prototype.onTestTimeout = function () {
         if (this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
-              this.testEnd();
+              this.endTest();
             }
 
         }
@@ -276,7 +276,7 @@
     /**
      * end of test
      */
-    uploadHttpConcurrentProgress.prototype.testEnd = function () {
+    uploadHttpConcurrentProgress.prototype.endTest = function () {
       this._running = false;
       this.abortAll();
       clearInterval(this.interval);
@@ -300,7 +300,7 @@
         var percentComplete = Math.round(((Date.now() - this._beginTime)/this.testLength)*100);
         this.clientCallbackPercentageComplete(percentComplete);
         if ((Date.now() - this._beginTime) > this.testLength) {
-          this.testEnd();
+          this.endTest();
         }
     };
 
