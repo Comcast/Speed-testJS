@@ -77,11 +77,17 @@
      * @return error object
      */
     downloadHttpConcurrentProgress.prototype.onTestError = function (result) {
-        if (this._running) {
-            this.clientCallbackError(result);
-            clearInterval(this.interval);
+      if (this._running) {
+         if ((Date.now() - this._beginTime) > this.testLength) {
+           this.endTest();
+          }
+          else{
             this._running = false;
-        }
+            clearInterval(this.interval);
+            this.clientCallbackError(result);
+            this.abortAll();
+          }
+      }
     };
     /**
      * onAbort method
@@ -98,13 +104,7 @@
     downloadHttpConcurrentProgress.prototype.onTestTimeout = function () {
         if(this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
-                clearInterval(this.interval);
-                if (this.downloadResults && this.downloadResults.length) {
-                  this.clientCallbackComplete(this.downloadResults);
-                } else {
-                    this.clientCallbackError('no measurements obtained');
-                }
-                this._running = false;
+                this.endTest();
             }
 
         }
@@ -132,6 +132,10 @@
     downloadHttpConcurrentProgress.prototype.onTestProgress = function (result) {
         if (!this._running) {
             return;
+        }
+        //check for end of test
+        if ((Date.now() - this._beginTime) > this.testLength) {
+            this.endTest();
         }
         this.totalBytes = this.totalBytes + result.loaded;
         this._storeResults(result);
@@ -224,18 +228,24 @@
 
         }
         //check for end of test
-        if ((Date.now() - this._beginTime) > (this.testLength)) {
-            this._running = false;
-            clearInterval(this.interval);
-            if (this.downloadResults && this.downloadResults.length) {
-                this.clientCallbackComplete(this.downloadResults);
-            } else {
-                this.clientCallbackError('no measurements obtained');
-            }
-            this.abortAll();
+        if ((Date.now() - this._beginTime) > this.testLength) {
+          this.endTest();
         }
 
     };
+    /**
+     * end test method
+     */
+     downloadHttpConcurrentProgress.prototype.endTest = function(){
+       this._running = false;
+       clearInterval(this.interval);
+       if (this.downloadResults && this.downloadResults.length) {
+           this.clientCallbackComplete(this.downloadResults);
+       } else {
+           this.clientCallbackError('no measurements obtained');
+       }
+       this.abortAll();
+     };
 
     /**
      * reset test variables

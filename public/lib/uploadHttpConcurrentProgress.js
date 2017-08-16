@@ -86,9 +86,15 @@
      */
     uploadHttpConcurrentProgress.prototype.onTestError = function (result) {
         if (this._running) {
-            this.clientCallbackError(result);
-            clearInterval(this.interval);
+          if ((Date.now() - this._beginTime) > this.testLength) {
+            this.endTest();
+          }
+          else{
             this._running = false;
+            clearInterval(this.interval);
+            this.clientCallbackError(result);
+            this.abortAll();
+          }
         }
     };
     /**
@@ -106,13 +112,7 @@
     uploadHttpConcurrentProgress.prototype.onTestTimeout = function () {
         if (this._running) {
             if ((Date.now() - this._beginTime) > this.testLength) {
-                clearInterval(this.interval);
-                if (this.uploadResults && this.uploadResults.length) {
-                    this.clientCallbackComplete(this.uploadResults);
-                } else {
-                    this.clientCallbackError('no measurements obtained');
-                }
-                this._running = false;
+              this.endTest();
             }
 
         }
@@ -277,30 +277,33 @@
         }
     };
 
-
+    /**
+     * end of test
+     */
+    uploadHttpConcurrentProgress.prototype.endTest = function () {
+      this._running = false;
+      this.abortAll();
+      clearInterval(this.interval);
+      if (this.uploadResults && this.uploadResults.length) {
+          var uploadResults = this.uploadResults;
+          var dataLength = uploadResults.length;
+          var data = slicing(uploadResults, Math.round(dataLength * 0.4), dataLength);
+          data = data.sort(numericComparator);
+          var result = meanCalculator(data);
+          this.clientCallbackComplete(result);
+      } else {
+          this.clientCallbackError('no measurements obtained');
+      }
+    };
     /**
      * Monitor testSeries
      */
     uploadHttpConcurrentProgress.prototype._monitor = function () {
         this._calculateResults();
         //check for end of test
-        if ((Date.now() - this._beginTime) > (this.testLength)) {
-            this.abortAll();
-            this._running = false;
-            clearInterval(this.interval);
-            if (this.uploadResults && this.uploadResults.length) {
-                var uploadResults = this.uploadResults;
-                var dataLength = uploadResults.length;
-                var data = slicing(uploadResults, Math.round(dataLength * 0.4), dataLength);
-                data = data.sort(numericComparator);
-                var result = meanCalculator(data);
-                this.clientCallbackComplete(result);
-            } else {
-                this.clientCallbackError('no measurements obtained');
-            }
-
+        if ((Date.now() - this._beginTime) > this.testLength) {
+          this.endTest();
         }
-
     };
 
     /**
