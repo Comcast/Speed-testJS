@@ -84,6 +84,12 @@
          if ((Date.now() - this._beginTime) > this.testLength) {
            this.endTest();
           }
+          else{
+            this._running = false;
+            clearInterval(this.interval);
+            this.clientCallbackError(result);
+            this.abortAll();
+          }
       }
     };
     /**
