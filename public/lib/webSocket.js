@@ -38,13 +38,17 @@
      * Initiate the request
      */
     webSocket.prototype.start = function () {
-        if (this._request === null ||
-            typeof this._request === 'undefined') {
-            this._request = new WebSocket(this.url);
-            this._request.onopen = this._handleOnOpen.bind(this);
-            this._request.onmessage = this._handleOnMessage.bind(this);
-            this._request.onclose = this._handleOnClose.bind(this);
-            this._request.onerror = this._handleOnError.bind(this);
+        if (this._request === null || typeof this._request === 'undefined') {
+            try {
+                this._request = new WebSocket(this.url);
+                this._request.onopen = this._handleOnOpen.bind(this);
+                this._request.onmessage = this._handleOnMessage.bind(this);
+                this._request.onclose = this._handleOnClose.bind(this);
+                this._request.onerror = this._handleOnError.bind(this);
+            } catch (err) {
+                this.callbackOnError('connection error');
+            }
+
         }
     };
 
@@ -96,7 +100,11 @@
      * close webSocket
      */
     webSocket.prototype.close = function () {
-        this._request.close();
+        try {
+            this._request.close();
+        } catch (error) { // jshint ignore:line
+
+        }
     };
 
 
