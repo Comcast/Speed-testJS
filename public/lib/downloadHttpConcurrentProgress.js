@@ -70,6 +70,14 @@
         this.resultsCount = 0;
         //results to send to client
         this.downloadResults = [];
+        //todo comment these variable.. so, people can understand
+        this.prevDownloadSpeed = [];
+        this.prevDownloadTime = [];
+        this.currentDownloadSpeed = [];
+        this.currentDownloadTime = [];
+        this.actualSpeedArray = [];
+        this.count = 0;
+        this.performCalculationsInterval = 950;
     }
 
     /**
@@ -138,6 +146,20 @@
             this.endTest();
         }
         this.totalBytes = this.totalBytes + result.loaded;
+
+        //todo needs to be removed and think of another alternative
+        if (this.count === 0) {
+            this.actualStartTime = result.startTime;
+        }
+
+        this.currentDownloadSpeed[result.id-1] = result.loaded;
+        this.currentDownloadTime[result.id-1] = result.totalTime;
+
+        if (result.totalTime > this.performCalculationsInterval) {
+            this._monitor();
+            this.performCalculationsInterval += 1000;
+        }
+
         this._storeResults(result);
 
     };
@@ -151,6 +173,10 @@
       }
 
             for (var g = 1; g <= this.concurrentRuns; g++) {
+                this.currentDownloadSpeed[this._testIndex] = 0;
+                this.currentDownloadTime[this._testIndex] = 0;
+                this.prevDownloadSpeed[this._testIndex] = 0;
+                this.prevDownloadTime[this._testIndex] = 0;
                 this._testIndex++;
                 var request = new window.xmlHttpRequest('GET', this.urls[g]+ this.size +  '&r=' + Math.random(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
                     this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this),this.progressIntervalDownload);
@@ -194,39 +220,88 @@
         var totalTime = 0;
         var intervalCounter = 0;
         this.resultsCount++;
+        var actualTotalSpeed = 0;
 
-        if (this.results.length > 0) {
-            for (var i = 0; i < this.results.length; i++) {
-                if (this.results[i].timeStamp > (Date.now() - this.monitorInterval)) {
-                    intervalBandwidth = intervalBandwidth + parseFloat(this.results[i].bandwidth);
-                    totalLoaded = totalLoaded + this.results[i].chunckLoaded;
-                    totalTime = totalTime + this.results[i].totalTime;
-                    intervalCounter++;
-                }
+        for (var i = 0; i < this.concurrentRuns; i++) {
+            var sampleBandwidth = this.currentDownloadSpeed[i] - this.prevDownloadSpeed[i];
+            var time = Math.abs(this.currentDownloadTime[i] - this.prevDownloadTime[i]);
+            console.log('********' + ' bytes' + i + ':' +sampleBandwidth + ' time: ' +time + ' **************');
+            if (sampleBandwidth !== 0 && time !== 0) {
+                //TODO change these actualSpeed names to something meaningful
+                var actualSpeed = calculateSpeedMbps(sampleBandwidth, time);
+                actualTotalSpeed += actualSpeed;
+                this.prevDownloadSpeed[i] = this.currentDownloadSpeed[i];
+                this.prevDownloadTime[i] = this.currentDownloadTime[i];
             }
-            if (!isNaN(intervalBandwidth / intervalCounter)) {
-                var transferSizeMbs = (totalLoaded * 8) / 1000000;
-                var transferDurationSeconds = this.monitorInterval / 1000;
-                this.finalResults.push(transferSizeMbs / transferDurationSeconds);
-                var lastElem = Math.min(this.finalResults.length, this.movingAverage);
-                if (lastElem > 0) {
-                    var singleMovingAverage = 0;
-                    for (var j = 1; j <= lastElem; j++) {
-                        if (isFinite(this.finalResults[this.finalResults.length - j])) {
-                            singleMovingAverage = singleMovingAverage + this.finalResults[this.finalResults.length - j];
+            //*** Needs to be removed ***
+            if (time === 0) {
+                //needs to be changed to max time of this.currentDownloadSpeed
 
-                        }
-                    }
-                    singleMovingAverage = singleMovingAverage / lastElem;
-                    if (singleMovingAverage > 0) {
-                        this.downloadResults.push(singleMovingAverage);
-                        this.clientCallbackProgress(singleMovingAverage);
-                    }
-                }
+                // var serverLocations = Object.keys(this.currentDownloadTime);
+                //
+                // var self = this;
+                //
+                // console.log(serverLocations);
+                // serverLocations.sort(function (a, b) {
+                //     console.log('a: ' +a  + 'b: ' +b);
+                //     console.log(self.currentDownloadSpeed[a]);
+                //     console.log(self.currentDownloadSpeed[b]);
+                //     return self.currentDownloadTime[a] - self.currentDownloadTime[b]
+                // });
+                //
+                // console.log(Object.keys(self.currentDownloadTime).reduce(function(a, b){ return self.currentDownloadTime[a] > self.currentDownloadTime[b] ? a : b }));
 
+                var checkTime = Date.now() - this.actualStartTime;
+                this.prevDownloadTime[i] = (Date.now() - this.actualStartTime);
             }
 
         }
+
+        if (i === this.concurrentRuns) {
+            console.log(' actualSpeed: ' +actualTotalSpeed);
+            if (!isNaN(actualTotalSpeed)) {
+                this.downloadResults.push(actualTotalSpeed);
+                //FIXME we don't need .toFixed(2) here.. just for running automation test
+                this.actualSpeedArray.push(+actualTotalSpeed.toFixed(2));
+                this.clientCallbackProgress(actualTotalSpeed);
+            }
+        }
+
+
+
+
+        // if (this.results.length > 0) {
+        //     for (var i = 0; i < this.results.length; i++) {
+        //         if (this.results[i].timeStamp > (Date.now() - this.monitorInterval)) {
+        //             intervalBandwidth = intervalBandwidth + parseFloat(this.results[i].bandwidth);
+        //             totalLoaded = totalLoaded + this.results[i].chunckLoaded;
+        //             totalTime = totalTime + this.results[i].totalTime;
+        //             intervalCounter++;
+        //         }
+        //     }
+        //     if (!isNaN(intervalBandwidth / intervalCounter)) {
+        //         var transferSizeMbs = (totalLoaded * 8) / 1000000;
+        //         var transferDurationSeconds = this.monitorInterval / 1000;
+        //         this.finalResults.push(transferSizeMbs / transferDurationSeconds);
+        //         var lastElem = Math.min(this.finalResults.length, this.movingAverage);
+        //         if (lastElem > 0) {
+        //             var singleMovingAverage = 0;
+        //             for (var j = 1; j <= lastElem; j++) {
+        //                 if (isFinite(this.finalResults[this.finalResults.length - j])) {
+        //                     singleMovingAverage = singleMovingAverage + this.finalResults[this.finalResults.length - j];
+        //
+        //                 }
+        //             }
+        //             singleMovingAverage = singleMovingAverage / lastElem;
+        //             if (singleMovingAverage > 0) {
+        //                 this.downloadResults.push(singleMovingAverage);
+        //                 this.clientCallbackProgress(singleMovingAverage);
+        //             }
+        //         }
+        //
+        //     }
+        //
+        // }
         //check for end of test
         if ((Date.now() - this._beginTime) > this.testLength) {
           this.endTest();
@@ -240,12 +315,25 @@
        this._running = false;
        clearInterval(this.interval);
        if (this.downloadResults && this.downloadResults.length) {
+           var arr = this.actualSpeedArray;
+           //TODO needs to remove the above line not needed
+           this.actualSpeedArray = this.actualSpeedArray.slice(3, this.actualSpeedArray.length);
+           console.log(this.actualSpeedArray);
+           var sum = this.actualSpeedArray.reduce(function (a, b) {
+               return a + b;
+           }, 0);
+           var mean = sum / this.actualSpeedArray.length;
+           console.log('mean: ' +mean);
            this.clientCallbackComplete(this.downloadResults);
        } else {
            this.clientCallbackError('no measurements obtained');
        }
        this.abortAll();
      };
+
+    function calculateSpeedMbps(bytes, milliSeconds) {
+        return bytes / (125 * milliSeconds);
+    }
 
     /**
      * reset test variables
@@ -258,10 +346,10 @@
         this.downloadResults.length = 0;
         this.totalBytes = 0;
         this.start();
-        var self = this;
-        this.interval = setInterval(function () {
-          self._monitor();
-        }, this.monitorInterval);
+        // var self = this;
+        // this.interval = setInterval(function () {
+        //   self._monitor();
+        // }, this.monitorInterval);
     };
 
     window.downloadHttpConcurrentProgress = downloadHttpConcurrentProgress;

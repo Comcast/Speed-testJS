@@ -214,34 +214,46 @@
       }
   };
 
+
+    xmlHttpRequest.prototype._handleOnProgressDownload = function (response) {
+        var result = {};
+        result.id = this.id;
+        result.totalTime = Date.now() - this.startTime;
+        result.startTime = this.startTime;
+        result.loaded = response.loaded;
+        result.chunkLoad = response.loaded - this.prevLoad;
+        this.prevLoad = response.loaded;
+        this.callbackProgress(result);
+    };
+
   /**
     * Handle onProgress
     */
-   xmlHttpRequest.prototype._handleOnProgressDownload = function (response) {
-        //measure bandwidth after one progress event due to rampup
-        if (this.progressCount > 1) {
-          var result = {};
-          result.id = this.id;
-          this.currentTime = Date.now();
-          result.totalTime = this.currentTime - this.prevTime;
-          var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
-          if (result.totalTime > this.progressIntervalDownload) {
-            var transferDurationSeconds = result.totalTime / 1000;
-            result.bandwidth = transferSizeMbs / transferDurationSeconds;
-            result.loaded = response.loaded;
-            result.startTime = this.startTime;
-            result.timeStamp = Date.now();
-            result.chunckLoaded = response.loaded - this.prevLoad;
-            if (isFinite(result.bandwidth)) {
-              this.callbackProgress(result);
-              this.prevTime = this.currentTime;
-              this.prevLoad = response.loaded;
-            }
-          }
-        }
-      //increment onProgressEvent
-      this.progressCount++;
-   };
+   // xmlHttpRequest.prototype._handleOnProgressDownload = function (response) {
+   //      //measure bandwidth after one progress event due to rampup
+   //      if (this.progressCount > 1) {
+   //        var result = {};
+   //        result.id = this.id;
+   //        this.currentTime = Date.now();
+   //        result.totalTime = this.currentTime - this.prevTime;
+   //        var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
+   //        if (result.totalTime > this.progressIntervalDownload) {
+   //          var transferDurationSeconds = result.totalTime / 1000;
+   //          result.bandwidth = transferSizeMbs / transferDurationSeconds;
+   //          result.loaded = response.loaded;
+   //          result.startTime = this.startTime;
+   //          result.timeStamp = Date.now();
+   //          result.chunckLoaded = response.loaded - this.prevLoad;
+   //          if (isFinite(result.bandwidth)) {
+   //            this.callbackProgress(result);
+   //            this.prevTime = this.currentTime;
+   //            this.prevLoad = response.loaded;
+   //          }
+   //        }
+   //      }
+   //    //increment onProgressEvent
+   //    this.progressCount++;
+   // };
 
    /**
      * Handle onProgress
