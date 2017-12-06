@@ -302,7 +302,10 @@
            }, 0);
            var mean = sum / this.actualSpeedArray.length;
            console.log('mean: ' +mean);
-           this.clientCallbackComplete(this.downloadResults);
+           this.clientCallbackComplete({
+               mean: mean,
+               result_arr: arr
+           });
        } else {
            this.clientCallbackError('no measurements obtained');
        }
