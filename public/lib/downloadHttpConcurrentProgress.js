@@ -78,6 +78,7 @@
         this.actualSpeedArray = [];
         this.count = 0;
         this.performCalculationsInterval = 950;
+        this.timerId;
     }
 
     /**
@@ -155,10 +156,18 @@
         this.currentDownloadSpeed[result.id-1] = result.loaded;
         this.currentDownloadTime[result.id-1] = result.totalTime;
 
-        if (result.totalTime > this.performCalculationsInterval) {
+        // if (result.totalTime > this.performCalculationsInterval) {
+        //     this._monitor();
+        //     this.performCalculationsInterval += 1000;
+        // }
+
+        if (result.totalTime > this.performCalculationsInterval && !this.onceCalStarted) {
+            console.log('Running timeout');
             this._monitor();
-            this.performCalculationsInterval += 1000;
+            this.onceCalStarted = true;
+            // this.performCalculationsInterval += 1000;
         }
+
 
         this._storeResults(result);
 
@@ -225,7 +234,7 @@
         for (var i = 0; i < this.concurrentRuns; i++) {
             var sampleBandwidth = this.currentDownloadSpeed[i] - this.prevDownloadSpeed[i];
             var time = Math.abs(this.currentDownloadTime[i] - this.prevDownloadTime[i]);
-            console.log('********' + ' bytes' + i + ':' +sampleBandwidth + ' time: ' +time + ' **************');
+            // console.log('********' + ' bytes' + i + ':' +sampleBandwidth + ' time: ' +time + ' **************');
             if (sampleBandwidth !== 0 && time !== 0) {
                 //TODO change these actualSpeed names to something meaningful
                 var actualSpeed = calculateSpeedMbps(sampleBandwidth, time);
@@ -267,53 +276,22 @@
             }
         }
 
-
-
-
-        // if (this.results.length > 0) {
-        //     for (var i = 0; i < this.results.length; i++) {
-        //         if (this.results[i].timeStamp > (Date.now() - this.monitorInterval)) {
-        //             intervalBandwidth = intervalBandwidth + parseFloat(this.results[i].bandwidth);
-        //             totalLoaded = totalLoaded + this.results[i].chunckLoaded;
-        //             totalTime = totalTime + this.results[i].totalTime;
-        //             intervalCounter++;
-        //         }
-        //     }
-        //     if (!isNaN(intervalBandwidth / intervalCounter)) {
-        //         var transferSizeMbs = (totalLoaded * 8) / 1000000;
-        //         var transferDurationSeconds = this.monitorInterval / 1000;
-        //         this.finalResults.push(transferSizeMbs / transferDurationSeconds);
-        //         var lastElem = Math.min(this.finalResults.length, this.movingAverage);
-        //         if (lastElem > 0) {
-        //             var singleMovingAverage = 0;
-        //             for (var j = 1; j <= lastElem; j++) {
-        //                 if (isFinite(this.finalResults[this.finalResults.length - j])) {
-        //                     singleMovingAverage = singleMovingAverage + this.finalResults[this.finalResults.length - j];
-        //
-        //                 }
-        //             }
-        //             singleMovingAverage = singleMovingAverage / lastElem;
-        //             if (singleMovingAverage > 0) {
-        //                 this.downloadResults.push(singleMovingAverage);
-        //                 this.clientCallbackProgress(singleMovingAverage);
-        //             }
-        //         }
-        //
-        //     }
-        //
-        // }
         //check for end of test
         if ((Date.now() - this._beginTime) > this.testLength) {
           this.endTest();
         }
 
+        this.timerId = setTimeout(this._monitor.bind(this), 1000);
+
     };
+
     /**
      * end test method
      */
      downloadHttpConcurrentProgress.prototype.endTest = function(){
        this._running = false;
-       clearInterval(this.interval);
+       clearTimeout(this.timerId);
+    //    clearInterval(this.interval);
        if (this.downloadResults && this.downloadResults.length) {
            var arr = this.actualSpeedArray;
            //TODO needs to remove the above line not needed
