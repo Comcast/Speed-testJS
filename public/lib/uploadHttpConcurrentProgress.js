@@ -275,6 +275,19 @@
         this.newRequests(8);
         }
       }
+      if (this.intervalCounter === 4) {
+        if (this.resultsMb.length > 75) {
+          this.shouldIncreaseSize();
+      }else{
+        console.log('low bandwidth');
+        this.newRequests(4);
+        }
+      }
+      if (this.intervalCounter === 6) {
+        if (this.resultsMb.length > 100) {
+          this.shouldIncreaseSize();
+        }
+      }
       //check for end of test
       if ((performance.now() - this._beginTime) > this.testLength) {
         clearInterval(this.interval);
