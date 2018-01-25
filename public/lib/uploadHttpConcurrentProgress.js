@@ -257,7 +257,6 @@
      */
     uploadHttpConcurrentProgress.prototype._monitor = function () {
       this.intervalCounter++;
-      console.log(performance.now() - this._beginTime);
       if (this.resultsIntervalMb.length > 0) {
       var sum = this.resultsIntervalMb.reduce(function(a, b) {
         return a + b;
@@ -265,13 +264,11 @@
       var avg = sum / this.resultsIntervalMb.length;
       this.resultsIntervalMb.length = 0;
       }
-      console.log(this.intervalCounter + '  ' + this.resultsMb.length);
       if (this.intervalCounter === 2) {
         if (this.resultsMb.length > 50) {
           this.newRequests(2);
           this.shouldIncreaseSize();
       }else{
-        console.log('low bandwidth');
         this.newRequests(8);
         }
       }
@@ -279,7 +276,6 @@
         if (this.resultsMb.length > 75) {
           this.shouldIncreaseSize();
       }else{
-        console.log('low bandwidth');
         this.newRequests(4);
         }
       }
@@ -300,7 +296,6 @@
        */
 
     uploadHttpConcurrentProgress.prototype.shouldIncreaseSize = function() {
-      console.log('highbandwidth increase size');
       if (this.isMicrosoftBrowser) {
         if (!this.isMaxUploadSize) {
               if (this.uploadResults[this.uploadResults.length - 1] > this.uploadThresholdValue) {

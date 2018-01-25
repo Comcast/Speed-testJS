@@ -43,7 +43,7 @@
   var downloadProgressInterval = 25;
   var downloadUrls = [];
   var ports = [5020, 5021, 5022, 5023, 5024, 5025];
-  var downloadMonitorInterval = 200;
+  var downloadMonitorInterval = 100;
   var uploadSize = 50000;
   var uploadCurrentRuns = 2;
   var uploadTestTimeout = 12000;
@@ -363,7 +363,7 @@
       var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
 
       //finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
-document.getElementById("downloadRate").value = finalValue;
+
       void (version === 'IPv6' && downloadTest('IPv4'));
 
       if(version==='IPv4'){
@@ -479,8 +479,7 @@ document.getElementById("downloadRate").value = finalValue;
     function uploadHttpOnComplete(result) {
       var finalValue = parseFloat(Math.round(result.mean * 100) / 100).toFixed(2);
 
-      //finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
-      document.getElementById("uploadRate").value = finalValue;
+
       void ((version === 'IPv6') && uploadTest('IPv4'));
       if (!(version === 'IPv6')) {
         //update dom with final result
