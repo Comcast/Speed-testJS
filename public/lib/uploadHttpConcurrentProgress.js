@@ -267,20 +267,21 @@
       if (this.intervalCounter === 2) {
         if (this.resultsMb.length > 50) {
           this.newRequests(2);
-          this.shouldIncreaseSize();
+          this.size = 75000;
       }else{
-        this.newRequests(8);
+        this.newRequests(2);
         }
       }
       if (this.intervalCounter === 4) {
         if (this.resultsMb.length > 75) {
           this.shouldIncreaseSize();
       }else{
-        this.newRequests(4);
+        this.newRequests(2);
+        this.size = 100000;
         }
       }
       if (this.intervalCounter === 6) {
-        if (this.resultsMb.length > 100) {
+        if (this.resultsMb.length > 150) {
           this.shouldIncreaseSize();
         }
       }
