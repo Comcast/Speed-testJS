@@ -45,7 +45,7 @@
   var ports = [5020, 5021, 5022, 5023, 5024, 5025];
   var downloadMonitorInterval = 100;
   var uploadSize = 50000;
-  var uploadCurrentRuns = 2;
+  var uploadCurrentRuns = 4;
   var uploadTestTimeout = 12000;
   var uploadTestLength = 12000;
   var uploadMovingAverage = 18;

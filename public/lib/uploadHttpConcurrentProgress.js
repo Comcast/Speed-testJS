@@ -88,6 +88,8 @@
         this.totalChunckBytes = 0;
         //error messages
         this.errorMessages = '';
+        //did increase fontSize
+        this.increaseSize = false;
     }
 
     /**
@@ -263,26 +265,59 @@
       });
       var avg = sum / this.resultsIntervalMb.length;
       this.resultsIntervalMb.length = 0;
+      console.log(this.resultsMb.length + '  ' + this.intervalCounter);
       }
       if (this.intervalCounter === 2) {
-        if (this.resultsMb.length > 50) {
-          this.newRequests(2);
-          this.size = 75000;
+        if (this.resultsMb.length > 20) {
+          this.increaseSize = true;
+          this.shouldIncreaseSize();
       }else{
-        this.newRequests(2);
+        if(!this.increaseSize){
+          this.size = 50000;
+          }
         }
       }
       if (this.intervalCounter === 4) {
-        if (this.resultsMb.length > 75) {
+        if (this.resultsMb.length > 30) {
+          this.increaseSize = true;
           this.shouldIncreaseSize();
       }else{
-        this.newRequests(2);
-        this.size = 100000;
+        if(!this.increaseSize){
+          this.size = 75000;
+          }
         }
       }
       if (this.intervalCounter === 6) {
-        if (this.resultsMb.length > 150) {
+        if (this.resultsMb.length > 40) {
+          this.increaseSize = true;
           this.shouldIncreaseSize();
+        }
+        else{
+          if(!this.increaseSize){
+            this.size = 100000;
+          }
+        }
+      }
+      if (this.intervalCounter === 8) {
+        if (this.resultsMb.length > 60) {
+          this.increaseSize = true;
+          this.shouldIncreaseSize();
+        }
+        else{
+          if(!this.increaseSize){
+            this.size = 150000;
+          }
+        }
+      }
+      if (this.intervalCounter === 10) {
+        if (this.resultsMb.length > 80) {
+          this.increaseSize = true;
+          this.shouldIncreaseSize();
+        }
+        else{
+          if(!this.increaseSize){
+            this.size = 175000;
+          }
         }
       }
       //check for end of test
@@ -337,6 +372,7 @@
         this.intervalCounter = 0;
         this.totalChunckBytes = 0;
         this.errorMessages = '';
+        this.increaseSize = false;
         this.interval = setInterval(function () {
             self._monitor();
         }, this.monitorInterval);
