@@ -44,8 +44,8 @@
   var downloadUrls = [];
   var ports = [5020, 5021, 5022, 5023, 5024, 5025];
   var downloadMonitorInterval = 100;
-  var uploadSize = 10000;
-  var uploadCurrentRuns = 1;
+  var uploadSize = 75000;
+  var uploadCurrentRuns = 4;
   var uploadTestTimeout = 12000;
   var uploadTestLength = 12000;
   var uploadMovingAverage = 18;
@@ -166,6 +166,7 @@
       if (xhr.readyState == XMLHttpRequest.DONE) {
         var data = JSON.parse(xhr.responseText);
         testPlan = data;
+        testPlan.hasIPv6 = false;
         if (testPlan.performLatencyRouting) {
           latencyBasedRouting();
         }

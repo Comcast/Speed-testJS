@@ -85,6 +85,7 @@
       this._request.open(this.method, this.url, true);
       this.requestTimeout= setTimeout(this._internalAbort.bind(this), this.timeout);
       if(this.method==='POST') {
+        this.transferSize = payload.size;
         this._request.send(payload);
       }
       else{
@@ -101,7 +102,7 @@
       this._request.abort();
     }
   };
-  
+
   /**
   * Mark the start time of the request
   */
