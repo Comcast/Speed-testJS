@@ -96,13 +96,13 @@
      * onError method
      * @return error object
      */
-    uploadHttpConcurrentProgress.prototype.onTestError = function(result) {// jshint ignore:line
-      this.completedRequests++;
-      if (this._running) {
-        if ((performance.now() - this._beginTime) < this.testLength) {
-          this.newRequests(1);
+      uploadHttpConcurrentProgress.prototype.onTestError = function(result) {// jshint ignore:line
+        this.completedRequests++;
+        if (this._running) {
+          if ((performance.now() - this._beginTime) < this.testLength) {
+            this.newRequests(1);
+          }
         }
-      }
 
     };
     /**
@@ -123,36 +123,36 @@
     /**
      * onComplete method
      */
-    uploadHttpConcurrentProgress.prototype.onTestComplete = function(result) {
-      if (!this._running) {
-        return;
-      }
-      this.completedRequests++;
-      this.totalChunckBytes = this.totalChunckBytes + result.chunckLoaded;
-      this._storeResults(result);
-      var bandwidthMbs = ((this.totalChunckBytes * 8) / 1000000) / ((performance.now() - this._beginTime) / 1000);
-      this.resultsMb.push(bandwidthMbs);
-      this.resultsIntervalMb.push(bandwidthMbs);
-      this.clientCallbackProgress(bandwidthMbs);
-      this.newRequests(1);
-    };
+      uploadHttpConcurrentProgress.prototype.onTestComplete = function(result) {
+        if (!this._running) {
+          return;
+        }
+        this.completedRequests++;
+        this.totalChunckBytes = this.totalChunckBytes + result.chunckLoaded;
+        this._storeResults(result);
+        var bandwidthMbs = ((this.totalChunckBytes * 8) / 1000000) / ((performance.now() - this._beginTime) / 1000);
+        this.resultsMb.push(bandwidthMbs);
+        this.resultsIntervalMb.push(bandwidthMbs);
+        this.clientCallbackProgress(bandwidthMbs);
+        this.newRequests(1);
+      };
 
 
     /**
      * onProgress method
      */
-    uploadHttpConcurrentProgress.prototype.onTestProgress = function(result) {
-      if (!this._running) {
-        return;
-      }
-      this._storeResults(result);
-      this.totalChunckBytes = this.totalChunckBytes + result.chunckLoaded;
-      this._storeResults(result);
-      var bandwidthMbs = ((this.totalChunckBytes * 8) / 1000000) / ((performance.now() - this._beginTime) / 1000);
-      this.resultsMb.push(bandwidthMbs);
-      this.resultsIntervalMb.push(bandwidthMbs);
-      this.clientCallbackProgress(bandwidthMbs);
-    };
+      uploadHttpConcurrentProgress.prototype.onTestProgress = function(result) {
+        if (!this._running) {
+          return;
+        }
+        this._storeResults(result);
+        this.totalChunckBytes = this.totalChunckBytes + result.chunckLoaded;
+        this._storeResults(result);
+        var bandwidthMbs = ((this.totalChunckBytes * 8) / 1000000) / ((performance.now() - this._beginTime) / 1000);
+        this.resultsMb.push(bandwidthMbs);
+        this.resultsIntervalMb.push(bandwidthMbs);
+        this.clientCallbackProgress(bandwidthMbs);
+      };
 
     /**
      * Start the test
@@ -193,31 +193,31 @@
      * Start the test
      */
     uploadHttpConcurrentProgress.prototype.start = function() {
-      var request;
-      if (!this._running) {
-        return;
-      }
-
-      if (this._payload === null) {
-        this._payload = getRandomData(this.size);
-      } else {
-
-        if (this._payload.size !== this.size) {
-          this._payload = getRandomData(this.size);
+        var request;
+        if (!this._running) {
+          return;
         }
-      }
 
-      for (var p = 1; p <= this.concurrentRuns; p++) {
-        this._testIndex++;
-        request = new window.xmlHttpRequest('POST', this.urls[0] + '?r=' + performance.now(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
-          this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
-        this._activeTests.push({
-          xhr: request,
-          testRun: this._testIndex
-        });
-        console.log('start request');
-        request.start(this.size, this._testIndex, this._payload);
-      }
+        if (this._payload === null) {
+          this._payload = getRandomData(this.size);
+        } else {
+
+          if (this._payload.size !== this.size) {
+            this._payload = getRandomData(this.size);
+          }
+        }
+
+        for (var p = 1; p <= this.concurrentRuns; p++) {
+          this._testIndex++;
+          request = new window.xmlHttpRequest('POST', this.urls[0] + '?r=' + performance.now(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
+            this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
+          this._activeTests.push({
+            xhr: request,
+            testRun: this._testIndex
+          });
+          console.log('start request');
+          request.start(this.size, this._testIndex, this._payload);
+        }
 
 
     };
