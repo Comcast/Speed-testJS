@@ -36,62 +36,61 @@
      * @param monitorInterval - monitor interval.
      */
     function uploadHttpConcurrentProgress(urls, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackError, size, maxuploadSize,
-      monitorInterval, isMicrosoftBrowser) {
-      this.urls = urls;
-      this.size = 50000;
-      this.type = type;
-      this.concurrentRuns = 4;
-      this.timeout = timeout;
-      this.testLength = testLength;
-      this.movingAverage = movingAverage;
-      this.maxuploadSize = maxuploadSize;
-      this.monitorInterval = 200;
-      //unique id or test
-      this._testIndex = 0;
-      //number of completed requestTimeout
-      this.completedRequests = 0;
-      //array holding active tests
-      this._activeTests = [];
-      this.clientCallbackComplete = callbackComplete;
-      this.clientCallbackProgress = callbackProgress;
-      this.clientCallbackError = callbackError;
-      //start time of test suite
-      this._beginTime = performance.now();
-      //boolean on whether test  suite is running or not
-      this._running = true;
-      //array holding  results
-      this.finalResults = [];
-      //monitor interval
-      this.interval = null;
-      //total probe bytes
-      this.totalBytes = 0;
-      //total chunk totalBytes
-      this.totalChunckBytes = 0;
-      //results object array
-      this.results = [];
-      //results count
-      this.resultsCount = 0;
-      //initializing the random data used for testing upload
-      this._payload = null;
-      this.uploadResults = [];
-      //boolean to see if the client is running the on microsoft browse
-      this.isMicrosoftBrowser = isMicrosoftBrowser;
-      //upload size for low bandwidth clients(microsoft browsers)
-      this.lowBandwidthUploadSize = 200000;
-      //upload size for high bandwidth clients(microsoft browsers)
-      this.highBandwidthUploadSize = 5000000;
-      //upload threshold value
-      this.uploadThresholdValue = 0;
-      //results object array
-      this.resultsMb = [];
-      // fistCheck
-      this.firstCheck = false;
-      //results interval bandwidth
-      this.resultsIntervalMb = [];
-      //interval counter
-      this.intervalCounter = 0;
-
-    }
+                                          monitorInterval, isMicrosoftBrowser) {
+        this.urls = urls;
+        this.size = 50000;
+        this.type = type;
+        this.concurrentRuns = 4;
+        this.timeout = timeout;
+        this.testLength = testLength;
+        this.movingAverage = movingAverage;
+        this.maxuploadSize = maxuploadSize;
+        this.monitorInterval = 200;
+        //unique id or test
+        this._testIndex = 0;
+        //number of completed requestTimeout
+        this.completedRequests = 0;
+        //array holding active tests
+        this._activeTests = [];
+        this.clientCallbackComplete = callbackComplete;
+        this.clientCallbackProgress = callbackProgress;
+        this.clientCallbackError = callbackError;
+        //start time of test suite
+        this._beginTime = performance.now();
+        //boolean on whether test  suite is running or not
+        this._running = true;
+        //array holding  results
+        this.finalResults = [];
+        //monitor interval
+        this.interval = null;
+        //total probe bytes
+        this.totalBytes = 0;
+        //total chunk totalBytes
+        this.totalChunckBytes = 0;
+        //results object array
+        this.results = [];
+        //results count
+        this.resultsCount = 0;
+        //initializing the random data used for testing upload
+        this._payload = null;
+        this.uploadResults = [];
+        //boolean to see if the client is running the on microsoft browse
+        this.isMicrosoftBrowser = isMicrosoftBrowser;
+        //upload size for low bandwidth clients(microsoft browsers)
+        this.lowBandwidthUploadSize = 200000;
+        //upload size for high bandwidth clients(microsoft browsers)
+        this.highBandwidthUploadSize = 5000000;
+        //upload threshold value
+        this.uploadThresholdValue = 0;
+        //results object array
+        this.resultsMb = [];
+        // fistCheck
+        this.firstCheck = false;
+        //results interval bandwidth
+        this.resultsIntervalMb = [];
+        //interval counter
+        this.intervalCounter = 0;
+      }
 
     /**
      * onError method
