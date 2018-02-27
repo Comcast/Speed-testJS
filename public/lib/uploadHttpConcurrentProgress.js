@@ -195,28 +195,28 @@
     uploadHttpConcurrentProgress.prototype.start = function() {
         var request;
         if (!this._running) {
-          return;
+            return;
         }
 
         if (this._payload === null) {
-          this._payload = getRandomData(this.size);
+            this._payload = getRandomData(this.size);
         } else {
 
-          if (this._payload.size !== this.size) {
-            this._payload = getRandomData(this.size);
-          }
+            if (this._payload.size !== this.size) {
+                this._payload = getRandomData(this.size);
+            }
         }
 
         for (var p = 1; p <= this.concurrentRuns; p++) {
-          this._testIndex++;
-          request = new window.xmlHttpRequest('POST', this.urls[0] + '?r=' + performance.now(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
-            this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
-          this._activeTests.push({
-            xhr: request,
-            testRun: this._testIndex
-          });
-          console.log('start request');
-          request.start(this.size, this._testIndex, this._payload);
+            this._testIndex++;
+            request = new window.xmlHttpRequest('POST', this.urls[0] + '?r=' + performance.now(), this.timeout, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
+                this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this));
+            this._activeTests.push({
+                xhr: request,
+                testRun: this._testIndex
+            });
+
+            request.start(this.size, this._testIndex, this._payload);
         }
 
 
@@ -226,13 +226,13 @@
      * Cancel the test
      */
     uploadHttpConcurrentProgress.prototype.abortAll = function() {
-      clearInterval(this.interval);
-      for (var i = 0; i < this._activeTests.length; i++) {
-        if (typeof(this._activeTests[i]) !== 'undefined') {
-          this._activeTests[i].xhr._request.abort();
-          this._activeTests[i].xhr._request = null;
+        clearInterval(this.interval);
+        for (var i = 0; i < this._activeTests.length; i++) {
+            if (typeof(this._activeTests[i]) !== 'undefined') {
+              this._activeTests[i].xhr._request.abort();
+              this._activeTests[i].xhr._request = null;
+            }
         }
-      }
     };
 
     /**
