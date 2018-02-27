@@ -7,10 +7,11 @@ you can do so through GitHub by forking the repository and sending a
 pull request.
 
 Before Comcast merges your code into the project you must sign the
-[Comcast Contributor License Agreement (CLA)](https://github.com/Comcast/Speed-testJS/wiki/ComcastContributorLicenseAgreement-10-13-2016.pdf).
+[Comcast Contributor License Agreement (CLA)](https://gist.github.com/ComcastOSS/a7b8933dd8e368535378cda25c92d19a).
 
-If you haven’t previously signed a Comcast CLA, we can e-mail you a PDF
-that you can sign and scan back to us.  Please send us an e-mail or create
+If you haven’t previously signed a Comcast CLA, you'll automatically be 
+asked to when you open a pull request. Alternatively, we can send you a PDF 
+that you can sign and scan back to us.  Please create
 a new GitHub issue to request a PDF version of the CLA.
 
 For more details about contributing to github projects see
