@@ -38,14 +38,14 @@
   function uploadHttpConcurrentProgress(urls, type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackError, size, maxuploadSize,
     monitorInterval, isMicrosoftBrowser) {
     this.urls = urls;
-    this.size = size;
+    this.size = 50000;
     this.type = type;
-    this.concurrentRuns = concurrentRuns;
+    this.concurrentRuns = 4;
     this.timeout = timeout;
     this.testLength = testLength;
     this.movingAverage = movingAverage;
     this.maxuploadSize = maxuploadSize;
-    this.monitorInterval = monitorInterval;
+    this.monitorInterval = 200;
     //unique id or test
     this._testIndex = 0;
     //number of completed requestTimeout
@@ -97,52 +97,28 @@
    * onError method
    * @return error object
    */
-  uploadHttpConcurrentProgress.prototype.onTestError = function(result) {
+  uploadHttpConcurrentProgress.prototype.onTestError = function(result) {// jshint ignore:line
     this.completedRequests++;
-/*
     if (this._running) {
-      if ((performance.now() - this._beginTime) > this.testLength) {
-        this.endTest();
-      } else {
-        this._running = false;
-        clearInterval(this.interval);
-        this.clientCallbackError(result);
-        this.abortAll();
+      if ((performance.now() - this._beginTime) < this.testLength) {
+        this.newRequests(1);
       }
     }
-    */
+
   };
   /**
    * onAbort method
    * @return abort object
    */
-  uploadHttpConcurrentProgress.prototype.onTestAbort = function(result) {
-/*
-    this._storeResults(result);
-    this.completedRequests++;
-    this.totalChunckBytes = this.totalChunckBytes + result.chunckLoaded;
-    this._storeResults(result);
-    var bandwidthMbs = ((this.totalChunckBytes * 8) / 1000000) / ((performance.now() - this._beginTime) / 1000);
-    console.log(bandwidthMbs);
-    this.resultsMb.push(bandwidthMbs);
-    this.resultsIntervalMb.push(bandwidthMbs);
-    this.clientCallbackProgress(bandwidthMbs);
-*/
+  uploadHttpConcurrentProgress.prototype.onTestAbort = function(result) {// jshint ignore:line
+
   };
   /**
    * onTimeout method
    * @return timeout object
    */
   uploadHttpConcurrentProgress.prototype.onTestTimeout = function() {
-    this.completedRequests++;
-/*
-    if (this._running) {
-      if ((performance.now() - this._beginTime) > this.testLength) {
-        this.endTest();
-      }
 
-    }
-    */
   };
 
   /**
@@ -309,15 +285,20 @@
         return a + b;
       });
       var avg = sum / this.resultsIntervalMb.length;
+      console.log('interval Bandwidth: ' + avg);
       this.resultsIntervalMb.length = 0;
     }
     console.log(this.intervalCounter + '  ' + this.completedRequests + '  ' + this._testIndex + ' '  +this.intervalCounter*4);
-      if(this.completedRequests>(this.intervalCounter*4)*2){
-        this.size = this.size*1.25;
+      if(this.completedRequests>(this.intervalCounter*4)){
+        this.size = this.size*1.1;
         if(this.size>10000000){
           this.size = 10000000;
         }
-        console.log(this.size);
+        if(this.completedRequests>(this.intervalCounter*20)){
+          //high bandwidth client
+          this.size = 10000000;
+        }
+
       }
 
 
