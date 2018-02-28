@@ -133,7 +133,9 @@
         var bandwidthMbs = ((this.totalChunckBytes * 8) / 1000000) / ((performance.now() - this._beginTime) / 1000);
         this.resultsMb.push(bandwidthMbs);
         this.resultsIntervalMb.push(bandwidthMbs);
-        this.clientCallbackProgress(bandwidthMbs);
+        if(this.intervalCounter > 3){
+          this.clientCallbackProgress(bandwidthMbs);
+        }
         this.newRequests(1);
       };
 
@@ -151,7 +153,9 @@
         var bandwidthMbs = ((this.totalChunckBytes * 8) / 1000000) / ((performance.now() - this._beginTime) / 1000);
         this.resultsMb.push(bandwidthMbs);
         this.resultsIntervalMb.push(bandwidthMbs);
-        this.clientCallbackProgress(bandwidthMbs);
+        if(this.intervalCounter > 3){
+          this.clientCallbackProgress(bandwidthMbs);
+        }
       };
 
     /**
