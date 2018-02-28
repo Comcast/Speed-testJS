@@ -12,22 +12,21 @@ experience is poor, good or great
 For deploying to a test server, see the README under **ansible** folder.
 
 
-##Client Server Setup
+## Client Server Setup
 The application consists of a node/express software running the server and plain javascript/html on the client. The server
 powers reset endpoints, websocket communication, database interactions and the client website. 
 
-#Server
+# Server
 Index.js is the starting point of the app contains of the neccessary functions to run the application. Significant
 settings in this file are:
 
-* Ip address and ports: the server will automatically bind to the ipv4 and ipv6 addresses of the host machine that it is deployed
-to (ie. app.listen(SERVERPORT,'::');). Addtionaly ports can be assigned with app.listen(ADDITIONALPORT);
+* IP address and ports: the server will automatically bind to the ipv4 and ipv6 addresses of the host machine that it is deployed to (ie. app.listen(SERVERPORT,'::');). Addtionaly ports can be assigned with app.listen(ADDITIONALPORT);
 
 * Http Request: http configuration is defined to allow http posts and cross domain request.
 
 * WebSockets: websockets communication is defined
 
-* Rest endPoints: rest endpoints are exposed to complete a speed test and include the following:
+* REST endpoints: rest endpoints are exposed to complete a speed test and include the following:
     1. testplan: testplan will return json data containing the ipv4, ipv6 ipaddresses and ports used for rest endPoints
     and websockets running on the server and the client ipAddress. Also additional speed test features(ie. latency based
     routing flags can be returned)
@@ -39,7 +38,7 @@ to (ie. app.listen(SERVERPORT,'::');). Addtionaly ports can be assigned with app
     7. testServer: used in latency based routing.. it will return test servers urls that can 
     be used to find the closet server to a client
     
-* Configuration: Generic configuration(ports, latencyBasedRouting,...) are set in index.js. Specific customization(ie. database)
+* Configuration: Generic configuration (ports, latencyBasedRouting,...) are set in index.js. Specific customization(ie. database)
     can be place under the config folder
 
 1. Configuration parameters 
@@ -49,8 +48,8 @@ to (ie. app.listen(SERVERPORT,'::');). Addtionaly ports can be assigned with app
 
 # Client
 
-Client: Client application resides under the public folder and consists of plain javascript. Index.html is the 
-default start page of the application and will contain an end to end example of aBandwidth Speed Test. The following describes
+Client: Client application resides in the public folder and consists of plain javascript. Index.html is the 
+default start page of the application and will contain an end to end example of a Bandwidth Speed Test. The following describes
 the folder structure of the client application:
 
 * lib: The lib folder contains javascript files used to measure bandwidth and related measurements. 
