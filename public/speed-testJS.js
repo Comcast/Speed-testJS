@@ -44,13 +44,13 @@
   var downloadUrls = [];
   var ports = [5020, 5021, 5022, 5023, 5024, 5025];
   var downloadMonitorInterval = 100;
-  var uploadSize = 10000;
-  var uploadCurrentRuns = 1;
+  var uploadSize = 50000;
+  var uploadCurrentRuns = 4;
   var uploadTestTimeout = 12000;
   var uploadTestLength = 12000;
   var uploadMovingAverage = 18;
   var uploadUrls = [];
-  var uploadMonitorInterval = 200;
+  var uploadMonitorInterval = 500;
   var isMicrosoftBrowser = false;
   var sliceStartValue = 0.3;
   var sliceEndValue = 0.9;
@@ -166,6 +166,7 @@
       if (xhr.readyState == XMLHttpRequest.DONE) {
         var data = JSON.parse(xhr.responseText);
         testPlan = data;
+        testPlan.hasIPv6 = false;
         if (testPlan.performLatencyRouting) {
           latencyBasedRouting();
         }
@@ -360,7 +361,9 @@
 
     function calculateStatsonComplete(result) {
       var finalValue = parseFloat(Math.round(result.stats.mean * 100) / 100).toFixed(2);
-      finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
+
+      //finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
+
       void (version === 'IPv6' && downloadTest('IPv4'));
 
       if(version==='IPv4'){
@@ -377,6 +380,7 @@
     }
 
     function downloadHttpOnProgress(result) {
+      console.log(result);
       option.series[0].data[0].value = result;
       myChart.setOption(option, true);
     }
@@ -474,7 +478,8 @@
 
     function uploadHttpOnComplete(result) {
       var finalValue = parseFloat(Math.round(result.mean * 100) / 100).toFixed(2);
-      finalValue = (finalValue > 1000) ? parseFloat(finalValue / 1000).toFixed(2) + ' Gbps' : finalValue + ' Mbps';
+
+
       void ((version === 'IPv6') && uploadTest('IPv4'));
       if (!(version === 'IPv6')) {
         //update dom with final result
