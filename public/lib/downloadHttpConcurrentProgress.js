@@ -33,7 +33,7 @@
      * @param function callback function for test suite error event
      **/
     function downloadHttpConcurrentProgress(urls,  type, concurrentRuns, timeout, testLength, movingAverage, callbackComplete, callbackProgress, callbackAbort,
-                                            callbackTimeout, callbackError, size, progressIntervalDownload, monitorInterval) {
+                                            callbackTimeout, callbackError, size, progressIntervalDownload, monitorInterval, isHandheld) {
         this.urls = urls;
         this.size = size;
         this.type = type;
@@ -70,6 +70,8 @@
         this.resultsCount = 0;
         //results to send to client
         this.downloadResults = [];
+        // flag to track handheld devices
+        this.isHandheld = isHandheld;
     }
 
     /**
@@ -121,6 +123,11 @@
 
         //store results
         this._storeResults(result);
+        if (this.isHandheld) {
+            // setting concurrent runs to 1. As soon as one connection completes it start's another
+            // connection of the same size. This change is only for mobile devices.
+            this.concurrentRuns = 1;
+        }
         this.start();
         };
 
