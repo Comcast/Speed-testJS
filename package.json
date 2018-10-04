@@ -1,6 +1,6 @@
 {
   "name": "speed-testjs",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "description": "measure internet bandwidth",
   "main": "index.js",
   "author": "Maulan Byron",
