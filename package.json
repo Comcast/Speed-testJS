@@ -4,7 +4,11 @@
   "description": "measure internet bandwidth",
   "main": "index.js",
   "author": "Maulan Byron",
-  "license": "Apache License Version 2.0",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Comcast/Speed-testJS.git"
+  },
   "dependencies": {
     "aws-sdk": "^2.6.12",
     "body-parser": "^1.15.2",
