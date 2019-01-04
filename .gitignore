@@ -14,3 +14,4 @@ target/
 dist.tar.gz
 dist
 public/docs
+package-lock.json
