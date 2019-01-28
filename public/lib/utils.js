@@ -19,7 +19,6 @@ function calculateSpeedMbps(bytes, milliSeconds) {
 }
 
 function abortAllRequests() {
-    console.log('abortAllRequests');
     for (var i = 0; i < this.activeTests.length; i++) {
         if (typeof(this.activeTests[i] !== 'undefined')) {
             this.activeTests[i].xhr._request.abort();
