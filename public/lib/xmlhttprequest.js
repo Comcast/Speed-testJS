@@ -27,7 +27,7 @@
   * @param function callback for onprogress function
   */
   function xmlHttpRequest(method, url, timeout, callbackComplete, callbackProgress,callbackAbort,
-  callbackTimeout,callbackError, progressIntervalDownload){
+  callbackTimeout,callbackError, progressIntervalDownload, isDesktopTest){
     this.method = method;
     this.url = url;
     this.timeout = timeout;
@@ -50,6 +50,7 @@
     this.callbackError = callbackError;
     this.requestTimeout = null;
     this._request = null;
+    this.isDesktopTest = isDesktopTest;
   }
 
   /**
@@ -60,15 +61,19 @@
       if (this._request === null ||
        typeof this._request === 'undefined') {
        this._request = new XMLHttpRequest();
+       this._request.timeout = this.timeout;
        // Handle lifecycle events on wrapped request
        this._request.onloadstart = this._handleLoadstart.bind(this);
        this._request.onload = this._handleLoad.bind(this);
        this._request.onabort = this._handleAbort.bind(this);
-       this._request.timout = this._handleTimeout.bind(this);
+       this._request.ontimeout = this._handleTimeout.bind(this);
        this._request.onerror = this._handleError.bind(this);
        this._request.onreadystatechange = this._handleOnReadyStateChange.bind(this);
        if(this.method==='GET') {
           this._request.onprogress = this._handleOnProgressDownload.bind(this);
+          if (this.isDesktopTest) {
+            this._request.onprogress = this._handleOnProgressDownloadDesktop.bind(this);
+          }
         }
         else{
           this._request.upload.onprogress = this._handleOnProgressUpload.bind(this);
@@ -83,7 +88,7 @@
       this.id = id;
       this.transferSize = size;
       this._request.open(this.method, this.url, true);
-      this.requestTimeout= setTimeout(this._internalAbort.bind(this), this.timeout);
+      this.requestTimeout = setTimeout(this._internalAbort.bind(this), this.timeout);
       if(this.method==='POST') {
         this.transferSize = payload.size;
         this._request.send(payload);
@@ -107,8 +112,9 @@
   * Mark the start time of the request
   */
     xmlHttpRequest.prototype._handleLoadstart = function() {
-      this.startTime = Date.now();
-      this.prevTime = Date.now();
+      this.startTime = timer();
+      this.prevTime = timer();
+      this.prevLoad = 0;
     };
   /**
   * Handle eror event
@@ -141,16 +147,16 @@
       */
      xmlHttpRequest.prototype._handleAbort = function(response) {
        clearTimeout(this.requestTimeout);
-       this.totalTime = Date.now() - this.startTime;
+       this.totalTime = timer() - this.startTime;
        var transferSizeMbs = (response.loaded * 8) / 1000000;
        var transferDurationSeconds = this.totalTime/1000;
        //package results
        var result = {};
-       result.timeStamp = Date.now();
+       result.timeStamp = timer();
        result.chunckLoaded = response.loaded - this.prevLoad;
        result.time = this.totalTime;
        result.loaded = response.loaded;
-       result.timeStamp = Date.now();
+       result.timeStamp = timer();
        result.chunckLoaded = response.loaded - this.prevLoad;
        result.bandwidth = transferSizeMbs/transferDurationSeconds;
        result.id = this.id;
@@ -175,13 +181,13 @@
     if(this._request.readyState === 4 && this._request.status === 200) {
       clearTimeout(this.requestTimeout);
               var result = {};
-              result.totalTime = Date.now() - this.startTime;
+              result.totalTime = timer() - this.startTime;
               result.id = this.id;
               if(this.method==='POST'){
                 var transferSizeMbs = (this.transferSize * 8) / 1000000;
                 var transferDurationSeconds = result.totalTime/1000;
                 result.bandwidth = transferSizeMbs/transferDurationSeconds;
-                result.timeStamp = Date.now();
+                result.timeStamp = timer();
                 result.loaded = this.transferSize;
                 result.time = result.totalTime;
                 result.chunckLoaded = this.transferSize - this.prevLoad;
@@ -199,7 +205,7 @@
    */
   xmlHttpRequest.prototype._handleLoad = function (response) {
       clearTimeout(this.requestTimeout);
-      this.totalTime = Date.now() - this.startTime;
+      this.totalTime = timer() - this.startTime;
       var result = {};
       result.time = this.totalTime;
       this.totalBytes += response.loaded;
@@ -223,7 +229,7 @@
         if (this.progressCount > 1) {
           var result = {};
           result.id = this.id;
-          this.currentTime = Date.now();
+          this.currentTime = timer();
           result.totalTime = this.currentTime - this.prevTime;
           var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
           if (result.totalTime > this.progressIntervalDownload) {
@@ -231,7 +237,7 @@
             result.bandwidth = transferSizeMbs / transferDurationSeconds;
             result.loaded = response.loaded;
             result.startTime = this.startTime;
-            result.timeStamp = Date.now();
+            result.timeStamp = timer();
             result.chunckLoaded = response.loaded - this.prevLoad;
             if (isFinite(result.bandwidth)) {
               this.callbackProgress(result);
@@ -244,6 +250,25 @@
       this.progressCount++;
    };
 
+   xmlHttpRequest.prototype._handleOnProgressDownloadDesktop = function(event) {
+    if (!event.lengthComputable) {
+      var currentTime = timer();
+      var chunckLoaded = event.loaded - this.prevLoad;
+      var chunkTime = currentTime - this.prevTime;
+      var totalTime = currentTime - this.startTime;
+      this.prevLoad = event.loaded;
+      this.prevTime = currentTime;
+
+      this.callbackProgress({
+        id: this.id,
+        chunckLoaded: chunckLoaded,
+        chunkTime: chunkTime,
+        totalTime: totalTime,
+        loaded: event.loaded
+      })
+    }
+  }
+
    /**
      * Handle onProgress
      */
@@ -252,13 +277,13 @@
        if (this.progressCount > 1) {
            var result = {};
            result.id = this.id;
-           this.currentTime = Date.now();
+           this.currentTime = timer();
            result.totalTime = this.currentTime - this.prevTime;
            if (result.totalTime > this.progressIntervalUpload) {
                var transferSizeMbs = ((response.loaded - this.prevLoad) * 8) / 1000000;
                var transferDurationSeconds = result.totalTime / 1000;
                result.bandwidth = transferSizeMbs / transferDurationSeconds;
-             result.timeStamp = Date.now();
+             result.timeStamp = timer();
              result.chunckLoaded = response.loaded - this.prevLoad;
                if (isFinite(result.bandwidth)) {
                    this.callbackProgress(result);
