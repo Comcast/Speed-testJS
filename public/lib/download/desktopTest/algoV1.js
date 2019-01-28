@@ -20,15 +20,15 @@
     'use strict';
     /**
      * 
-     * @param {*} urls - 
-     * @param {*} size 
-     * @param {*} threads 
-     * @param {*} duration 
-     * @param {*} intervalTimer 
-     * @param {*} callbackProgress 
-     * @param {*} callbackComplete 
-     * @param {*} callbackError 
-     * @param {*} callbackAbort 
+     * @param {*} urls - urls to run the download test.
+     * @param {*} size - size required to run the test.
+     * @param {*} threads - number of parallel http requests.
+     * @param {*} duration - length of the test.
+     * @param {*} intervalTimer - monitor interval to calculate download bandwidth.
+     * @param {*} callbackProgress - progress event to track the test for every interval.
+     * @param {*} callbackComplete - event that reports the end results.
+     * @param {*} callbackError - event that reports the cause of any error.
+     * @param {*} callbackAbort - event that reports the cause of any abort during the test.
      */
     function algoV1(urls, size, threads, duration, intervalTimer, 
             callbackProgress, callbackComplete, callbackError, callbackAbort) {

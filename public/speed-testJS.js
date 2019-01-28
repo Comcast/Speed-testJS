@@ -498,7 +498,7 @@
     function downloadHttpOnComplete(event) {
       console.log(event);
       updateValue([currentTest, '-', version].join(''), event.value.toFixed(2));
-      setTimeout(function() { uploadTest(version); }, 500); 
+      setTimeout(function() { uploadTest(version); }, 500);
     }
 
     function downloadHttpOnError(event) {
@@ -508,15 +508,15 @@
     function downloadHttpOnAbort(event) {
       console.log(event);
     }
-    // 200000000
+
     downloadSize = 200000000;
     downloadCurrentRuns = 18;
     downloadTestLength = 15000;
     downloadMonitorInterval = 1000;
 
-    var downloadTest = new window.algoV1(downloadUrls, downloadSize, downloadCurrentRuns, 
+    var downloadTest = new window.algoV1(downloadUrls, downloadSize, downloadCurrentRuns,
             downloadTestLength, downloadMonitorInterval, downloadHttpOnProgress, downloadHttpOnComplete,
-            downloadHttpOnError, downloadHttpOnAbort);       
+            downloadHttpOnError, downloadHttpOnAbort);
 
     downloadTest.initiateTest();
 
