@@ -497,15 +497,11 @@
 
     function downloadHttpOnComplete(event) {
       console.log(event);
-      updateValue([currentTest, '-', version].join(''), event.value.toFixed(2));
+      updateValue([currentTest, '-', version].join(''), event.downloadSpeed.toFixed(2));
       setTimeout(function() { uploadTest(version); }, 500);
     }
 
     function downloadHttpOnError(event) {
-      console.log(event);
-    }
-
-    function downloadHttpOnAbort(event) {
       console.log(event);
     }
 
@@ -514,9 +510,9 @@
     downloadTestLength = 15000;
     downloadMonitorInterval = 1000;
 
-    var downloadTest = new window.algoV1(downloadUrls, downloadSize, downloadCurrentRuns,
-            downloadTestLength, downloadMonitorInterval, downloadHttpOnProgress, downloadHttpOnComplete,
-            downloadHttpOnError, downloadHttpOnAbort);
+    var downloadTest = new window.algoV1(downloadUrls, downloadSize,
+            downloadCurrentRuns,downloadTestLength, downloadMonitorInterval,
+            downloadHttpOnProgress, downloadHttpOnComplete, downloadHttpOnError);
 
     downloadTest.initiateTest();
 
@@ -587,6 +583,7 @@
       for (var i = 0; i < ports.length; i++) {
           for (var b = 0; b < 6; b++) {
               uploadUrls.push('http://' + baseUrl + ':' + ports[i] + '/upload');
+
           }
       }
 

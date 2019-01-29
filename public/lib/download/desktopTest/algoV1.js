@@ -28,10 +28,9 @@
      * @param {*} callbackProgress - progress event to track the test for every interval.
      * @param {*} callbackComplete - event that reports the end results.
      * @param {*} callbackError - event that reports the cause of any error.
-     * @param {*} callbackAbort - event that reports the cause of any abort during the test.
      */
     function algoV1(urls, size, threads, duration, intervalTimer, 
-            callbackProgress, callbackComplete, callbackError, callbackAbort) {
+            callbackProgress, callbackComplete, callbackError) {
 
         this.urls = urls;
         this.size = size;
@@ -41,7 +40,6 @@
         this.callbackProgress = callbackProgress;
         this.callbackComplete = callbackComplete;
         this.callbackError = callbackError;
-        this.callbackAbort = callbackAbort;   
     }
 
     algoV1.prototype.initiateTest = function() {
@@ -77,7 +75,7 @@
 
     algoV1.prototype.start = function() {
         this.createRequest();
-        this.initializeBucketForEachReq();
+        this.initializeBucketsForEachReq();
     }
 
     algoV1.prototype.createRequest = function() {
@@ -92,7 +90,7 @@
         });
     }
 
-    algoV1.prototype.initializeBucketForEachReq = function() {
+    algoV1.prototype.initializeBucketsForEachReq = function() {
         // Setting timers and bytes download for each thread.
         this.totalBytesTransferred[this.testId] = 0;
         this.totalTime[this.testId] = 0;
@@ -114,7 +112,7 @@
     }
 
     algoV1.prototype.onTestAbort = function() {
-        this.callbackAbort(`Test Aborted`);
+        // TODO we can add get the bandwdith for last interval
     }
 
     algoV1.prototype.onTestTimeout = function() {
@@ -171,8 +169,8 @@
 
         abortAllRequests.call(this);
         this.callbackComplete({
-            value: this.smaMean,
-            arr: this.downloadResults
+            "downloadSpeed": this.smaMean,
+            "dataPoints": this.downloadResults
         });
     }
 
