@@ -59,39 +59,53 @@
         // Remove above items
 
         this.reportUIValue = 4;
-        this.desktopTest = true;    // can be removed once we start using this algorithm
+        this.desktopTest = true;    // can be removed once this is the only algorithm we are using
+        this.testId = null;
 
         this.startTime = timer();
-        this.start();
+        this.startDownloadTest();
         this.intervalId = setInterval(this.monitor.bind(this), this.intervalTimer);
     }
 
-    algoV1.prototype.start = function() {
+
+    algoV1.prototype.startDownloadTest = function() {
         for (var i = 0; i < this.threads; i++) {
-
-            // Setting timers and bytes download for each thread.
-            this.totalBytesTransferred[i] = 0;
-            this.totalTime[i] = 0;
-            this.prevBytesTransferred[i] = 0;
-            this.prevTime[i] = 0;
-
-            // Calling the xmlhttprequest to create the http connection.
-            var request = new window.xmlHttpRequest('GET', this.urls[i]+ this.size +  '&r=' + Math.random(), 
-            this.duration, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
-            this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this),
-            null, this.desktopTest);
-            request.start(0, i);
-            this.activeTests.push({
-                xhr: request,
-            });
+            this.testId = i;
+            this.start();
         }
     }
 
+    algoV1.prototype.start = function() {
+        this.createRequest();
+        this.initializeBucketForEachReq();
+    }
+
+    algoV1.prototype.createRequest = function() {
+        // Calling the xmlhttprequest to create the http connection.
+        var request = new window.xmlHttpRequest('GET', this.urls[this.testId]+ this.size +  '&r=' + Math.random(),
+        this.duration, this.onTestComplete.bind(this), this.onTestProgress.bind(this),
+        this.onTestAbort.bind(this), this.onTestTimeout.bind(this), this.onTestError.bind(this),
+        null, this.desktopTest);
+        request.start(0, this.testId);
+        this.activeTests.push({
+            xhr: request,
+        });
+    }
+
+    algoV1.prototype.initializeBucketForEachReq = function() {
+        // Setting timers and bytes download for each thread.
+        this.totalBytesTransferred[this.testId] = 0;
+        this.totalTime[this.testId] = 0;
+        this.prevBytesTransferred[this.testId] = 0;
+        this.prevTime[this.testId] = 0;
+    }
+
     algoV1.prototype.onTestComplete = function(event) {
-        // TODO Needs to figure out what we need to do once the request is completed
-        // Probably start another request 
-        // Or end the test
         // FUTURE - Track the number of events get completed during the test
+        // Once a request is finished/completed. We try to start a new request using the same Id,
+        // maintaing the number of requests same all the time.
+        this.testId = event.id;
+        this.start();
     }
 
     algoV1.prototype.onTestProgress = function(event) {
