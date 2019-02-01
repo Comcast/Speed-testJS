@@ -240,7 +240,7 @@
         setTimeout(latencyTest('IPv4'),500);
       }
       else{
-        updateValue(currentTest, result[0].time + ' ms');
+        updateValue(currentTest, result[0].time.toFixed(2) + ' ms');
       }
 
     }
@@ -269,7 +269,7 @@
         result = result.results.sort(function (a, b) {
           return +a.time - +b.time;
         });
-        updateValue(currentTest, result[0].time + ' ms');
+        updateValue(currentTest, result[0].time.toFixed(2) + ' ms');
       }
       if (version === 'IPv6') {
         latencyTest('IPv4');
@@ -467,7 +467,6 @@
       for(var b= 0; b <6; b++ )
       {
         downloadUrls.push('http://' + baseUrl + ':' + ports[i] + '/download?bufferSize=');
-
       }
     }
 
@@ -477,6 +476,9 @@
         downloadSize = 20000000;
         downloadTestTimeout = 10000;
         downloadTestLength = 10000;
+    } else {
+      performDesktopDownloadTest(version);
+      return;
     }
 
     var downloadHttpConcurrentProgress = new window.downloadHttpConcurrentProgress(downloadUrls, 'GET', downloadCurrentRuns, downloadTestTimeout, downloadTestLength, downloadMovingAverage, downloadHttpOnComplete, downloadHttpOnProgress,
@@ -484,6 +486,37 @@
 
     downloadHttpConcurrentProgress.initiateTest();
   }
+
+  function performDesktopDownloadTest(version) {
+    var currentTest = 'download';
+
+    function downloadHttpOnProgress(event) {
+      option.series[0].data[0].value = event;
+      myChart.setOption(option, true);
+    }
+
+    function downloadHttpOnComplete(event) {
+      console.log(event);
+      updateValue([currentTest, '-', version].join(''), event.downloadSpeed.toFixed(2));
+      setTimeout(function() { uploadTest(version); }, 500);
+    }
+
+    function downloadHttpOnError(event) {
+      console.log(event);
+    }
+
+    downloadSize = 200000000;
+    downloadCurrentRuns = 18;
+    downloadTestLength = 15000;
+    downloadMonitorInterval = 1000;
+
+    var downloadTest = new window.algoV1(downloadUrls, downloadSize,
+            downloadCurrentRuns,downloadTestLength, downloadMonitorInterval,
+            downloadHttpOnProgress, downloadHttpOnComplete, downloadHttpOnError);
+
+    downloadTest.initiateTest();
+
+}
 
   function uploadTest(version) {
     var currentTest = 'upload';
@@ -550,6 +583,7 @@
       for (var i = 0; i < ports.length; i++) {
           for (var b = 0; b < 6; b++) {
               uploadUrls.push('http://' + baseUrl + ':' + ports[i] + '/upload');
+
           }
       }
 
