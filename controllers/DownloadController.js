@@ -53,8 +53,7 @@ class DownloadController {
       if(!isNaN(parseInt(req.query.bufferSize))  && (parseInt(req.query.bufferSize)<=global.maxDownloadBuffer) &&(parseInt(req.query.bufferSize)>0)){
         var bufferStream = new stream.PassThrough();
         bufferStream.pipe(res);
-        var responseBuffer = new Buffer(parseInt(req.query.bufferSize));
-        responseBuffer.fill(0x1020304);
+        var responseBuffer = global.maxBuffer.slice(0, parseInt(req.query.bufferSize))
         bufferStream.write(responseBuffer);
         bufferStream.end();
       }
