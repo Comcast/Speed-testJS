@@ -61,7 +61,6 @@
       if (this._request === null ||
        typeof this._request === 'undefined') {
        this._request = new XMLHttpRequest();
-       this._request.timeout = this.timeout;
        // Handle lifecycle events on wrapped request
        this._request.onloadstart = this._handleLoadstart.bind(this);
        this._request.onload = this._handleLoad.bind(this);
@@ -88,6 +87,7 @@
       this.id = id;
       this.transferSize = size;
       this._request.open(this.method, this.url, true);
+      this._request.timeout = this.timeout;
       this.requestTimeout = setTimeout(this._internalAbort.bind(this), this.timeout);
       if(this.method==='POST') {
         this.transferSize = payload.size;
