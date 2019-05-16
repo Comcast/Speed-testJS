@@ -27,10 +27,18 @@
 
 <body>
 <div class="container speed-test">
-    <div class="row top">
-        <h1 class="logo"></h1>
-        <div class="speed-gauge">
-        </div>
+    <div class="row top" >
+      <table width="100%" height="75%"  >
+        <tr>
+          <td valign="middle" align="center" width="50%">Download</td>
+          <td valign="middle" align="center" width="50%">Upload</td>
+        </tr>
+        <tr>
+          <td valign="top" align="center" width="50%"><div style="font-size:35" id="download-progress-result"> </div></td>
+          <td valign="top" align="center" width="50%"><div style="font-size:35" id="upload-progress-result"> </div></td>
+        </tr>
+
+      </table
     </div>
     <div class="secondary-results flex">
         <div class="flex">
@@ -86,7 +94,7 @@
 <script src="lib/statisticalCalculator.js"></script>
 <script src="lib/download/desktopTest/algoV1.js"></script>
 <script src="lib/utils.js"></script>
-<script src="uilib/echarts.min.js"></script>
+
 <script src="speed-testJS.js"></script>
 </body>
 
