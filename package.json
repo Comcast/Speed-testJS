@@ -14,8 +14,6 @@
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "ip-address": "^5.8.2",
-    "karma-jasmine-ajax": "^0.1.13",
-    "karma-phantomjs-launcher": "^1.0.2",
     "os": "^0.1.1",
     "requirejs": "^2.3.2",
     "validate-ip-node": "^1.0.6",
@@ -25,6 +23,8 @@
     "jasmine": "^2.5.2",
     "karma": "^4.0.0",
     "karma-jasmine": "^1.0.2",
+    "karma-jasmine-ajax": "^0.1.13",
+    "karma-phantomjs-launcher": "^1.0.4",
     "karma-requirejs": "^1.1.0"
   },
   "scripts": {
