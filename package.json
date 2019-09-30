@@ -17,7 +17,7 @@
     "os": "^0.1.1",
     "requirejs": "^2.3.2",
     "validate-ip-node": "^1.0.6",
-    "ws": "^1.1.1"
+    "ws": "^7.0.1"
   },
   "devDependencies": {
     "jasmine": "^2.5.2",
