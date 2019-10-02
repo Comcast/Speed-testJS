@@ -51,11 +51,27 @@ class DownloadController {
         res.header('Expires', '-1');
         res.header('Pragma', 'no-cache');
       if(!isNaN(parseInt(req.query.bufferSize))  && (parseInt(req.query.bufferSize)<=global.maxDownloadBuffer) &&(parseInt(req.query.bufferSize)>0)){
+        let bufferAllocSize = 65536;
+        let remainingBuffer = req.query.bufferSize;
+
         var bufferStream = new stream.PassThrough();
         bufferStream.pipe(res);
-        var responseBuffer = new Buffer(parseInt(req.query.bufferSize));
+
+        let responseBuffer = new Buffer(parseInt(bufferAllocSize));
         responseBuffer.fill(0x1020304);
-        bufferStream.write(responseBuffer);
+
+        while (remainingBuffer !== 0) {
+            if(remainingBuffer <= bufferAllocSize){
+                let responseBuffer = new Buffer(parseInt(remainingBuffer));
+                responseBuffer.fill(0x1020304);
+                remainingBuffer = 0;
+            } else {
+                remainingBuffer -= bufferAllocSize;
+            }
+
+            bufferStream.write(responseBuffer);
+        }
+
         bufferStream.end();
       }
       else{
