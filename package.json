@@ -10,19 +10,19 @@
     "url": "git://github.com/Comcast/Speed-testJS.git"
   },
   "dependencies": {
-    "aws-sdk": "^2.6.12",
-    "body-parser": "^1.15.2",
-    "express": "^4.14.0",
-    "ip-address": "^5.8.2",
+    "aws-sdk": "^2.550.0",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "ip-address": "^6.1.0",
     "os": "^0.1.1",
     "requirejs": "^2.3.2",
     "validate-ip-node": "^1.0.6",
-    "ws": "^1.1.1"
+    "ws": "^7.1.2"
   },
   "devDependencies": {
-    "jasmine": "^2.5.2",
-    "karma": "^4.0.0",
-    "karma-jasmine": "^1.0.2",
+    "jasmine": "^3.5.0",
+    "karma": "^4.3.0",
+    "karma-jasmine": "^2.0.1",
     "karma-jasmine-ajax": "^0.1.13",
     "karma-phantomjs-launcher": "^1.0.4",
     "karma-requirejs": "^1.1.0"
